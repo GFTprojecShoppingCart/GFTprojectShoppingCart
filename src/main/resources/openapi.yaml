@@ -1,0 +1,313 @@
+openapi: 3.0.0
+info:
+  title: Shopping Cart
+  description: Shopping cart microservice
+  license: 
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: 1.0.1
+  
+tags:
+- name: "Carts"
+  description: "Everything about your carts"
+
+paths: 
+  /carts/{id_user}:
+          
+    post:
+      tags:
+         - Carts
+      summary: add a new  shopping cart
+      description: new shopping cart is created
+      operationId: createCart
+      parameters:
+        - name: id_user
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: long
+
+      responses:
+        201: 
+          description: New cart is created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'  
+                
+        500: 
+          description: error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+                
+    put:
+      tags:
+         - Carts
+      summary: update a cart
+      description: a cart is updated
+      operationId: updateCart
+      parameters:
+        - name: id_user
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+            
+      requestBody:
+        description: show data required to create a show
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cart'
+      responses:
+        201: 
+          description: cart is updated
+
+        500: 
+          description: error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /submitCart/{id_cart}:         
+    put:
+      tags:
+         - Carts
+      summary: Submits a cart
+      description: a cart is submitted for purchase
+      operationId: submitCart
+      parameters:
+        - name: id_cart
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: long
+            
+      requestBody:
+        description: show data required to create a show
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Cart'
+      responses:
+        201: 
+          description: cart is updated
+
+        500: 
+          description: error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                
+  /carts/{id_user}/{id_product}:
+    put:
+      tags:
+         - Carts
+      summary: updates info of a product in a cart
+      description: updates items in cart
+      operationId: updateItemCart
+      parameters:
+        - name: id_user
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: long
+        - name: id_product
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: long
+      requestBody:
+        description: show data required to create a product
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+
+      responses:
+        200: 
+          description: Item is updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'  
+        404: 
+          description: not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+                
+        500: 
+          description: error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+
+  /carts/{status}:
+    get:
+      tags:
+         - Carts
+      summary: carts by status
+      description: returns list of carts by status
+      operationId: getCartsStatus
+      parameters:
+        - name: status
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200: 
+          description: Ok
+          content:
+            application/json:
+             schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cart'
+                  
+        404: 
+          description: not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+                  
+                  
+        500: 
+          description: error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+  
+  /carts/{id_cart}:
+    delete:
+      tags:
+         - Carts
+      summary: deletes a cart
+      description: deletes a specific cart
+      operationId: deleteCarts
+      parameters:
+        - name: id_cart
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200: 
+          description: Ok
+          content:
+            application/json:
+             schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cart'
+                  
+        404: 
+          description: not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+                  
+                  
+        500: 
+          description: error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse' 
+
+  /carts/product/{id_cart}:
+    put:
+      tags:
+         - Carts
+      summary: add a product
+      description: product created
+      operationId: createProduct
+      parameters:
+        - name: id_cart
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: show data required to create a product
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+      responses:
+        201:
+          description: New product is created
+          content:
+            application/json:
+             schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cart'
+        500:
+          description: error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          
+components:
+  schemas:
+  
+    Cart:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: UUID of each shopping cart
+          format: long
+        status:
+          type: string
+          description: Status of the shopping cart
+          example: DRAFT
+          enum:
+            - DRAFT
+            - SUBMITTED
+            
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: UUID of each product
+          format: long
+        quantity:
+          type: integer
+          description: Quantity of products
+          format: long
+        price:
+          type: integer
+          description: Price of product
+          format: long
+         
+    ErrorResponse:
+      type: object
+      properties:
+        msg:
+          type: string
+        error_code:
+          type: integer  
