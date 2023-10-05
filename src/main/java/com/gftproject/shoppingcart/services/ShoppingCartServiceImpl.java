@@ -3,6 +3,7 @@ package com.gftproject.shoppingcart.services;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Status;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -10,7 +11,8 @@ import java.util.List;
 public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
-    public List<Cart> getCartsByStatus(Status status) {
+    @Transactional
+    public List<Cart> findAllByStatus(Status status) {
         return null;
     }
 }

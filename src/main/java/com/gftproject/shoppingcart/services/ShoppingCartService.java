@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface ShoppingCartService {
 
-    List<Cart> getCartsByStatus(Status status);
+    List<Cart> findAllByStatus(Status status);
 
 }
