@@ -9,4 +9,7 @@ public interface ShoppingCartService {
 
     List<Cart> findAllByStatus(Status status);
 
+    List<Cart> findAll();
+
+    Cart createCart(Long id_user);
 }
