@@ -19,4 +19,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public List<Cart> findAllByStatus(Status status) {
         return shoppingCartRepository.findAllByStatus(status);
     }
+
+    @Override
+    public List<Cart> findAll() {
+        return null;
+    }
+
+    @Override
+    public Cart createCart(Long id_user) {
+        return null;
+    }
 }

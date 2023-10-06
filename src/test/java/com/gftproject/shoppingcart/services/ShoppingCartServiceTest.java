@@ -40,7 +40,5 @@ class ShoppingCartServiceTest {
         assertNotNull(allCarts);
         assertEquals(3, allCarts.size());
         verify(shoppingCartRepository).findAllByStatus(Status.DRAFT);
-
-
     }
 }
