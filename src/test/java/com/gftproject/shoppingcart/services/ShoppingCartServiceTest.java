@@ -14,6 +14,9 @@ import java.util.List;
 
 import static com.gftproject.shoppingcart.CartsData.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @WebMvcTest(ShoppingCartService.class)
@@ -28,13 +31,15 @@ class ShoppingCartServiceTest {
     void getCartsByStatus() {
         //Given
         List<Cart> carts = Arrays.asList(createCart001().orElseThrow(), createCart002().orElseThrow(),createCart003().orElseThrow());
-        when(shoppingCartRepository.findAllByStatus(Status.DRAFT)).thenReturn(carts);
+        when(shoppingCartRepository.findAllByStatus(any())).thenReturn(carts);
 
         //when
         List<Cart> allCarts = service.findAllByStatus(Status.DRAFT);
 
         //then
+        assertNotNull(allCarts);
         assertEquals(3, allCarts.size());
+        verify(shoppingCartRepository).findAllByStatus(Status.DRAFT);
 
 
     }
