@@ -13,4 +13,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public List<Cart> findAllByStatus(Status status) {
         return null;
     }
+
+    @Override
+    public void deleteCart() {
+        repository.deleteCartyId(001);
+        assertull(repository.findById(001));
+    }
 }
