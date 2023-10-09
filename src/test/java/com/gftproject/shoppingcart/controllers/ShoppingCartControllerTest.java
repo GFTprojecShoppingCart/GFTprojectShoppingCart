@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -72,9 +73,12 @@ class ShoppingCartControllerTest {
 
     @Test
     void deleteShoppingCart() throws Exception {
-       // given(service.deleteCart(any())).willReturn(CartsData.deleteCart001().orElseThrow());
 
-        mvc.perform(delete("/carts/{id_user}").contentType(MediaType.APPLICATION_JSON))
+        //deleteCart001 CartsData.java method?
+        given(service.deleteCart(any())).willReturn(CartsData.createCart001().orElseThrow());
+
+        //Content Type not set?
+        mvc.perform(delete("/carts/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
