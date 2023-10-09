@@ -14,8 +14,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,5 +67,17 @@ class ShoppingCartControllerTest {
 
         verify(service).createCart(any());
 
+    }
+
+
+    @Test
+    void deleteShoppingCart() throws Exception {
+       // given(service.deleteCart(any())).willReturn(CartsData.deleteCart001().orElseThrow());
+
+        mvc.perform(delete("/carts/{id_user}").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        verify(service).deleteCart(any());
     }
 }

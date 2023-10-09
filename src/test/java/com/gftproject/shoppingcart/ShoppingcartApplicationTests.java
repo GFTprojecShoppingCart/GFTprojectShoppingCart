@@ -14,12 +14,4 @@ class ShoppingcartApplicationTests {
 		
 	}
 
-	@Test
-	@DirtiesContext //to avoid giving problems to the test "findCartById"
-	public void deleteCartById() {
-		shoppingCartRepository.deleteById(001);
-		assertNull(shoppingCartRepository.findAllById(001));
-
-	}
-
 }

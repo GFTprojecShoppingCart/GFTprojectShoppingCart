@@ -31,8 +31,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public void deleteCart() {
-        repository.deleteCartyId(001);
-        assertull(repository.findById(001));
+    public Cart deleteCart(Long id_user) {
+        return null;
     }
 }
+

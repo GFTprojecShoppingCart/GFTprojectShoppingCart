@@ -12,4 +12,6 @@ public interface ShoppingCartService {
     List<Cart> findAll();
 
     Cart createCart(Long id_user);
+
+    Cart deleteCart(Long id_user);
 }

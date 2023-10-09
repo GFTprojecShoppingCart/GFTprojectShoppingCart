@@ -38,4 +38,11 @@ public class ShoppingCartController {
 
         return new ResponseEntity<>(service.createCart(id_user), headers, HttpStatus.CREATED);
     }
+
+    @DeleteMapping("/carts/{id_user}")
+    public ResponseEntity<Cart> deleteShoppingCart(@PathVariable Long id_user) {
+        HttpHeaders headers = new HttpHeaders();
+
+        return new ResponseEntity<>(service.deleteCart(id_user), headers, HttpStatus.OK);
+    }
 }
