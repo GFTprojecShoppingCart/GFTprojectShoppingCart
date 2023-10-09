@@ -1,5 +1,7 @@
 package com.gftproject.shoppingcart;
 
+import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.Status;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -8,6 +10,7 @@ public class ShoppingcartApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ShoppingcartApplication.class, args);
+		new Cart(1L, Status.DRAFT);
 	}
 
 }
