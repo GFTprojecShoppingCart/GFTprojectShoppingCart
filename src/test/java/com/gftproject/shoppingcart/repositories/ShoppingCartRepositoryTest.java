@@ -23,7 +23,6 @@ public class ShoppingCartRepositoryTest {
 
         assertFalse(cart.isEmpty());
         assertEquals(2, cart.size());
-
     }
 
     //TODO

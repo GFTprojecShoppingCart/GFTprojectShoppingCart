@@ -3,6 +3,7 @@ package com.gftproject.shoppingcart.controllers;
 import com.gftproject.shoppingcart.CartsData;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartService;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -72,13 +73,15 @@ class ShoppingCartControllerTest {
 
 
     @Test
+    @Order(8)
     void deleteShoppingCart() throws Exception {
 
         //deleteCart001 CartsData.java method?
         given(service.deleteCart(any())).willReturn(CartsData.createCart001().orElseThrow());
 
         //Content Type not set?
-        mvc.perform(delete("/carts/1").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(delete("/carts/1")
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
