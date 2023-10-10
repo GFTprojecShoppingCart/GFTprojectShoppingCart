@@ -2,6 +2,7 @@ package com.gftproject.shoppingcart.model;
 
 
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,11 +20,6 @@ public class Product {
     private long id;
     private double precio;
     private String nombre;
-    private String categoria;
-    private String descripcion;
     private double peso;
-    private int stock;
-    public Product(String nombre, String descripcion, String categoria,  double precio, double peso, int stock) {
 
-    }
 }

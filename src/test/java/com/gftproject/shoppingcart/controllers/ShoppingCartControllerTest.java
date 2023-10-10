@@ -59,7 +59,7 @@ class ShoppingCartControllerTest {
 
     @Test
     void createShoppingCart() throws Exception {
-        given(service.createCart(any())).willReturn(CartsData.createCart001().orElseThrow());
+        given(service.createCart(any())).willReturn(CartsData.createCart001());
 
         mvc.perform(post("/carts/1").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
