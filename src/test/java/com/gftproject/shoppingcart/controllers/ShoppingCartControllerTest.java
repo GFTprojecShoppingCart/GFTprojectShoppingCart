@@ -64,7 +64,7 @@ class ShoppingCartControllerTest {
 
     @Test
     void createShoppingCart() {
-        given(service.createCart(any())).willReturn(CartsData.createCart001().orElseThrow());
+        given(service.createCart(any())).willReturn(CartsData.createCart001());
 
         ResponseEntity<Cart> cart = controller.createShoppingCart(1L);
 

@@ -16,6 +16,7 @@ public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    
     @ElementCollection
     private final Map<Product, Integer> products = new HashMap<>();
 
@@ -23,6 +24,8 @@ public class Cart {
 
     @Enumerated(EnumType.STRING) // Use EnumType.STRING to map the enum by its name
     private Status status;
+
+    private double price;
 
 
 

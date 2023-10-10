@@ -39,7 +39,7 @@ class ShoppingCartServiceTest {
     @Test
     void getCartsByStatus() {
         //Given
-        List<Cart> carts = Arrays.asList(createCart001().orElseThrow(), createCart002().orElseThrow(),createCart003().orElseThrow());
+        List<Cart> carts = Arrays.asList(Optional.of(createCart001()).orElseThrow(), createCart002().orElseThrow(),createCart003().orElseThrow());
         when(shoppingCartRepository.findAllByStatus(any())).thenReturn(carts);
 
         //when
@@ -53,11 +53,13 @@ class ShoppingCartServiceTest {
 
     @Test
     void submitCart(){
-        when(shoppingCartRepository.modifyCartStatus(any(), eq(Status.SUBMITTED))).thenReturn(createSampleCart());
+        when(shoppingCartRepository.modifyCartStatus(any(), eq(Status.SUBMITTED))).thenReturn(createCart001());
 
         Cart submittedCart = service.submitCart(1L);
 
         assertNotNull(submittedCart);
+        assertEquals(Status.SUBMITTED, submittedCart.getStatus());
+
         assertEquals(1L, submittedCart.getId());
 
     }
@@ -65,8 +67,8 @@ class ShoppingCartServiceTest {
 
     @Test
     void addProductWithQuantity(){
-        Cart cart = new Cart(1L, 1L, Status.DRAFT);
-        Product product = new Product("Producto de prueba", "Descripción de prueba", "Categoría de prueba", 10.0, 0.5, 100);
+        Cart cart = new Cart(1L, 1L, Status.DRAFT,14);
+        Product product = new Product(1L, 3, "Producto de prueba", 0.5);
         when(shoppingCartRepository.findById(any())).thenReturn(Optional.of(cart));
 
         when(shoppingCartRepository.save(any())).thenReturn(cart);
@@ -78,7 +80,9 @@ class ShoppingCartServiceTest {
         verify(shoppingCartRepository).save(cart);
     }
 
+
 }
+
 
 
 

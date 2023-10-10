@@ -64,6 +64,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public Cart submitCart(Long idCart) {
+
+        Optional<Cart> cart = shoppingCartRepository.findById(idCart);
+
+        // TODO Check stock
+        boolean stock = checkStock(cart.orElseThrow());
+
+        // TODO Compute price
+
+
+        // TODO Change status
+
+
+
         return shoppingCartRepository.modifyCartStatus(idCart, Status.SUBMITTED);
     }
 
@@ -75,6 +88,16 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         } else {
             products.put(product, quantity);
         }
+    }
+
+    @Override
+    public double computePrice(Cart cart) {
+        
+        return 3.4;
+    }
+
+    public boolean checkStock(Cart cart) {
+        return true;
     }
 
 }
