@@ -38,4 +38,12 @@ public class ShoppingCartController {
 
         return new ResponseEntity<>(service.createCart(id_user), headers, HttpStatus.CREATED);
     }
+
+    @PutMapping("/carts/{id_cart}")
+    public ResponseEntity<Cart> submitCart(@PathVariable Long id_cart){
+        HttpHeaders headers = new HttpHeaders();
+
+        return new ResponseEntity<>(service.submitCart(id_cart), headers, HttpStatus.OK);
+    }
+
 }

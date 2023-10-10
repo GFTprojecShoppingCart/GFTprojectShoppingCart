@@ -14,6 +14,10 @@ public class CartsData {
         return Optional.of(new Cart(1L, Status.DRAFT));
     }
 
+    public static Cart createSampleCart() {
+        return new Cart(1L, Status.SUBMITTED);
+    }
+
     public static Optional<Cart> createCart002() {
         return Optional.of(new Cart(2L, Status.DRAFT));
     }
