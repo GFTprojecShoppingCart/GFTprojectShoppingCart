@@ -12,7 +12,9 @@ public interface ShoppingCartService {
 
     List<Cart> findAll();
 
-    Cart createCart(Long idUser);
+    Cart createCart(Long id_user);
+
+    Cart addProductToCartWithQuantity(Long cartId, Product product, int quantity);
 
     Cart addProduct(Long idUser, Long idCart, Product product);
 

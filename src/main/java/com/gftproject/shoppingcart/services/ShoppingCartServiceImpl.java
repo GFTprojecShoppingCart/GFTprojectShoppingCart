@@ -4,17 +4,18 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
-
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     private final ShoppingCartRepository shoppingCartRepository;
 
-    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository){
+    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository) {
         this.shoppingCartRepository = shoppingCartRepository;
     }
 
@@ -41,6 +42,22 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    public Cart addProductToCartWithQuantity(Long cartId, Product product, int quantity) {
+        Optional<Cart> optionalCart = shoppingCartRepository.findById(cartId);
+
+        if (optionalCart.isPresent()) {
+            Cart cart = optionalCart.get();
+
+            addProductWithQuantity(cart, product, quantity);
+            return shoppingCartRepository.save(cart);
+        } else {
+            Cart newCart = new Cart();
+            newCart.setStatus(Status.DRAFT);
+            return shoppingCartRepository.save(newCart);
+        }
+    }
+
+    @Override
     public void deleteCart(Long idCart) {
         shoppingCartRepository.deleteById(idCart);
     }
@@ -48,6 +65,16 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public Cart submitCart(Long idCart) {
         return shoppingCartRepository.modifyCartStatus(idCart, Status.SUBMITTED);
+    }
+
+    public void addProductWithQuantity(Cart cart, Product product, int quantity) {
+        Map<Product, Integer> products = cart.getProducts();
+        if (cart.getProducts().containsKey(product)) {
+            int currentQuantity = products.get(product);
+            products.put(product, currentQuantity + quantity);
+        } else {
+            products.put(product, quantity);
+        }
     }
 
 }
