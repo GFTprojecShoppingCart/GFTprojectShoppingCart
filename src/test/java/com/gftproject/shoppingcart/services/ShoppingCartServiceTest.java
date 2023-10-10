@@ -53,11 +53,12 @@ class ShoppingCartServiceTest {
 
     @Test
     void submitCart(){
-        when(shoppingCartRepository.modifyCartStatus(any(), eq(Status.SUBMITTED))).thenReturn(createCart001());
+        when(shoppingCartRepository.save(any())).thenReturn(createSampleCart());
 
         Cart submittedCart = service.submitCart(1L);
 
         assertNotNull(submittedCart);
+        assertNotEquals(0, submittedCart.getPrice());
         assertEquals(Status.SUBMITTED, submittedCart.getStatus());
 
         assertEquals(1L, submittedCart.getId());

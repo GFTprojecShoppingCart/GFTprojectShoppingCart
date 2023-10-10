@@ -65,19 +65,20 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public Cart submitCart(Long idCart) {
 
-        Optional<Cart> cart = shoppingCartRepository.findById(idCart);
+        Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
+
+        boolean stock = checkStock(cart);
+
+        // TODO Validate User
+
+        // TODO Compute price -> Cosas
 
         // TODO Check stock
-        boolean stock = checkStock(cart.orElseThrow());
-
-        // TODO Compute price
-
-
         // TODO Change status
 
+        cart.setStatus(Status.SUBMITTED);
 
-
-        return shoppingCartRepository.modifyCartStatus(idCart, Status.SUBMITTED);
+        return shoppingCartRepository.save(cart);
     }
 
     public void addProductWithQuantity(Cart cart, Product product, int quantity) {
@@ -92,7 +93,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public double computePrice(Cart cart) {
-        
         return 3.4;
     }
 
