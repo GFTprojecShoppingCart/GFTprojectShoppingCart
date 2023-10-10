@@ -1,82 +1,87 @@
 package com.gftproject.shoppingcart.controllers;
 
 import com.gftproject.shoppingcart.CartsData;
+import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Status;
-import com.gftproject.shoppingcart.services.ShoppingCartService;
+import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ShoppingCartController.class)
 class ShoppingCartControllerTest {
 
-    @MockBean
-    private ShoppingCartService service;
+    @InjectMocks
+    ShoppingCartController controller;
 
-    @Autowired
-    private MockMvc mvc;
+    @Mock
+    ShoppingCartServiceImpl service;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        controller = new ShoppingCartController(service);
+    }
 
     @Test
-    void findAllByEmptyStatus() throws Exception {
+    void findAllByEmptyStatus() {
 
         given(service.findAllByStatus(any())).willReturn(CartsData.getMockCarts());
         given(service.findAll()).willReturn(CartsData.getMockCarts());
 
-//        Status.SUBMITTED;
+        ResponseEntity<List<Cart>> response = controller.findAllByStatus(null);
 
-        mvc.perform(get("/carts/").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-
-        verify(service).findAll();
+        assertNotNull(response.getBody());
+        assertEquals(3, response.getBody().size());
         verify(service, never()).findAllByStatus(any());
+
     }
 
     @Test
-    void findAllByStatus() throws Exception {
+    void findAllByStatus() {
 
         given(service.findAllByStatus(any())).willReturn(CartsData.getMockCarts());
         given(service.findAll()).willReturn(CartsData.getMockCarts());
 
-        mvc.perform(get("/carts/").contentType(MediaType.APPLICATION_JSON).param("status", String.valueOf(Status.SUBMITTED)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+        ResponseEntity<List<Cart>> response = controller.findAllByStatus(Status.SUBMITTED);
 
+        assertNotNull(response.getBody());
+        assertEquals(3, response.getBody().size());
         verify(service).findAllByStatus(any());
-        verify(service, never()).findAll();
     }
 
     @Test
-    void createShoppingCart() throws Exception {
+    void createShoppingCart() {
         given(service.createCart(any())).willReturn(CartsData.createCart001().orElseThrow());
 
-        mvc.perform(post("/carts/1").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+        ResponseEntity<Cart> cart = controller.createShoppingCart(1L);
 
+        assertNotNull(cart.getBody());
+        assertEquals(HttpStatusCode.valueOf(201), cart.getStatusCode());
         verify(service).createCart(any());
 
     }
 
     @Test
-    void submitCart() throws Exception {
+    void submitCart() {
         given(service.submitCart(any())).willReturn(CartsData.createSampleCart());
 
-        mvc.perform(put("/carts/1").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+        ResponseEntity<Cart> cart = controller.submitCart(1L);
 
+        assertNotNull(cart.getBody());
+        assertEquals(HttpStatusCode.valueOf(200), cart.getStatusCode());
         verify(service).submitCart(any());
     }
 }

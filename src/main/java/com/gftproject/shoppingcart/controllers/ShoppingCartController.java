@@ -21,7 +21,7 @@ public class ShoppingCartController {
     }
 
     @GetMapping("/carts/")
-    public ResponseEntity<Collection<Cart>> findAllByStatus(@RequestParam(required = false) Status status){
+    public ResponseEntity<List<Cart>> findAllByStatus(@RequestParam(required = false) Status status){
         HttpHeaders headers = new HttpHeaders();
         List<Cart> cartList;
 
