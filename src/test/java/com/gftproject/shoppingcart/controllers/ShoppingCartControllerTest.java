@@ -35,7 +35,7 @@ class ShoppingCartControllerTest {
 
 //        Status.SUBMITTED;
 
-        mvc.perform(get("/shoppingCarts/").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/carts/").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
@@ -78,6 +78,5 @@ class ShoppingCartControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
         verify(service).submitCart(any());
-
     }
 }

@@ -3,10 +3,11 @@ package com.gftproject.shoppingcart.services;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,16 +16,24 @@ import static com.gftproject.shoppingcart.CartsData.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@WebMvcTest(ShoppingCartService.class)
-class ShoppingCartServiceTest {
-    @Autowired
-    ShoppingCartService service;
 
-    @MockBean
+class ShoppingCartServiceTest {
+    @InjectMocks
+    ShoppingCartServiceImpl service;
+
+    @Mock
     ShoppingCartRepository shoppingCartRepository;
+
+    @BeforeEach
+    void setUp() {
+        // Instanciar Shopping cart Service y istanciar con new mock de repository
+        MockitoAnnotations.openMocks(this);
+        service = new ShoppingCartServiceImpl(shoppingCartRepository);
+    }
 
     @Test
     void getCartsByStatus() {
@@ -40,4 +49,16 @@ class ShoppingCartServiceTest {
         assertEquals(3, allCarts.size());
         verify(shoppingCartRepository).findAllByStatus(Status.DRAFT);
     }
+
+    @Test
+    void submitCart(){
+        when(shoppingCartRepository.modifyCartStatus(any(), eq(Status.SUBMITTED))).thenReturn(createSampleCart());
+
+        Cart submittedCart = service.submitCart(1L);
+
+        assertNotNull(submittedCart);
+        assertEquals(1L, submittedCart.getId());
+
+    }
+
 }

@@ -5,7 +5,6 @@ import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,8 +12,11 @@ import java.util.List;
 @Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
 
-    @Autowired
-    ShoppingCartRepository shoppingCartRepository;
+    private final ShoppingCartRepository shoppingCartRepository;
+
+    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository){
+        this.shoppingCartRepository = shoppingCartRepository;
+    }
 
     @Override
     public List<Cart> findAllByStatus(Status status) {
@@ -23,12 +25,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public List<Cart> findAll() {
-        return null;
+        return shoppingCartRepository.findAll();
     }
 
     @Override
-    public Cart createCart(Long id_user) {
-        return shoppingCartRepository.save(new Cart());
+    public Cart createCart(Long userId) {
+        Cart cart = new Cart();
+        cart.setUser_id(userId);
+        return shoppingCartRepository.save(cart);
     }
 
     @Override
@@ -37,13 +41,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public Cart deleteCart(Long idCart) {
-        return null;
+    public void deleteCart(Long idCart) {
+        shoppingCartRepository.deleteById(idCart);
     }
 
     @Override
     public Cart submitCart(Long idCart) {
-        return shoppingCartRepository.submitCart(idCart, Status.SUBMITTED);
+        return shoppingCartRepository.modifyCartStatus(idCart, Status.SUBMITTED);
     }
 
 }

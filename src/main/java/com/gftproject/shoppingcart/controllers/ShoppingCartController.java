@@ -3,7 +3,6 @@ package com.gftproject.shoppingcart.controllers;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +14,11 @@ import java.util.List;
 @RestController
 public class ShoppingCartController {
 
-    @Autowired
     ShoppingCartService service;
+
+    public ShoppingCartController(ShoppingCartService service) {
+        this.service = service;
+    }
 
     @GetMapping("/carts/")
     public ResponseEntity<Collection<Cart>> findAllByStatus(@RequestParam(required = false) Status status){

@@ -14,6 +14,8 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    private long user_id;
+
     @Enumerated(EnumType.STRING) // Use EnumType.STRING to map the enum by its name
     private Status status;
 }

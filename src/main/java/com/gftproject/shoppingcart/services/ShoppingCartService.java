@@ -16,7 +16,7 @@ public interface ShoppingCartService {
 
     Cart addProduct(Long idUser, Long idCart, Product product);
 
-    Cart deleteCart(Long idCart);
+    void deleteCart(Long idCart);
 
     Cart submitCart(Long idCart);
 }
