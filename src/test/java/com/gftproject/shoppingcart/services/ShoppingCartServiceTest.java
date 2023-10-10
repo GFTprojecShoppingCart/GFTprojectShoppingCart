@@ -1,6 +1,7 @@
 package com.gftproject.shoppingcart.services;
 
 import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
 import org.junit.jupiter.api.Test;
@@ -10,10 +11,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static com.gftproject.shoppingcart.CartsData.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +26,7 @@ class ShoppingCartServiceTest {
 
     @MockBean
     ShoppingCartRepository shoppingCartRepository;
+
 
     @Test
     void getCartsByStatus() {
@@ -40,4 +42,26 @@ class ShoppingCartServiceTest {
         assertEquals(3, allCarts.size());
         verify(shoppingCartRepository).findAllByStatus(Status.DRAFT);
     }
+
+    @Test
+    void addProductWithQuantity(){
+        Cart cart = new Cart(1L, Status.DRAFT);
+        Product product = new Product("Producto de prueba", "Descripción de prueba", "Categoría de prueba", 10.0, 0.5, 100);
+        when(shoppingCartRepository.findById(any())).thenReturn(Optional.of(cart));
+
+        when(shoppingCartRepository.save(any())).thenReturn(cart);
+        Cart updatedCart = service.addProductToCartWithQuantity(1L, product, 5);
+
+        assertNotNull(updatedCart);
+        assertEquals(1L, updatedCart.getId());
+        // Verificamos que se haya guardado en el repositorio
+        verify(shoppingCartRepository).save(cart);
+    }
+
 }
+
+
+
+
+
+
