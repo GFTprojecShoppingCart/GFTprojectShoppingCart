@@ -1,3 +1,3 @@
-INSERT INTO cart (status) VALUES ('DRAFT');
-INSERT INTO cart (status) VALUES ('DRAFT');
-INSERT INTO cart (status) VALUES ('SUBMITTED');
+INSERT INTO cart (USER_ID, status) VALUES (1, 'DRAFT');
+INSERT INTO cart (USER_ID, status) VALUES (1, 'DRAFT');
+INSERT INTO cart (USER_ID, status) VALUES (1, 'SUBMITTED');

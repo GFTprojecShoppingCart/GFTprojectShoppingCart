@@ -37,7 +37,7 @@ class ShoppingCartControllerTest {
 
 //        Status.SUBMITTED;
 
-        mvc.perform(get("/shoppingCarts/").contentType(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/carts/").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
@@ -71,9 +71,19 @@ class ShoppingCartControllerTest {
 
     }
 
+    @Test
+    void submitCart() throws Exception {
+        given(service.submitCart(any())).willReturn(CartsData.createSampleCart());
+
+        mvc.perform(put("/carts/1").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        verify(service).submitCart(any());
+    }
+
 
     @Test
-    @Order(8)
     void deleteShoppingCart() throws Exception {
 
         //deleteCart001 CartsData.java method?
