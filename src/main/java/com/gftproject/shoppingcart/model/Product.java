@@ -12,15 +12,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private double price;
+    private BigDecimal price;
     private String name;
-    private double weight;
+    private BigDecimal weight;
     private int storageQuantity;
 
 }

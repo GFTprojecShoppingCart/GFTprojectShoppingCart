@@ -1,35 +1,36 @@
 package com.gftproject.shoppingcart;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Status;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
 
 public class CartsData {
 
 
     public static Cart createCart001() {
-        return new Cart(1L, 1L, Status.DRAFT, 0, 0);
+        return new Cart(1L, new HashMap<>(), 1L, Status.DRAFT,  BigDecimal.ZERO,  BigDecimal.ZERO);
     }
 
     public static Cart createSampleCart() {
-        return new Cart(1L, 1L, Status.SUBMITTED, 15, 0);
+        return new Cart(1L, new HashMap<>(), 1L, Status.SUBMITTED, new BigDecimal("15"), BigDecimal.ZERO);
     }
 
     public static Cart createCart002() {
-        return new Cart(2L, 1L, Status.DRAFT, 13, 0);
+        return new Cart(2L, new HashMap<>(), 1L, Status.DRAFT, new BigDecimal("13"),  BigDecimal.ZERO);
     }
 
     public static Cart createCart003() {
-        return new Cart(3L, 1L, Status.SUBMITTED, 80, 0);
+        return new Cart(3L, new HashMap<>(), 1L, Status.SUBMITTED, new BigDecimal("80"),  BigDecimal.ZERO);
     }
 
     public static List<Cart> getMockCarts() {
-        Cart mock01 = new Cart(1L, 1L, Status.DRAFT,0, 0);
-        Cart mock02 = new Cart(2L, 1L, Status.DRAFT,24, 0);
-        Cart mock03 = new Cart(3L, 1L, Status.DRAFT,23, 0);
-        Cart mock04 = new Cart(4L, 1L, Status.SUBMITTED, 25, 0);
+        Cart mock01 = new Cart(1L, new HashMap<>(), 1L, Status.DRAFT, BigDecimal.ZERO,  BigDecimal.ZERO);
+        Cart mock02 = new Cart(2L, new HashMap<>(), 1L, Status.DRAFT, new BigDecimal("24"),  BigDecimal.ZERO);
+        Cart mock03 = new Cart(3L, new HashMap<>(), 1L, Status.DRAFT, new BigDecimal("23"),  BigDecimal.ZERO);
+        Cart mock04 = new Cart(4L, new HashMap<>(), 1L, Status.SUBMITTED, new BigDecimal("25"),  BigDecimal.ZERO);
         return List.of(mock01, mock02, mock03);
     }
 }

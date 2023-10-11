@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,15 +19,15 @@ public class Cart {
     private long id;
     
     @ElementCollection
-    private final Map<Product, Integer> products = new HashMap<>();
+    private Map<Product, Integer> products = new HashMap<>();
 
     private long user_id;
 
     @Enumerated(EnumType.STRING) // Use EnumType.STRING to map the enum by its name
     private Status status;
 
-    private double finalPrice;
-    private double finalWeight;
+    private BigDecimal finalPrice;
+    private BigDecimal finalWeight;
 
 }
 
