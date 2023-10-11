@@ -34,6 +34,13 @@ public class ShoppingCartController {
         return new ResponseEntity<>(cartList, headers, HttpStatus.OK);
     }
 
+
+
+
+
+//TODO CHANGE id_user and id_cart?
+
+
     @PostMapping("/carts/{id_user}")
     public ResponseEntity<Cart> createShoppingCart(@PathVariable Long id_user){
         HttpHeaders headers = new HttpHeaders();
@@ -46,6 +53,13 @@ public class ShoppingCartController {
         HttpHeaders headers = new HttpHeaders();
 
         return new ResponseEntity<>(service.submitCart(id_cart), headers, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/carts/{id_user}")
+    public ResponseEntity<Cart> deleteShoppingCart(@PathVariable Long idCart) {
+        HttpHeaders headers = new HttpHeaders();
+
+        return new ResponseEntity<>(service.deleteCart(idCart), headers, HttpStatus.OK);
     }
 
 }

@@ -11,4 +11,9 @@ class ShoppingcartApplicationTests {
 		
 	}
 
+	@Test
+	void deleteCart() {
+
+	}
+
 }

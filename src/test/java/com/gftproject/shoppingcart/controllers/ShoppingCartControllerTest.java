@@ -79,4 +79,18 @@ class ShoppingCartControllerTest {
 
         verify(service).submitCart(any());
     }
+
+    @Test
+    void deleteShoppingCart() throws Exception {
+
+        //deleteCart001 CartsData.java method?
+        given(service.deleteCart(any())).willReturn(CartsData.createCart001().orElseThrow());
+
+        mvc.perform(delete("/carts/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        verify(service).deleteCart(any());
+    }
 }

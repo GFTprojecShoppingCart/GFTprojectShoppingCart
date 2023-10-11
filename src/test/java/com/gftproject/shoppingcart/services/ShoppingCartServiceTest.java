@@ -5,6 +5,7 @@ import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -78,6 +79,25 @@ class ShoppingCartServiceTest {
         verify(shoppingCartRepository).save(cart);
     }
 
+
+
+    //TODO
+
+    @Test
+    @DisplayName('Testing that the cart can be deleted')
+    void deleteCart(){
+        Cart cart = new Cart(1L, 1L, Status.DRAFT);
+        Product product = new Product("Producto de prueba", "Descripción de prueba", "Categoría de prueba", 10.0, 0.5, 100);
+        when(shoppingCartRepository.findById(any())).thenReturn(Optional.of(cart));
+
+        when(shoppingCartRepository.save(any())).thenReturn(cart);
+        Cart updatedCart = service.addProductToCartWithQuantity(1L, product, 5);
+
+        assertNotNull(updatedCart);
+        assertEquals(1L, updatedCart.getId());
+        // Verificamos que se haya guardado en el repositorio
+        verify(shoppingCartRepository).save(cart);
+    }
 }
 
 
