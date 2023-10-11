@@ -49,7 +49,7 @@ public class ShoppingCartController {
         return new ResponseEntity<>(service.submitCart(id_cart), headers, HttpStatus.OK);
     }
 
-    @PutMapping("/carts/{id_cart}")
+    @PutMapping("/carts1/{id_cart}")
     public ResponseEntity<Cart> addProductWithQuantity(@PathVariable Long id_cart) {
         HttpHeaders headers = new HttpHeaders();
 
