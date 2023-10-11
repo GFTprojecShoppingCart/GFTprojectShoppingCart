@@ -22,5 +22,4 @@ public interface ShoppingCartService {
 
     Cart submitCart(Long idCart);
 
-    double computePrice(Cart cart);
 }

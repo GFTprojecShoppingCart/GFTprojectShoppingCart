@@ -94,12 +94,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
     }
 
-    @Override
-    public double computePrice(Cart cart) {
+    private double computePrice(Cart cart) {
         return 3.4;
     }
 
-    public boolean checkStock(Cart cart) {
+    private boolean checkStock(Cart cart) {
         return true;
     }
 
