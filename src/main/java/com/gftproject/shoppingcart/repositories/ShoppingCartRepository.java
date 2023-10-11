@@ -12,8 +12,4 @@ import org.springframework.data.jpa.repository.Query;
 public interface ShoppingCartRepository extends JpaRepository<Cart, Long > {
 
     List<Cart> findAllByStatus(Status status);
-
-    @Modifying
-    @Query("update Cart c set c.status = ?2 where c.id = ?1")
-    Cart modifyCartStatus(Long idCart, Status status);
 }

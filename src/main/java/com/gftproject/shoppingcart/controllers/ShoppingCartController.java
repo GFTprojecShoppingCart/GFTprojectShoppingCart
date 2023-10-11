@@ -1,6 +1,7 @@
 package com.gftproject.shoppingcart.controllers;
 
 import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartService;
 import org.springframework.http.HttpHeaders;
@@ -21,13 +22,13 @@ public class ShoppingCartController {
     }
 
     @GetMapping("/carts/")
-    public ResponseEntity<Collection<Cart>> findAllByStatus(@RequestParam(required = false) Status status){
+    public ResponseEntity<List<Cart>> findAllByStatus(@RequestParam(required = false) Status status) {
         HttpHeaders headers = new HttpHeaders();
         List<Cart> cartList;
 
-        if (status == null){
-            cartList =  service.findAll();
-        }else {
+        if (status == null) {
+            cartList = service.findAll();
+        } else {
             cartList = service.findAllByStatus(status);
         }
 
@@ -35,14 +36,21 @@ public class ShoppingCartController {
     }
 
     @PostMapping("/carts/{id_user}")
-    public ResponseEntity<Cart> createShoppingCart(@PathVariable Long id_user){
+    public ResponseEntity<Cart> createShoppingCart(@PathVariable Long id_user) {
         HttpHeaders headers = new HttpHeaders();
 
         return new ResponseEntity<>(service.createCart(id_user), headers, HttpStatus.CREATED);
     }
 
     @PutMapping("/carts/{id_cart}")
-    public ResponseEntity<Cart> submitCart(@PathVariable Long id_cart){
+    public ResponseEntity<Cart> submitCart(@PathVariable Long id_cart) {
+        HttpHeaders headers = new HttpHeaders();
+
+        return new ResponseEntity<>(service.submitCart(id_cart), headers, HttpStatus.OK);
+    }
+
+    @PutMapping("/carts/{id_cart}")
+    public ResponseEntity<Cart> addProductWithQuantity(@PathVariable Long id_cart) {
         HttpHeaders headers = new HttpHeaders();
 
         return new ResponseEntity<>(service.submitCart(id_cart), headers, HttpStatus.OK);
