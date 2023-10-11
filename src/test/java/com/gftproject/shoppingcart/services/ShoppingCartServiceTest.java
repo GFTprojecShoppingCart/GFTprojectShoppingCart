@@ -22,6 +22,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 class ShoppingCartServiceTest {
     @InjectMocks
@@ -51,24 +53,30 @@ class ShoppingCartServiceTest {
         List<Cart> allCarts = service.findAllByStatus(Status.DRAFT);
 
         //then
-        assertNotNull(allCarts);
-        assertEquals(3, allCarts.size());
+        assertThat(allCarts)
+            .isNotNull()
+            .hasSize(3);
+
         verify(shoppingCartRepository).findAllByStatus(Status.DRAFT);
     }
 
     @Test
     @DisplayName("Submit a cart")
     void submitCart(){
+        when(shoppingCartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
         when(shoppingCartRepository.save(any())).thenReturn(createSampleCart());
+        //when(computationsService.computeFinalValues(any()));
 
         Cart submittedCart = service.submitCart(1L);
 
-        assertNotNull(submittedCart);
-        assertNotEquals(0, submittedCart.getFinalPrice());
-        assertEquals(Status.SUBMITTED, submittedCart.getStatus());
+        // Verify that the service method correctly calls the repository
+        verify(shoppingCartRepository).findById(1L);
+        verify(shoppingCartRepository).save(any());
 
-        assertEquals(1L, submittedCart.getId());
-
+        assertThat(submittedCart).isNotNull();
+        assertThat(submittedCart.getFinalPrice()).isNotZero();
+        assertThat(submittedCart.getStatus()).isEqualTo(Status.SUBMITTED);
+        assertThat(submittedCart.getId()).isEqualTo(1L);
     }
 
 
