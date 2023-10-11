@@ -72,6 +72,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         // TODO Validate User
 
         // TODO Compute price -> Cosas
+        cart.computeFinalValues();
+
+        // TODO Check TAX / Payment / weight
 
         // TODO Check stock
         // TODO Change status

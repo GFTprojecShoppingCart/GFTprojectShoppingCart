@@ -58,7 +58,7 @@ class ShoppingCartServiceTest {
         Cart submittedCart = service.submitCart(1L);
 
         assertNotNull(submittedCart);
-        assertNotEquals(0, submittedCart.getPrice());
+        assertNotEquals(0, submittedCart.getFinalPrice());
         assertEquals(Status.SUBMITTED, submittedCart.getStatus());
 
         assertEquals(1L, submittedCart.getId());
@@ -68,7 +68,7 @@ class ShoppingCartServiceTest {
 
     @Test
     void addProductWithQuantity(){
-        Cart cart = new Cart(1L, 1L, Status.DRAFT,14);
+        Cart cart = new Cart(1L, 1L, Status.DRAFT,14, 0);
         Product product = new Product(1L, 3, "Producto de prueba", 0.5);
         when(shoppingCartRepository.findById(any())).thenReturn(Optional.of(cart));
 
