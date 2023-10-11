@@ -89,4 +89,9 @@ class ShoppingCartControllerTest {
         assertEquals(HttpStatusCode.valueOf(200), cart.getStatusCode());
         verify(service).submitCart(any());
     }
+
+    @Test
+    void addToCart() throws Exception{
+        given(service.submitCart(any())).willReturn(CartsData.createSampleCart());
+    }
 }

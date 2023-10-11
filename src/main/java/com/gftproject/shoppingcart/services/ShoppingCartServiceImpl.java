@@ -87,12 +87,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return shoppingCartRepository.save(cart);
     }
 
-    private void addProductWithQuantity(Cart cart, Product product, int quantity) {
-        // TODO check if enough stock
+    public void addProductWithQuantity(Cart cart, Product product, int quantity) {
+
         Map<Product, Integer> products = cart.getProducts();
         if (cart.getProducts().containsKey(product)) {
-            int currentQuantity = products.get(product);
-            products.put(product, currentQuantity + quantity);
+            if(product.getStorageQuantity()>= quantity){
+                int currentQuantity = products.get(product);
+                int newQuantity = currentQuantity + quantity;
+                products.put(product, currentQuantity + newQuantity);
+            }
         } else {
             products.put(product, quantity);
         }

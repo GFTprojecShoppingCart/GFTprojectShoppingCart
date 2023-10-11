@@ -73,16 +73,16 @@ class ShoppingCartServiceTest {
 
 
     @Test
-    @DisplayName("Add product to cart")
+    @DisplayName("Add product to cart and check stock")
     void addProductWithQuantity(){
         Cart cart = new Cart(1L, 1L, Status.DRAFT,14, 0);
         Product product = new Product(1L, 3, "Producto de prueba", 0.5, 5);
         when(shoppingCartRepository.findById(any())).thenReturn(Optional.of(cart));
-
+        when(computationsService.checkStock(cart)).thenReturn(true);
         when(shoppingCartRepository.save(any())).thenReturn(cart);
         Cart updatedCart = service.addProductToCartWithQuantity(1L, product, 5);
-
         assertNotNull(updatedCart);
+
         assertEquals(1L, updatedCart.getId());
         // Verificamos que se haya guardado en el repositorio
         verify(shoppingCartRepository).save(cart);
