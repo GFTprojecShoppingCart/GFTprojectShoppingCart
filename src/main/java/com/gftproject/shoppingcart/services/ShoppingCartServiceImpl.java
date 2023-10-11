@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
@@ -70,12 +71,16 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
 
-        boolean stock = computationsService.checkStock(cart);
+        try {
+            boolean stock = computationsService.checkStock(cart.getProducts());
+            // TODO Validate User
 
-        // TODO Validate User
+            // TODO Compute price -> Cosas
 
-        // TODO Compute price -> Cosas
-        computationsService.computeFinalValues(cart);
+            computationsService.computeFinalValues(cart);
+        } catch (NotEnoughStockException e) {
+            throw new RuntimeException(e);
+        }
 
         // TODO Check TAX / Payment / weight
 

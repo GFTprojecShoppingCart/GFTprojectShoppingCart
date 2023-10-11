@@ -1,36 +1,47 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 @Service
 public class CartComputationsService {
 
-    public double computePrice(Cart cart) {
-        return 3.4;
-    }
+    public boolean checkStock(Map<Product, Integer> products) {
+        for (Map.Entry<Product, Integer> entry : products.entrySet()) {
+            int quantity = entry.getValue();
 
-    public boolean checkStock(Cart cart) {
+            if (quantity > entry.getKey().getStorageQuantity()){
+                return false;
+            }
+        }
         return true;
     }
 
-    public void computeFinalValues(Cart cart){
+    public void computeFinalValues(Cart cart) throws NotEnoughStockException {
 
-        double totalWeight = 0.0;
-        double totalPrice = 0.0;
+        BigDecimal totalWeight = new BigDecimal(0);
+        BigDecimal totalPrice = new BigDecimal(0);
 
         for (Map.Entry<Product, Integer> entry : cart.getProducts().entrySet()) {
+
             Product product = entry.getKey();
             int quantity = entry.getValue();
 
-            double productWeight = product.getWeight();
-            double productPrice = product.getPrice();
+            if (quantity > entry.getKey().getStorageQuantity()){
+                throw new NotEnoughStockException();
+            }
 
-            totalWeight += productWeight * quantity;
-            totalPrice += productPrice * quantity;
+            BigDecimal productWeight = product.getWeight();
+            BigDecimal productPrice = product.getPrice();
+
+            totalWeight = totalWeight.add(productWeight.multiply(BigDecimal.valueOf(quantity)));
+            totalPrice = totalPrice.add(productPrice.multiply(BigDecimal.valueOf(quantity)));
+
         }
 
         cart.setFinalWeight(totalWeight);

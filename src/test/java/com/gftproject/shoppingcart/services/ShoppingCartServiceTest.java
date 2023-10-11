@@ -11,7 +11,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -75,8 +77,8 @@ class ShoppingCartServiceTest {
     @Test
     @DisplayName("Add product to cart and check stock")
     void addProductWithQuantity(){
-        Cart cart = new Cart(1L, 1L, Status.DRAFT,14, 0);
-        Product product = new Product(1L, 3, "Producto de prueba", 0.5, 5);
+        Cart cart = new Cart(1L, new HashMap<>(), 1L, Status.DRAFT,new BigDecimal(14), BigDecimal.ZERO);
+        Product product = new Product(1L, new BigDecimal(3), "Producto de prueba", new BigDecimal("0.5"), 5);
         when(shoppingCartRepository.findById(any())).thenReturn(Optional.of(cart));
         when(computationsService.checkStock(cart)).thenReturn(true);
         when(shoppingCartRepository.save(any())).thenReturn(cart);
