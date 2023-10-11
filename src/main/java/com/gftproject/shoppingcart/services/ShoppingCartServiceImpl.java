@@ -14,9 +14,11 @@ import java.util.Optional;
 public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     private final ShoppingCartRepository shoppingCartRepository;
+    private final CartComputationsService computationsService;
 
-    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository) {
+    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository, CartComputationsService computationsService) {
         this.shoppingCartRepository = shoppingCartRepository;
+        this.computationsService = computationsService;
     }
 
     @Override
@@ -36,6 +38,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return shoppingCartRepository.save(cart);
     }
 
+    //TODO
     @Override
     public Cart addProduct(Long idUser, Long idCart, Product product) {
         return null;
@@ -67,24 +70,25 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
 
-        boolean stock = checkStock(cart);
+        boolean stock = computationsService.checkStock(cart);
 
         // TODO Validate User
 
         // TODO Compute price -> Cosas
-        cart.computeFinalValues();
+        computationsService.computeFinalValues(cart);
 
         // TODO Check TAX / Payment / weight
 
-        // TODO Check stock
-        // TODO Change status
+        // TODO Check cart validity
+        // TODO Change status AND send to almacen
 
         cart.setStatus(Status.SUBMITTED);
 
         return shoppingCartRepository.save(cart);
     }
 
-    public void addProductWithQuantity(Cart cart, Product product, int quantity) {
+    private void addProductWithQuantity(Cart cart, Product product, int quantity) {
+        // TODO check if enough stock
         Map<Product, Integer> products = cart.getProducts();
         if (cart.getProducts().containsKey(product)) {
             int currentQuantity = products.get(product);
@@ -92,15 +96,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         } else {
             products.put(product, quantity);
         }
-    }
-
-    @Override
-    public double computePrice(Cart cart) {
-        return 3.4;
-    }
-
-    public boolean checkStock(Cart cart) {
-        return true;
     }
 
 }

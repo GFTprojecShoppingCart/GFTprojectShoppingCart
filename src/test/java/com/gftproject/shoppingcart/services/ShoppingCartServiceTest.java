@@ -5,6 +5,7 @@ import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -29,17 +30,21 @@ class ShoppingCartServiceTest {
     @Mock
     ShoppingCartRepository shoppingCartRepository;
 
+    @Mock
+    CartComputationsService computationsService;
+
     @BeforeEach
     void setUp() {
         // Instanciar Shopping cart Service y istanciar con new mock de repository
         MockitoAnnotations.openMocks(this);
-        service = new ShoppingCartServiceImpl(shoppingCartRepository);
+        service = new ShoppingCartServiceImpl(shoppingCartRepository, computationsService);
     }
 
     @Test
+    @DisplayName("Get a filtered list by status")
     void getCartsByStatus() {
         //Given
-        List<Cart> carts = Arrays.asList(Optional.of(createCart001()).orElseThrow(), createCart002().orElseThrow(),createCart003().orElseThrow());
+        List<Cart> carts = Arrays.asList(Optional.of(createCart001()).orElseThrow(), createCart002(),createCart003());
         when(shoppingCartRepository.findAllByStatus(any())).thenReturn(carts);
 
         //when
@@ -52,6 +57,7 @@ class ShoppingCartServiceTest {
     }
 
     @Test
+    @DisplayName("Submit a cart")
     void submitCart(){
         when(shoppingCartRepository.save(any())).thenReturn(createSampleCart());
 
@@ -67,9 +73,10 @@ class ShoppingCartServiceTest {
 
 
     @Test
+    @DisplayName("Add product to cart")
     void addProductWithQuantity(){
         Cart cart = new Cart(1L, 1L, Status.DRAFT,14, 0);
-        Product product = new Product(1L, 3, "Producto de prueba", 0.5);
+        Product product = new Product(1L, 3, "Producto de prueba", 0.5, 5);
         when(shoppingCartRepository.findById(any())).thenReturn(Optional.of(cart));
 
         when(shoppingCartRepository.save(any())).thenReturn(cart);

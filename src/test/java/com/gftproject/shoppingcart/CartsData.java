@@ -17,12 +17,12 @@ public class CartsData {
         return new Cart(1L, 1L, Status.SUBMITTED, 15, 0);
     }
 
-    public static Optional<Cart> createCart002() {
-        return Optional.of(new Cart(2L, 1L, Status.DRAFT, 13, 0));
+    public static Cart createCart002() {
+        return new Cart(2L, 1L, Status.DRAFT, 13, 0);
     }
 
-    public static Optional<Cart> createCart003() {
-        return Optional.of(new Cart(3L, 1L, Status.SUBMITTED, 80, 0));
+    public static Cart createCart003() {
+        return new Cart(3L, 1L, Status.SUBMITTED, 80, 0);
     }
 
     public static List<Cart> getMockCarts() {
