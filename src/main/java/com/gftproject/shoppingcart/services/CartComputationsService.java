@@ -2,9 +2,11 @@ package com.gftproject.shoppingcart.services;
 
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
+import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+@Service
 public class CartComputationsService {
 
     public double computePrice(Cart cart) {
