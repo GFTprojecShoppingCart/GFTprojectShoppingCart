@@ -21,5 +21,4 @@ public interface ShoppingCartService {
     void deleteCart(Long idCart);
 
     Cart submitCart(Long idCart);
-
 }

@@ -5,6 +5,7 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -36,6 +37,7 @@ class ShoppingCartControllerTest {
     }
 
     @Test
+    @DisplayName("Find All Carts")
     void findAllByEmptyStatus() {
 
         given(service.findAllByStatus(any())).willReturn(CartsData.getMockCarts());
@@ -50,6 +52,7 @@ class ShoppingCartControllerTest {
     }
 
     @Test
+    @DisplayName("Find all carts with filter")
     void findAllByStatus() {
 
         given(service.findAllByStatus(any())).willReturn(CartsData.getMockCarts());
@@ -63,6 +66,7 @@ class ShoppingCartControllerTest {
     }
 
     @Test
+    @DisplayName("Create a shopping cart")
     void createShoppingCart() {
         given(service.createCart(any())).willReturn(CartsData.createCart001());
 
@@ -75,6 +79,7 @@ class ShoppingCartControllerTest {
     }
 
     @Test
+    @DisplayName("Submit a cart")
     void submitCart() {
         given(service.submitCart(any())).willReturn(CartsData.createSampleCart());
 
