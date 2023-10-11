@@ -13,11 +13,11 @@ import com.gftproject.shoppingcart.model.Status;
 public class ProductData {
 
     public static Optional<Product> createProduct001() {
-        return Optional.of(new Product(1L, 25.99, "Balon de futbol", 50));
+        return Optional.of(new Product(1L, 25.99, "Balon de futbol", 55));
     }
 
     public static Optional<Product> createProduct002() {
-        return Optional.of(new Product(2L , 19.99, "Rompecabezas 1000 piezas", 1.5));
+        return Optional.of(new Product(2L , 19.99, "Rompecabezas 1000 piezas", 1.2));
     }
 
     public static Optional<Product> createProduct003() {
