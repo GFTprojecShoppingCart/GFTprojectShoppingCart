@@ -75,7 +75,6 @@ class ShoppingCartServiceTest {
 
         assertNotNull(updatedCart);
         assertEquals(1L, updatedCart.getId());
-        // Verificamos que se haya guardado en el repositorio
         verify(shoppingCartRepository).save(cart);
     }
 
@@ -84,19 +83,16 @@ class ShoppingCartServiceTest {
     //TODO
 
     @Test
-    @DisplayName('Testing that the cart can be deleted')
     void deleteCart(){
-        Cart cart = new Cart(1L, 1L, Status.DRAFT);
-        Product product = new Product("Producto de prueba", "Descripción de prueba", "Categoría de prueba", 10.0, 0.5, 100);
-        when(shoppingCartRepository.findById(any())).thenReturn(Optional.of(cart));
+        Cart cart = new Cart();
 
-        when(shoppingCartRepository.save(any())).thenReturn(cart);
-        Cart updatedCart = service.addProductToCartWithQuantity(1L, product, 5);
+        when(shoppingCartRepository.deleteById(any())).thenReturn(createSampleCart());
 
-        assertNotNull(updatedCart);
-        assertEquals(1L, updatedCart.getId());
-        // Verificamos que se haya guardado en el repositorio
-        verify(shoppingCartRepository).save(cart);
+        Cart submittedCart = service.submitCart(1L);
+
+        assertNotNull(submittedCart);
+        assertEquals(1L, submittedCart.getId());
+;
     }
 }
 

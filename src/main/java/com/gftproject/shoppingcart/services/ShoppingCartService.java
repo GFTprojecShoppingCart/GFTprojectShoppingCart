@@ -18,9 +18,6 @@ public interface ShoppingCartService {
 
     Cart addProduct(Long idUser, Long idCart, Product product);
 
-
-    //he cambiado 'void' por 'Cart'. si no, daba problemas en ShoppingCartControllerTest.java y SoppingCartController
-    // .java
     Cart deleteCart(Long idCart);
 
     Cart submitCart(Long idCart);
