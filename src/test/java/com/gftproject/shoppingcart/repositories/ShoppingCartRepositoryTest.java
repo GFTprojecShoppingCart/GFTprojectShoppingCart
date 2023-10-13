@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import com.gftproject.shoppingcart.model.Product;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -21,6 +22,7 @@ public class ShoppingCartRepositoryTest {
     ShoppingCartRepository shoppingCartRepository;
 
     @Test
+    @DisplayName("Find all by Carts by Status")
     void testFindAllByStatus() {
         List<Cart> cart = shoppingCartRepository.findAllByStatus(Status.DRAFT);
 
@@ -28,14 +30,6 @@ public class ShoppingCartRepositoryTest {
         assertEquals(2, cart.size());
 
     }
-
-    @Test
-    void testAddProductWithQuantity() {
-
-        Optional<Cart> cart = shoppingCartRepository.findById(1L);
-    }
-
-
 
     @Test
     void deleteCart() {
@@ -49,4 +43,5 @@ public class ShoppingCartRepositoryTest {
         });
 
     }
+
 }

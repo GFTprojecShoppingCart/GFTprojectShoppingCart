@@ -2,6 +2,7 @@ package com.gftproject.shoppingcart.model;
 
 
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,19 +12,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private double precio;
-    private String nombre;
-    private String categoria;
-    private String descripcion;
-    private double peso;
-    private int stock;
-    public Product(String nombre, String descripcion, String categoria,  double precio, double peso, int stock) {
+    private BigDecimal price;
+    private String name;
+    private BigDecimal weight;
+    private int storageQuantity;
 
-    }
 }
