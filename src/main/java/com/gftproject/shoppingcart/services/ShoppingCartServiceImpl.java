@@ -35,7 +35,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public Cart createCart(Long userId) {
         Cart cart = new Cart();
-        cart.setUser_id(userId);
+        cart.setUserId(userId);
         return shoppingCartRepository.save(cart);
     }
 
@@ -106,4 +106,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
     }
 
+    public Object updateStockCart(Object any) {
+        return null;
+    }
 }

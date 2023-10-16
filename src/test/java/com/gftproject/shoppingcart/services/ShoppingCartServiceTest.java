@@ -20,7 +20,6 @@ import java.util.Optional;
 import static com.gftproject.shoppingcart.CartsData.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -61,7 +60,7 @@ class ShoppingCartServiceTest {
     }
 
     @Test
-    @DisplayName("Find all carts")
+    @DisplayName("WHEN a status is provided, THEN a filtered list of carts should be provided")
     void getCartsByStatus() {
         //Given
         when(shoppingCartRepository.findAllByStatus(any())).thenReturn(carts);
