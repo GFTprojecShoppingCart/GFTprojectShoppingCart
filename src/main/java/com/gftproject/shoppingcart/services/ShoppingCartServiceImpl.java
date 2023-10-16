@@ -7,6 +7,7 @@ import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -77,7 +78,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
             // TODO Compute price -> Cosas
 
-            computationsService.computeFinalValues(cart);
+            Map<String, BigDecimal> valuesMap = computationsService.computeFinalValues(cart.getProducts());
+
+            cart.setFinalWeight(valuesMap.get("totalWeight"));
+            cart.setFinalPrice(valuesMap.get("totalPrice"));
+            
         } catch (NotEnoughStockException e) {
             throw new RuntimeException(e);
         }

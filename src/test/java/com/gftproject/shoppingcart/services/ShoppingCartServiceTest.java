@@ -80,8 +80,27 @@ class ShoppingCartServiceTest {
     }
 
     @Test
-    @DisplayName("Submit a cart")
-    void submitCart(){
+    @DisplayName("GIVEN a cart Id  WHEN cart is submitted  THEN status is submitted")
+    void submitCartStock(){
+        when(shoppingCartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
+        when(shoppingCartRepository.save(any())).thenReturn(createSampleCart());
+        //when(computationsService.computeFinalValues(any()));
+
+        Cart submittedCart = service.submitCart(1L);
+
+        // Verify that the service method correctly calls the repository
+        verify(shoppingCartRepository).findById(1L);
+        verify(shoppingCartRepository).save(any());
+
+        assertThat(submittedCart).isNotNull();
+        assertThat(submittedCart.getFinalPrice()).isNotZero();
+        assertThat(submittedCart.getStatus()).isEqualTo(Status.SUBMITTED);
+        assertThat(submittedCart.getId()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("GIVEN a cart Id  WHEN cart is submitted  THEN status is submitted")
+    void submitCartNoStock(){
         when(shoppingCartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
         when(shoppingCartRepository.save(any())).thenReturn(createSampleCart());
         //when(computationsService.computeFinalValues(any()));
@@ -115,7 +134,8 @@ class ShoppingCartServiceTest {
         Cart cart = new Cart(1L, new HashMap<>(), 1L, Status.DRAFT,new BigDecimal(14), BigDecimal.ZERO);
         Product product = new Product(1L, new BigDecimal(3), "Producto de prueba", new BigDecimal("0.5"), 5);
         when(shoppingCartRepository.findById(any())).thenReturn(Optional.of(cart));
-        when(computationsService.checkStock(cart.getProducts())).thenReturn(true);
+        //TODO revisar cuando este completo el nuevo checkStock
+        //when(computationsService.checkStock(cart.getProducts())).thenReturn(true);
         when(shoppingCartRepository.save(any())).thenReturn(cart);
         Cart updatedCart = service.addProductToCartWithQuantity(1L, product, 5);
         assertNotNull(updatedCart);

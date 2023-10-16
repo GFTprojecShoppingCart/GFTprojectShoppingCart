@@ -6,28 +6,30 @@ import com.gftproject.shoppingcart.model.Product;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class CartComputationsService {
 
-    public boolean checkStock(Map<Product, Integer> products) {
+    public boolean checkStock(Map<Product, Integer> products) throws NotEnoughStockException {
         for (Map.Entry<Product, Integer> entry : products.entrySet()) {
             int quantity = entry.getValue();
 
             if (quantity > entry.getKey().getStorageQuantity()){
-                return false;
+                throw new NotEnoughStockException();
             }
         }
         return true;
     }
 
-    public void computeFinalValues(Cart cart) throws NotEnoughStockException {
+    public Map<String, BigDecimal> computeFinalValues(Map<Product, Integer> productList) throws NotEnoughStockException {
 
         BigDecimal totalWeight = new BigDecimal(0);
         BigDecimal totalPrice = new BigDecimal(0);
 
-        for (Map.Entry<Product, Integer> entry : cart.getProducts().entrySet()) {
+        for (Map.Entry<Product, Integer> entry : productList.entrySet()) {
 
             Product product = entry.getKey();
             int quantity = entry.getValue();
@@ -44,8 +46,14 @@ public class CartComputationsService {
 
         }
 
-        cart.setFinalWeight(totalWeight);
-        cart.setFinalPrice(totalPrice);
+        // TODO return a list in a tuple
+
+        Map<String, BigDecimal> valuesMap = new HashMap<>();
+        valuesMap.put("totalWeight", totalWeight);
+        valuesMap.put("totalPrice", totalPrice);
+
+        return valuesMap;
+
     }
 
     public boolean cartValidity(Cart cart){
