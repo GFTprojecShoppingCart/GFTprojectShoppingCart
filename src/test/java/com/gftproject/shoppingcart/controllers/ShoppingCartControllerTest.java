@@ -91,7 +91,20 @@ class ShoppingCartControllerTest {
     }
 
     @Test
+    @DisplayName("Update stock of a cart")
+    void updateStockCart() {
+        given(service.updateStockCart(any())).willReturn(CartsData.createSampleCart());
+
+        ResponseEntity<Cart> cart = controller.updateStockCart(1L);
+
+        assertNotNull(cart.getBody());
+        assertEquals(HttpStatusCode.valueOf(200), cart.getStatusCode());
+        verify(service).submitCart(any());
+    }
+
+    @Test
     void addToCart() throws Exception{
+        //TODO
         given(service.submitCart(any())).willReturn(CartsData.createSampleCart());
     }
 
