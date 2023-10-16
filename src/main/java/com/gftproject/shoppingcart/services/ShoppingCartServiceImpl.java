@@ -61,10 +61,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
     }
 
-    @Override
-    public void deleteCart(Long idCart) {
-        shoppingCartRepository.deleteById(idCart);
-    }
 
     @Override
     public Cart submitCart(Long idCart) {
@@ -109,4 +105,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public Object updateStockCart(Object any) {
         return null;
     }
+    @Override
+    public void deleteCart(Long cartId) {shoppingCartRepository.deleteById(cartId);}
+
 }

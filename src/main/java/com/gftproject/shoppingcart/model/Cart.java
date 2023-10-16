@@ -18,7 +18,7 @@ public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    
+
     @ElementCollection
     private Map<Product, Integer> products = new HashMap<>();
 

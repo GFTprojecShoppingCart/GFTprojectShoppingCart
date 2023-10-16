@@ -1,6 +1,7 @@
 package com.gftproject.shoppingcart.controllers;
 
 import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartService;
 import org.springframework.http.HttpHeaders;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -55,8 +57,7 @@ public class ShoppingCartController {
     }
 
     @DeleteMapping("/carts/{id_cart}")
-    public ResponseEntity<Cart> deleteShoppingCart(@PathVariable Long id_cart) {
-
+    public ResponseEntity<Void> deleteShoppingCart(@PathVariable Long id_cart) {
         service.deleteCart(id_cart);
 
         return new ResponseEntity<>(HttpStatus.OK);
