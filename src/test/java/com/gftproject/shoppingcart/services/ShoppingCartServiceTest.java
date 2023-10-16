@@ -37,6 +37,9 @@ class ShoppingCartServiceTest {
     @Mock
     ProductServiceImpl productService;
 
+    @Mock
+    UserServiceImpl userService;
+
 
     private List<Cart> carts;
 
@@ -44,7 +47,7 @@ class ShoppingCartServiceTest {
     void setUp() {
         // Instanciar Shopping cart Service y istanciar con new mock de repository
         MockitoAnnotations.openMocks(this);
-        service = new ShoppingCartServiceImpl(cartRepository, computationsService, productService);
+        service = new ShoppingCartServiceImpl(cartRepository, computationsService, productService, userService);
         carts = Arrays.asList(Optional.of(createCart001()).orElseThrow(), createCart002(),createCart003());
     }
 

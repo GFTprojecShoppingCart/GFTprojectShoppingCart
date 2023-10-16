@@ -9,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -21,19 +22,21 @@ class CartComputationsServiceTest {
     @BeforeEach
     void setUp() {
         computationsService = new CartComputationsService();
-        cart = new Cart(1L, ProductData.getMockProductMap(), 1L, Status.DRAFT, BigDecimal.ZERO, BigDecimal.ZERO);
+        cart = new Cart(1L, new ArrayList<>(), ProductData.getMockProductMap(), 1L, Status.DRAFT, BigDecimal.ZERO, BigDecimal.ZERO);
     }
 
     @Test
     void checkStock() {
-        assertThat(computationsService.checkStock(cart.getProducts()));
+
+
+        assertThat(computationsService.checkStock(cart.getProducts(), ProductData.getWarehouseStock()));
     }
 
     @Test
     @DisplayName("Checks if enough stock")
     void throwsCheckStock() {
-        cart.setProducts(ProductData.getFaultyMockProductMap());
-        assertThat(!computationsService.checkStock(cart.getProducts()));
+        cart.setProducts(ProductData.getLowWarehouseStock());
+        assertThat(computationsService.checkStock(cart.getProducts(), ProductData.getWarehouseStock()).isEmpty());
     }
 
     @Test
@@ -50,7 +53,7 @@ class CartComputationsServiceTest {
     @DisplayName("Assert exception in compute values")
     void throwsFinalValues() {
 
-        cart.setProducts(ProductData.getFaultyMockProductMap());
+        cart.setProducts(ProductData.getLowWarehouseStock());
 
         assertThatThrownBy(() -> {
             computationsService.computeFinalValues(cart);

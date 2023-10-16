@@ -18,11 +18,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final ShoppingCartRepository shoppingCartRepository;
     private final CartComputationsService computationsService;
     private final ProductServiceImpl productService;
+    private final UserServiceImpl userService;
 
-    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository, CartComputationsService computationsService, ProductServiceImpl productService) {
+    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository, CartComputationsService computationsService, ProductServiceImpl productService, UserServiceImpl userService) {
         this.shoppingCartRepository = shoppingCartRepository;
         this.computationsService = computationsService;
         this.productService = productService;
+        this.userService = userService;
     }
 
     @Override
