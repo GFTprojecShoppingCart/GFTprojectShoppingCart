@@ -12,19 +12,15 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.gftproject.shoppingcart.CartsData.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 
 class ShoppingCartServiceTest {
@@ -115,24 +111,19 @@ class ShoppingCartServiceTest {
     }
 
 
+    @Test
+    @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
+    void deleteCart() {
+        // Given
+        doNothing().when(shoppingCartRepository).deleteById(1L);
 
-    //TODO
+        // When
+        service.deleteCart(1L);
 
-//    @Test
-//    @DisplayName("Delete a cart object")
-//    void deleteCart(){
-//        Cart cart = new Cart();
-//
-//        when(shoppingCartRepository.deleteById(any())).thenReturn(createSampleCart());
-//
-//        Cart submittedCart = service.submitCart(1L);
-//
-//        assertNotNull(submittedCart);
-//        assertEquals(1L, submittedCart.getId());
-//    }
+        // Then
+        verify(shoppingCartRepository).deleteById(eq(1L));
+    }
 }
-
-
 
 
 

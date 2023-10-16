@@ -64,10 +64,10 @@ public class ShoppingCartController {
     }
 
     @DeleteMapping("/carts/{id_user}")
-    public ResponseEntity<Cart> deleteShoppingCart(@PathVariable Long idCart) {
+    public ResponseEntity<Void> deleteShoppingCart(@PathVariable Long idCart) {
         HttpHeaders headers = new HttpHeaders();
-
-        return new ResponseEntity<>(service.deleteCart(idCart), headers, HttpStatus.OK);
+        service.deleteCart(idCart);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

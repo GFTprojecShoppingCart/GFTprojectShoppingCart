@@ -62,12 +62,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
 
-
-    @Override
-    public Cart deleteCart(Long idCart) {
-        shoppingCartRepository.deleteById(idCart);
-    }
-
     @Override
     public Cart submitCart(Long idCart) {
 
@@ -107,5 +101,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             products.put(product, quantity);
         }
     }
+
+    @Override
+    public void deleteCart(Long cartId) {shoppingCartRepository.deleteById(cartId);}
 
 }
