@@ -7,6 +7,7 @@ import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,10 +17,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     private final ShoppingCartRepository shoppingCartRepository;
     private final CartComputationsService computationsService;
+    private final ProductServiceImpl productService;
 
-    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository, CartComputationsService computationsService) {
+    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository, CartComputationsService computationsService, ProductServiceImpl productService) {
         this.shoppingCartRepository = shoppingCartRepository;
         this.computationsService = computationsService;
+        this.productService = productService;
     }
 
     @Override
@@ -68,41 +71,62 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public Cart submitCart(Long idCart) {
-
+        // We obtain the cart
         Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
+        List<Long> productIds = new ArrayList<>(cart.getProducts().keySet());
 
         try {
-            boolean stock = computationsService.checkStock(cart.getProducts());
+            // We obtain the cart products from their endpoint
+            List<Product> warehouseStock = productService.getProductsByIds(productIds);
+            List<Long> productsWithoutStock = computationsService.checkStock(cart.getProducts(), warehouseStock);
             // TODO Validate User
+
+            userService.validate();
 
             // TODO Compute price -> Cosas
 
-            computationsService.computeFinalValues(cart);
+            if (productsWithoutStock.isEmpty()) {
+
+                // TODO Check TAX / Payment / weight
+
+                // TODO Check cart validity
+                // TODO Change status AND send to almacen
+
+                computationsService.computeFinalValues(cart);
+
+                cart.setStatus(Status.SUBMITTED);
+
+                return shoppingCartRepository.save(cart);
+            }
+
         } catch (NotEnoughStockException e) {
             throw new RuntimeException(e);
         }
+        return cart;
+    }
 
-        // TODO Check TAX / Payment / weight
+    public List<Cart> updateProductsFromCarts(List<Product> productList) {
+        List<Long> productsIds = productList.stream().map(Product::getId).toList();
+        List<Cart> shoppingCarts = shoppingCartRepository.findCartsByProductIds(productsIds);
 
-        // TODO Check cart validity
-        // TODO Change status AND send to almacen
+        for (Cart cart : shoppingCarts) {
+            cart.setInvalidProducts(computationsService.checkStock(cart.getProducts(), productList));
+        }
+        return shoppingCarts;
 
-        cart.setStatus(Status.SUBMITTED);
-
-        return shoppingCartRepository.save(cart);
     }
 
     public void addProductWithQuantity(Cart cart, Product product, int quantity) {
 
-        Map<Product, Integer> products = cart.getProducts();
+        Map<Long, Integer> products = cart.getProducts();
         if (cart.getProducts().containsKey(product)) {
-            if(product.getStorageQuantity()>= quantity){
+            if (product.getStorageQuantity() >= quantity) {
                 int currentQuantity = products.get(product);
                 int newQuantity = currentQuantity + quantity;
-                products.put(product, currentQuantity + newQuantity);
+                products.put(product.getId(), currentQuantity + newQuantity);
             }
         } else {
-            products.put(product, quantity);
+            products.put(product.getId(), quantity);
         }
     }
 

@@ -107,4 +107,15 @@ class ShoppingCartControllerTest {
         //TODO
         given(service.submitCart(any())).willReturn(CartsData.createSampleCart());
     }
+
+    @Test
+    void updateProductsFromCarts() {
+        given(service.updateProductsFromCarts(any())).willReturn(CartsData.getMockCarts());
+
+        ResponseEntity<Cart> cart = controller.updateStockCart(1L);
+
+        assertNotNull(cart.getBody());
+        assertEquals(HttpStatusCode.valueOf(200), cart.getStatusCode());
+        verify(service).updateProductsFromCarts(any());
+    }
 }
