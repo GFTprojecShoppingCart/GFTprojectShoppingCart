@@ -14,7 +14,8 @@ import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService{
 
-    String apiUrl = "localhost:8080/getProducts";
+    String apiUrl = "localhost:8080/getProducts/";
+// WebClient 
 
     @Override
     public List<Product> getProductsByIds(List<Long> productIds) {

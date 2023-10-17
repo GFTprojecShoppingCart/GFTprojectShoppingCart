@@ -5,8 +5,10 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
+import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -90,8 +92,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 // TODO Check cart validity
                 // TODO Change status AND send to almacen
 
-                computationsService.computeFinalValues(cart);
+                Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalValues(cart.getProducts(), warehouseStock);
 
+                cart.setFinalWeight(pair.a);
+                cart.setFinalPrice(pair.b);
                 cart.setStatus(Status.SUBMITTED);
 
                 return shoppingCartRepository.save(cart);

@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.CartsData;
 import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.model.Cart;
@@ -22,27 +23,28 @@ class CartComputationsServiceTest {
     @BeforeEach
     void setUp() {
         computationsService = new CartComputationsService();
-        cart = new Cart(1L, new ArrayList<>(), ProductData.getMockProductMap(), 1L, Status.DRAFT, BigDecimal.ZERO, BigDecimal.ZERO);
+        cart = CartsData.createCart001();
+        cart.setProducts(ProductData.getMockProductMap());
     }
 
     @Test
+    @DisplayName("GIVEN a shopping cart and a Product list WHEN it scans if there's enough stock for the products in cart THEN will return the elements without enough stock")
     void checkStock() {
-
-        assertThat(computationsService.checkStock(cart.getProducts(), ProductData.getWarehouseStock()));
+        assertThat(computationsService.checkStock(cart.getProducts(), ProductData.getWarehouseStock())).contains(5L);
     }
 
     @Test
     @DisplayName("Checks if enough stock")
     void throwsCheckStock() {
         cart.setProducts(ProductData.getLowWarehouseStock());
-        assertThat(computationsService.checkStock(cart.getProducts(), ProductData.getWarehouseStock()).isEmpty());
+        assertThat(computationsService.checkStock(cart.getProducts(), ProductData.getWarehouseStock())).isEmpty();
     }
 
     @Test
     @DisplayName("Compute final values")
     void computeFinalValues() throws NotEnoughStockException {
 
-        computationsService.computeFinalValues(cart);
+        computationsService.computeFinalValues(cart.getProducts(), new ArrayList<>());
 
         assertThat(new BigDecimal("120.44")).isEqualTo(cart.getFinalPrice());
         assertThat(new BigDecimal("114.1")).isEqualTo(cart.getFinalWeight());
@@ -55,7 +57,7 @@ class CartComputationsServiceTest {
         cart.setProducts(ProductData.getLowWarehouseStock());
 
         assertThatThrownBy(() -> {
-            computationsService.computeFinalValues(cart);
+            computationsService.computeFinalValues(cart.getProducts(), ProductData.getWarehouseStock());
         }).isInstanceOf(NotEnoughStockException.class);
 
 

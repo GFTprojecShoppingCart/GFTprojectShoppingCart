@@ -3,6 +3,7 @@ package com.gftproject.shoppingcart.services;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
+import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -26,33 +27,41 @@ public class CartComputationsService {
         return productsWithoutStock;
     }
 
-    public void computeFinalValues(Cart cart) throws NotEnoughStockException {
+    public Pair<BigDecimal, BigDecimal> computeFinalValues(Map<Long, Integer> cartProducts, List<Product> warehouseStock) throws NotEnoughStockException {
 
         BigDecimal totalWeight = new BigDecimal(0);
         BigDecimal totalPrice = new BigDecimal(0);
 
-        for (Map.Entry<Long, Integer> entry : cart.getProducts().entrySet()) {
-
-            Long product = entry.getKey();
+        for (Map.Entry<Long, Integer> entry : cartProducts.entrySet()) {
+            long productId = entry.getKey();
             int quantity = entry.getValue();
 
-/*            if (quantity > entry.getKey().getStorageQuantity()) {
-                throw new NotEnoughStockException();
-            }*/
+            // Find the product with the given ID in the warehouse stock
+            Product product = findProductById(productId, warehouseStock);
 
-//            BigDecimal productWeight = product.getWeight();
-//            BigDecimal productPrice = product.getPrice();
-            BigDecimal productPrice = new BigDecimal("-1");
-            BigDecimal productWeight = new BigDecimal("-1");
+            if (product == null) {
+                // Product not found in the warehouse stock, you can throw an exception or handle it as needed.
+                throw new NotEnoughStockException("Product not found in the warehouse: " + productId);
+            }
 
-            totalWeight = totalWeight.add(productWeight.multiply(BigDecimal.valueOf(quantity)));
-            totalPrice = totalPrice.add(productPrice.multiply(BigDecimal.valueOf(quantity)));
-
+            // Calculate the total weight and price for the product and add it to the totals
+            totalWeight = totalWeight.add(product.getWeight().multiply(BigDecimal.valueOf(quantity)));
+            totalPrice = totalPrice.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
         }
 
-        cart.setFinalWeight(totalWeight);
-        cart.setFinalPrice(totalPrice);
+        return new Pair<>(totalWeight, totalPrice);
     }
+
+    // Helper method to find a product by ID in the warehouse stock
+    private Product findProductById(long productId, List<Product> warehouseStock) {
+        for (Product product : warehouseStock) {
+            if (product.getId() == productId) {
+                return product;
+            }
+        }
+        return null; // Product not found
+    }
+
 
     public boolean cartValidity(Cart cart) {
         //TODO recorre todos los productos, y comprueba que hay suficiente stock
