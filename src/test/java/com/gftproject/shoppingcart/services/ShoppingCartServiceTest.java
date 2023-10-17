@@ -124,7 +124,7 @@ class ShoppingCartServiceTest {
         Product product1_updated = new Product(2L, new BigDecimal("20.0"), new BigDecimal("0.8"), 15);
         Product product2_updated = new Product(2L, new BigDecimal("25.0"), new BigDecimal("0.8"), 5);
 
-        Cart cart1 = new Cart(1L, new ArrayList<>(), new HashMap<>(), 1L, Status.SUBMITTED, new BigDecimal("0.0"), new BigDecimal("0.0"));
+        Cart cart1 = new Cart(1L, new ArrayList<>(), new HashMap<>(), 1L, Status.DRAFT, new BigDecimal("0.0"), new BigDecimal("0.0"));
         Cart cart2 = new Cart(2L, new ArrayList<>(), new HashMap<>(), 2L, Status.DRAFT, new BigDecimal("0.0"), new BigDecimal("0.0"));
 
         cart1.getProducts().put(product1.getId(), 3);
@@ -136,19 +136,18 @@ class ShoppingCartServiceTest {
         updatedProducts.add(product2_updated);
 
         // Mock repository behavior
-        when(cartRepository.findCartsByProductIds(Mockito.anyList())).thenReturn(List.of(cart1, cart2));
+        when(cartRepository.findCartsByProductIds(anyList())).thenReturn(List.of(cart1, cart2));
         when(cartRepository.save(any(Cart.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Test the service method
-        List<Cart> updatedCartIds = service.updateProductsFromCarts(updatedProducts);
+        List<Cart> updatedCarts = service.updateProductsFromCarts(updatedProducts);
 
         // Assertions
-        assertEquals(2, updatedCartIds.size());
-        assertEquals(1L, updatedCartIds.get(0).getId());
-        assertEquals(2L, updatedCartIds.get(1).getId());
+        assertEquals(2, updatedCarts.size());
+        assertEquals(1L, updatedCarts.get(0).getId());
+        assertEquals(2L, updatedCarts.get(1).getId());
 
-        // Verify that the save method was called on the repository
-        Mockito.verify(cartRepository, Mockito.times(2)).save(any(Cart.class));
+        verify(cartRepository, Mockito.times(2)).save(any(Cart.class));
 
         verify(cartRepository, times(2)).save(any());
     }
