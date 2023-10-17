@@ -2,12 +2,6 @@ INSERT INTO cart (user_id, status, final_price, final_weight) VALUES (1, 'DRAFT'
 INSERT INTO cart (user_id, status, final_price, final_weight) VALUES (2, 'DRAFT'    , 0, 0);
 INSERT INTO cart (user_id, status, final_price, final_weight) VALUES (1, 'SUBMITTED', 4.5, 0);
 
-INSERT INTO product (price,name, weight, storage_quantity) VALUES (20 ,'balon'    , 2, 5);
-INSERT INTO product (price,name, weight, storage_quantity) VALUES (23 ,'zapato'   , 4, 6);
-INSERT INTO product (price,name, weight, storage_quantity) VALUES (5  ,'tv'       , 6, 7);
-
-INSERT INTO cart_products (products, cart_id, products_key) VALUES (3, 3, 2);
-
 INSERT INTO country (name, tax_percentage) VALUES ('Spain'      , 21);
 INSERT INTO country (name, tax_percentage) VALUES ('Stony'      , 20);
 INSERT INTO country (name, tax_percentage) VALUES ('Finland'    , 24);
