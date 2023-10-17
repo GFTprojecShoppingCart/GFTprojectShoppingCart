@@ -71,7 +71,7 @@ class ShoppingCartControllerTest {
     void createShoppingCart() {
         given(service.createCart(any())).willReturn(CartsData.createCart001());
 
-        ResponseEntity<Cart> cart = controller.createShoppingCart(1L);
+        ResponseEntity<Cart> cart = controller.createShoppingCart("1");
 
         assertNotNull(cart.getBody());
         assertEquals(HttpStatusCode.valueOf(201), cart.getStatusCode());
@@ -83,7 +83,7 @@ class ShoppingCartControllerTest {
     void submitCart() {
         given(service.submitCart(any())).willReturn(CartsData.createCart001());
 
-        ResponseEntity<Cart> cart = controller.submitCart(1L);
+        ResponseEntity<Cart> cart = controller.submitCart("1");
 
         assertNotNull(cart.getBody());
         assertEquals(HttpStatusCode.valueOf(200), cart.getStatusCode());

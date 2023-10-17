@@ -4,11 +4,13 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -35,17 +37,25 @@ public class ShoppingCartController {
     }
 
     @PostMapping("/carts/{userId}")
-    public ResponseEntity<Cart> createShoppingCart(@PathVariable Long userId) {
+    public ResponseEntity<Cart> createShoppingCart(@PathVariable String userId) {
         HttpHeaders headers = new HttpHeaders();
+        if(StringUtils.isNumeric(userId)){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Long id_user = Long.parseLong(userId);
 
-        return new ResponseEntity<>(service.createCart(userId), headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(service.createCart(id_user), headers, HttpStatus.CREATED);
     }
 
     @PutMapping("/carts/{cartId}")
-    public ResponseEntity<Cart> submitCart(@PathVariable Long cartId) {
+    public ResponseEntity<Cart> submitCart(@PathVariable String cartId) {
         HttpHeaders headers = new HttpHeaders();
+        if(!StringUtils.isNumeric(cartId)){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Long id_cart = Long.parseLong(cartId);
+        return new ResponseEntity<>(service.createCart(id_cart), headers, HttpStatus.OK);
 
-        return new ResponseEntity<>(service.submitCart(cartId), headers, HttpStatus.OK);
     }
 
     @PutMapping("/carts1/{cartId}")
