@@ -87,7 +87,7 @@ class ShoppingCartServiceTest {
     @DisplayName("Submit a cart")
     void submitCart(){
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
-        when(cartRepository.save(any())).thenReturn(createSampleCart());
+        when(cartRepository.save(any())).thenReturn(createCart001());
         //when(computationsService.computeFinalValues(any()));
 
         Cart submittedCart = service.submitCart(1L);

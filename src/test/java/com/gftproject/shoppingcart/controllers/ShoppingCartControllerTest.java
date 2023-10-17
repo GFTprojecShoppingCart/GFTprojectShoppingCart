@@ -81,7 +81,7 @@ class ShoppingCartControllerTest {
     @Test
     @DisplayName("Submit a cart")
     void submitCart() {
-        given(service.submitCart(any())).willReturn(CartsData.createSampleCart());
+        given(service.submitCart(any())).willReturn(CartsData.createCart001());
 
         ResponseEntity<Cart> cart = controller.submitCart(1L);
 
@@ -93,7 +93,7 @@ class ShoppingCartControllerTest {
     @Test
     @DisplayName("Update stock of a cart")
     void updateStockCart() {
-        given(service.updateStockCart(any())).willReturn(CartsData.createSampleCart());
+        given(service.updateStockCart(any())).willReturn(CartsData.createCart001());
 
         ResponseEntity<Cart> cart = controller.updateStockCart(1L);
 
@@ -105,7 +105,7 @@ class ShoppingCartControllerTest {
     @Test
     void addToCart() throws Exception{
         //TODO
-        given(service.submitCart(any())).willReturn(CartsData.createSampleCart());
+        given(service.submitCart(any())).willReturn(CartsData.createCart001());
     }
 
     @Test

@@ -28,7 +28,6 @@ class CartComputationsServiceTest {
     @Test
     void checkStock() {
 
-
         assertThat(computationsService.checkStock(cart.getProducts(), ProductData.getWarehouseStock()));
     }
 
