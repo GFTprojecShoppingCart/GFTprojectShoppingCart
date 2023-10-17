@@ -38,31 +38,43 @@ public class ShoppingCartController {
 
     @PostMapping("/carts/{id_user}")
     public ResponseEntity<Cart> createShoppingCart(@PathVariable String id_user) {
+    @PostMapping("/carts/{userId}")
+    public ResponseEntity<Cart> createShoppingCart(@PathVariable Long userId) {
         HttpHeaders headers = new HttpHeaders();
         if(!StringUtils.isNumeric(id_user)){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Long userId = Long.parseLong(id_user);
         return new ResponseEntity<>(service.createCart(userId), headers, HttpStatus.CREATED);
+
+        return new ResponseEntity<>(service.createCart(userId), headers, HttpStatus.CREATED);
     }
 
-    @PutMapping("/carts/{id_cart}")
-    public ResponseEntity<Cart> submitCart(@PathVariable Long id_cart) {
+    @PutMapping("/carts/{cartId}")
+    public ResponseEntity<Cart> submitCart(@PathVariable Long cartId) {
         HttpHeaders headers = new HttpHeaders();
 
-        return new ResponseEntity<>(service.submitCart(id_cart), headers, HttpStatus.OK);
+        return new ResponseEntity<>(service.submitCart(cartId), headers, HttpStatus.OK);
     }
 
-    @PutMapping("/carts1/{id_cart}")
-    public ResponseEntity<Cart> addProductWithQuantity(@PathVariable Long id_cart) {
+    @PutMapping("/carts1/{cartId}")
+    public ResponseEntity<Cart> addProductWithQuantity(@PathVariable Long cartId) {
+        //TODO change carts1
         HttpHeaders headers = new HttpHeaders();
 
-        return new ResponseEntity<>(service.submitCart(id_cart), headers, HttpStatus.OK);
+        return new ResponseEntity<>(service.submitCart(cartId), headers, HttpStatus.OK);
     }
 
-    @DeleteMapping("/carts/{id_cart}")
-    public ResponseEntity<Void> deleteShoppingCart(@PathVariable Long id_cart) {
-        service.deleteCart(id_cart);
+    @PutMapping("/updateProducts")
+    public ResponseEntity<List<Long>> updateProductsFromCarts(List<Product> productList){
+
+        service.updateProductsFromCarts(productList);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/carts/{idCart}")
+    public ResponseEntity<Void> deleteShoppingCart(@PathVariable Long idCart) {
+        service.deleteCart(idCart);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

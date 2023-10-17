@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -19,8 +20,10 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    List<Long> invalidProducts;
+    
     @ElementCollection
-    private Map<Product, Integer> products = new HashMap<>();
+    private Map<Long, Integer> products = new HashMap<>();
 
     @NotNull(message = "The user ID must be provided")
     private long userId;
