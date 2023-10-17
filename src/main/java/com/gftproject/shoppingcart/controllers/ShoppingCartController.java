@@ -39,7 +39,7 @@ public class ShoppingCartController {
     @PostMapping("/carts/{userId}")
     public ResponseEntity<Cart> createShoppingCart(@PathVariable String userId) {
         HttpHeaders headers = new HttpHeaders();
-        if(StringUtils.isNumeric(userId)){
+        if(!StringUtils.isNumeric(userId)){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Long id_user = Long.parseLong(userId);
