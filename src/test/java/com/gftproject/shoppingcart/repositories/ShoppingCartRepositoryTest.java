@@ -3,6 +3,7 @@ package com.gftproject.shoppingcart.repositories;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import com.gftproject.shoppingcart.model.Product;
@@ -29,5 +30,18 @@ public class ShoppingCartRepositoryTest {
         assertEquals(2, cart.size());
 
     }
-    
+
+    @Test
+    void deleteCart() {
+        Cart cart = shoppingCartRepository.findById(1L).orElseThrow();
+        assertEquals(1L, cart.getId());
+
+        shoppingCartRepository.delete(cart);
+
+        assertThrows(NoSuchElementException.class, () -> {
+            shoppingCartRepository.findById(1L).orElseThrow();
+        });
+
+    }
+
 }

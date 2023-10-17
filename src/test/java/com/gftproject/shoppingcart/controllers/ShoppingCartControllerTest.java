@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
@@ -75,7 +76,6 @@ class ShoppingCartControllerTest {
         assertNotNull(cart.getBody());
         assertEquals(HttpStatusCode.valueOf(201), cart.getStatusCode());
         verify(service).createCart(any());
-
     }
 
     @Test
@@ -118,4 +118,32 @@ class ShoppingCartControllerTest {
         assertEquals(HttpStatusCode.valueOf(200), cart.getStatusCode());
         verify(service).updateProductsFromCarts(any());
     }
+
+    @Test
+    @DisplayName("WHEN deleteCart is executed THEN Delete a cart object")
+    void deleteCart() {
+        // When
+        ResponseEntity<Void> response = controller.deleteShoppingCart(1L);
+
+        // Then
+        assertEquals(HttpStatus.valueOf(200), response.getStatusCode());
+
+        // Verification
+        verify(service).deleteCart(1L);
+    }
+
+
+//    @Test
+//    void deleteShoppingCart() throws Exception {
+//
+//        //deleteCart001 CartsData.java method?
+//        given(service.deleteCart(any())).willReturn(CartsData.createCart001().orElseThrow());
+//
+//        mvc.perform(delete("/carts/1")
+//                .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+//
+//        verify(service).deleteCart(any());
+//    }
 }

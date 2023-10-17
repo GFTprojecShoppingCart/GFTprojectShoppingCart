@@ -16,12 +16,11 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static com.gftproject.shoppingcart.CartsData.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 
 class ShoppingCartServiceTest {
@@ -45,10 +44,10 @@ class ShoppingCartServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Instanciar Shopping cart Service y istanciar con new mock de repository
+        // Instantiate Shopping cart Service and instantiate con new mock de repository
         MockitoAnnotations.openMocks(this);
         service = new ShoppingCartServiceImpl(cartRepository, computationsService, productService, userService);
-        carts = Arrays.asList(Optional.of(createCart001()).orElseThrow(), createCart002(),createCart003());
+        carts = Arrays.asList(Optional.of(createCart001()).orElseThrow(), createCart002(), createCart003());
     }
 
     @Test
@@ -76,16 +75,14 @@ class ShoppingCartServiceTest {
         List<Cart> allCarts = service.findAllByStatus(Status.DRAFT);
 
         //then
-        assertThat(allCarts)
-            .isNotNull()
-            .hasSize(3);
+        assertThat(allCarts).isNotNull().hasSize(3);
 
         verify(cartRepository).findAllByStatus(Status.DRAFT);
     }
 
     @Test
     @DisplayName("Submit a cart")
-    void submitCart(){
+    void submitCart() {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
         when(cartRepository.save(any())).thenReturn(createCart001());
         //when(computationsService.computeFinalValues(any()));
@@ -103,23 +100,12 @@ class ShoppingCartServiceTest {
     }
 
     @Test
-    @DisplayName("Delete a cart object")
-    void deleteCart(){
-
-        service.deleteCart(1L);
-
-        verify(cartRepository).deleteById(any());
-
-    }
-
-
-    @Test
     @DisplayName("Add product to cart and check stock")
-    void addProductWithQuantity(){
-        Cart cart = new Cart(1L, new ArrayList<>(),new HashMap<>(), 1L, Status.DRAFT,new BigDecimal(14), BigDecimal.ZERO);
+    void addProductWithQuantity() {
+        Cart cart = new Cart(1L, new ArrayList<>(), new HashMap<>(), 1L, Status.DRAFT, new BigDecimal(14), BigDecimal.ZERO);
         Product product = new Product(1L, new BigDecimal(3), new BigDecimal("0.5"), 5);
         when(cartRepository.findById(any())).thenReturn(Optional.of(cart));
-        when(computationsService.checkStock(cart.getProducts(), List.of(product))).thenReturn(List.of(1L,2L));
+        when(computationsService.checkStock(cart.getProducts(), List.of(product))).thenReturn(List.of(1L, 2L));
         when(cartRepository.save(any())).thenReturn(cart);
         Cart updatedCart = service.addProductToCartWithQuantity(1L, product, 5);
         assertNotNull(updatedCart);
@@ -138,7 +124,7 @@ class ShoppingCartServiceTest {
         Product product1_updated = new Product(2L, new BigDecimal("20.0"), new BigDecimal("0.8"), 15);
         Product product2_updated = new Product(2L, new BigDecimal("25.0"), new BigDecimal("0.8"), 5);
 
-        Cart cart1 = new Cart(1L, new ArrayList<>(),new HashMap<>(), 1L, Status.SUBMITTED, new BigDecimal("0.0"), new BigDecimal("0.0"));
+        Cart cart1 = new Cart(1L, new ArrayList<>(), new HashMap<>(), 1L, Status.SUBMITTED, new BigDecimal("0.0"), new BigDecimal("0.0"));
         Cart cart2 = new Cart(2L, new ArrayList<>(), new HashMap<>(), 2L, Status.DRAFT, new BigDecimal("0.0"), new BigDecimal("0.0"));
 
         cart1.getProducts().put(product1.getId(), 3);
@@ -150,10 +136,8 @@ class ShoppingCartServiceTest {
         updatedProducts.add(product2_updated);
 
         // Mock repository behavior
-        when(cartRepository.findCartsByProductIds(Mockito.anyList()))
-                .thenReturn(List.of(cart1, cart2));
-        when(cartRepository.save(any(Cart.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(cartRepository.findCartsByProductIds(Mockito.anyList())).thenReturn(List.of(cart1, cart2));
+        when(cartRepository.save(any(Cart.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // Test the service method
         List<Cart> updatedCartIds = service.updateProductsFromCarts(updatedProducts);
@@ -166,12 +150,24 @@ class ShoppingCartServiceTest {
         // Verify that the save method was called on the repository
         Mockito.verify(cartRepository, Mockito.times(2)).save(any(Cart.class));
 
+        verify(cartRepository).save(any());
     }
 
 
+    @Test
+    @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
+    void deleteCart() {
+        // Given
+        doNothing().when(cartRepository).deleteById(1L);
+
+        // When
+        service.deleteCart(1L);
+
+        // Then
+        verify(cartRepository).deleteById(1L);
+    }
+
 }
-
-
 
 
 
