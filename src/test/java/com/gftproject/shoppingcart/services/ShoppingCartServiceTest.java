@@ -116,6 +116,7 @@ class ShoppingCartServiceTest {
     }
 
     @Test
+    @DisplayName("GIVEN a list of updated products WHEN we recieve updated products THEN upda")
     void updateProductsFromCarts() {
         // Create sample data for testing
         Product product1 = new Product(1L, new BigDecimal("10.0"), new BigDecimal("0.5"), 10);
