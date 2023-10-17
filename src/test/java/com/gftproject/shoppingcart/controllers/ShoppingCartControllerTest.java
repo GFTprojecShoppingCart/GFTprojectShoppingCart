@@ -71,7 +71,7 @@ class ShoppingCartControllerTest {
     void createShoppingCart() {
         given(service.createCart(any())).willReturn(CartsData.createCart001());
 
-        ResponseEntity<Cart> cart = controller.createShoppingCart(1L);
+        ResponseEntity<Cart> cart = controller.createShoppingCart("1");
 
         assertNotNull(cart.getBody());
         assertEquals(HttpStatusCode.valueOf(201), cart.getStatusCode());

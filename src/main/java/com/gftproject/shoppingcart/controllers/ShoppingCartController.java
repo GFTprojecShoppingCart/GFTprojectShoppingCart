@@ -4,6 +4,7 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,10 +37,13 @@ public class ShoppingCartController {
     }
 
     @PostMapping("/carts/{id_user}")
-    public ResponseEntity<Cart> createShoppingCart(@PathVariable Long id_user) {
+    public ResponseEntity<Cart> createShoppingCart(@PathVariable String id_user) {
         HttpHeaders headers = new HttpHeaders();
-
-        return new ResponseEntity<>(service.createCart(id_user), headers, HttpStatus.CREATED);
+        if(!StringUtils.isNumeric(id_user)){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Long userId = Long.parseLong(id_user);
+        return new ResponseEntity<>(service.createCart(userId), headers, HttpStatus.CREATED);
     }
 
     @PutMapping("/carts/{id_cart}")
