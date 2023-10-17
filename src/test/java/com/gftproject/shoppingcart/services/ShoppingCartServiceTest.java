@@ -150,7 +150,7 @@ class ShoppingCartServiceTest {
         // Verify that the save method was called on the repository
         Mockito.verify(cartRepository, Mockito.times(2)).save(any(Cart.class));
 
-        verify(cartRepository).save(any());
+        verify(cartRepository, times(2)).save(any());
     }
 
 

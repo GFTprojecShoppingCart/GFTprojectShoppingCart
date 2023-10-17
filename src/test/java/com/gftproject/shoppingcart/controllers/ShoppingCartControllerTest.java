@@ -81,7 +81,7 @@ class ShoppingCartControllerTest {
     }
 
     @Test
-    @DisplayName("Submit a cart")
+    @DisplayName("GIVEN a cartId WHEN the controller is called THEN the cart status will change to submitted")
     void submitCart() {
         given(service.submitCart(any())).willReturn(CartsData.createCart001());
 
@@ -94,7 +94,7 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN a list of products WHEN the method is called THEN the list of products without enough stock will be updated")
-    void updateStockCart() {
+    void updateProductsFromCarts() {
         given(service.updateProductsFromCarts(any())).willReturn(CartsData.getMockCarts());
 
         ResponseEntity<List<Cart>> response = controller.updateProductsFromCarts(ProductData.getWarehouseStock());
