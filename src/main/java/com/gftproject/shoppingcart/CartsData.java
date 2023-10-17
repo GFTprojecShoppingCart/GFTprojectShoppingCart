@@ -1,12 +1,15 @@
 package com.gftproject.shoppingcart;
 
+
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Status;
+
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 
 public class CartsData {
 
@@ -20,11 +23,11 @@ public class CartsData {
     }
 
     public static Cart createCart003() {
-        return new Cart(3L, new ArrayList<>(),new HashMap<>(), 1L, Status.DRAFT, new BigDecimal("80"),  BigDecimal.ZERO);
+        return new Cart(3L, new ArrayList<>(), new HashMap<>(), 1L, Status.DRAFT, new BigDecimal("80"),  BigDecimal.ZERO);
     }
 
     public static Cart createCart004() {
-        return new Cart(4L, new ArrayList<>(),new HashMap<>(), 1L, Status.SUBMITTED, new BigDecimal("80"),  BigDecimal.ZERO);
+        return new Cart(4L, new ArrayList<>(),new HashMap<>(), 1L, Status.SUBMITTED,  BigDecimal.ZERO,  BigDecimal.ZERO);
     }
 
     public static List<Cart> getMockCarts() {

@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
@@ -70,20 +71,31 @@ class ShoppingCartControllerTest {
     void createShoppingCart() {
         given(service.createCart(any())).willReturn(CartsData.createCart001());
 
-        ResponseEntity<Cart> cart = controller.createShoppingCart(1L);
+        ResponseEntity<Cart> cart = controller.createShoppingCart("1");
 
         assertNotNull(cart.getBody());
         assertEquals(HttpStatusCode.valueOf(201), cart.getStatusCode());
         verify(service).createCart(any());
-
     }
 
     @Test
     @DisplayName("Submit a cart")
     void submitCart() {
-        given(service.submitCart(any())).willReturn(CartsData.createSampleCart());
+        given(service.submitCart(any())).willReturn(CartsData.createCart001());
 
-        ResponseEntity<Cart> cart = controller.submitCart(1L);
+        ResponseEntity<Cart> cart = controller.submitCart("1");
+
+        assertNotNull(cart.getBody());
+        assertEquals(HttpStatusCode.valueOf(200), cart.getStatusCode());
+        verify(service).submitCart(any());
+    }
+
+    @Test
+    @DisplayName("Update stock of a cart")
+    void updateStockCart() {
+        given(service.updateStockCart(any())).willReturn(CartsData.createCart001());
+
+        ResponseEntity<Cart> cart = controller.updateStockCart(1L);
 
         assertNotNull(cart.getBody());
         assertEquals(HttpStatusCode.valueOf(200), cart.getStatusCode());
@@ -92,6 +104,46 @@ class ShoppingCartControllerTest {
 
     @Test
     void addToCart() throws Exception{
-        given(service.submitCart(any())).willReturn(CartsData.createSampleCart());
+        //TODO
+        given(service.submitCart(any())).willReturn(CartsData.createCart001());
     }
+
+    @Test
+    void updateProductsFromCarts() {
+        given(service.updateProductsFromCarts(any())).willReturn(CartsData.getMockCarts());
+
+        ResponseEntity<Cart> cart = controller.updateStockCart(1L);
+
+        assertNotNull(cart.getBody());
+        assertEquals(HttpStatusCode.valueOf(200), cart.getStatusCode());
+        verify(service).updateProductsFromCarts(any());
+    }
+
+    @Test
+    @DisplayName("WHEN deleteCart is executed THEN Delete a cart object")
+    void deleteCart() {
+        // When
+        ResponseEntity<Void> response = controller.deleteShoppingCart(1L);
+
+        // Then
+        assertEquals(HttpStatus.valueOf(200), response.getStatusCode());
+
+        // Verification
+        verify(service).deleteCart(1L);
+    }
+
+
+//    @Test
+//    void deleteShoppingCart() throws Exception {
+//
+//        //deleteCart001 CartsData.java method?
+//        given(service.deleteCart(any())).willReturn(CartsData.createCart001().orElseThrow());
+//
+//        mvc.perform(delete("/carts/1")
+//                .contentType(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+//
+//        verify(service).deleteCart(any());
+//    }
 }

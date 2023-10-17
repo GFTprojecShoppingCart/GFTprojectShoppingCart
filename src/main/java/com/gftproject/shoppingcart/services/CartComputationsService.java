@@ -3,9 +3,12 @@ package com.gftproject.shoppingcart.services;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
+import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,50 +16,56 @@ import java.util.Map;
 @Service
 public class CartComputationsService {
 
-    public boolean checkStock(Map<Product, Integer> products) throws NotEnoughStockException {
-        for (Map.Entry<Product, Integer> entry : products.entrySet()) {
-            int quantity = entry.getValue();
+    public List<Long> checkStock(Map<Long, Integer> cartProducts, List<Product> warehouseStock) {
 
-            if (quantity > entry.getKey().getStorageQuantity()){
-                throw new NotEnoughStockException();
+        List<Long> productsWithoutStock = new ArrayList<>();
+
+        for (Product product : warehouseStock) {
+            int productInCart = cartProducts.get(product.getId());
+            if (product.getStorageQuantity() < productInCart) {
+                productsWithoutStock.add(product.getId());
             }
         }
-        return true;
+        return productsWithoutStock;
     }
 
-    public Map<String, BigDecimal> computeFinalValues(Map<Product, Integer> productList) throws NotEnoughStockException {
+    public Pair<BigDecimal, BigDecimal> computeFinalValues(Map<Long, Integer> cartProducts, List<Product> warehouseStock) throws NotEnoughStockException {
 
         BigDecimal totalWeight = new BigDecimal(0);
         BigDecimal totalPrice = new BigDecimal(0);
 
-        for (Map.Entry<Product, Integer> entry : productList.entrySet()) {
-
-            Product product = entry.getKey();
+        for (Map.Entry<Long, Integer> entry : cartProducts.entrySet()) {
+            long productId = entry.getKey();
             int quantity = entry.getValue();
 
-            if (quantity > entry.getKey().getStorageQuantity()){
-                throw new NotEnoughStockException();
+            // Find the product with the given ID in the warehouse stock
+            Product product = findProductById(productId, warehouseStock);
+
+            if (product == null) {
+                // Product not found in the warehouse stock, you can throw an exception or handle it as needed.
+                throw new NotEnoughStockException("Product not found in the warehouse: " + productId);
             }
 
-            BigDecimal productWeight = product.getWeight();
-            BigDecimal productPrice = product.getPrice();
-
-            totalWeight = totalWeight.add(productWeight.multiply(BigDecimal.valueOf(quantity)));
-            totalPrice = totalPrice.add(productPrice.multiply(BigDecimal.valueOf(quantity)));
-
+            // Calculate the total weight and price for the product and add it to the totals
+            totalWeight = totalWeight.add(product.getWeight().multiply(BigDecimal.valueOf(quantity)));
+            totalPrice = totalPrice.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
         }
 
-        // TODO return a list in a tuple
-
-        Map<String, BigDecimal> valuesMap = new HashMap<>();
-        valuesMap.put("totalWeight", totalWeight);
-        valuesMap.put("totalPrice", totalPrice);
-
-        return valuesMap;
-
+        return new Pair<>(totalWeight, totalPrice);
     }
 
-    public boolean cartValidity(Cart cart){
+    // Helper method to find a product by ID in the warehouse stock
+    private Product findProductById(long productId, List<Product> warehouseStock) {
+        for (Product product : warehouseStock) {
+            if (product.getId() == productId) {
+                return product;
+            }
+        }
+        return null; // Product not found
+    }
+
+
+    public boolean cartValidity(Cart cart) {
         //TODO recorre todos los productos, y comprueba que hay suficiente stock
         return false;
     }

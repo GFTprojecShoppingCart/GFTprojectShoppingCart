@@ -4,6 +4,7 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,25 +36,52 @@ public class ShoppingCartController {
         return new ResponseEntity<>(cartList, headers, HttpStatus.OK);
     }
 
-    @PostMapping("/carts/{id_user}")
-    public ResponseEntity<Cart> createShoppingCart(@PathVariable Long id_user) {
+    @PostMapping("/carts/{userId}")
+    public ResponseEntity<Cart> createShoppingCart(@PathVariable String userId) {
         HttpHeaders headers = new HttpHeaders();
+        if(StringUtils.isNumeric(userId)){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Long id_user = Long.parseLong(userId);
 
         return new ResponseEntity<>(service.createCart(id_user), headers, HttpStatus.CREATED);
     }
 
-    @PutMapping("/carts/{id_cart}")
-    public ResponseEntity<Cart> submitCart(@PathVariable Long id_cart) {
+    @PutMapping("/carts/{cartId}")
+    public ResponseEntity<Cart> submitCart(@PathVariable String cartId) {
         HttpHeaders headers = new HttpHeaders();
+        if(!StringUtils.isNumeric(cartId)){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        Long id_cart = Long.parseLong(cartId);
+        return new ResponseEntity<>(service.createCart(id_cart), headers, HttpStatus.OK);
 
-        return new ResponseEntity<>(service.submitCart(id_cart), headers, HttpStatus.OK);
     }
 
-    @PutMapping("/carts1/{id_cart}")
-    public ResponseEntity<Cart> addProductWithQuantity(@PathVariable Long id_cart) {
+    @PutMapping("/carts1/{cartId}")
+    public ResponseEntity<Cart> addProductWithQuantity(@PathVariable Long cartId) {
+        //TODO change carts1
         HttpHeaders headers = new HttpHeaders();
 
-        return new ResponseEntity<>(service.submitCart(id_cart), headers, HttpStatus.OK);
+        return new ResponseEntity<>(service.submitCart(cartId), headers, HttpStatus.OK);
     }
 
+    @PutMapping("/updateProducts")
+    public ResponseEntity<List<Long>> updateProductsFromCarts(List<Product> productList){
+
+        service.updateProductsFromCarts(productList);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/carts/{idCart}")
+    public ResponseEntity<Void> deleteShoppingCart(@PathVariable Long idCart) {
+        service.deleteCart(idCart);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping()
+    public ResponseEntity<Cart> updateStockCart(long l) {
+        return null;
+    }
 }

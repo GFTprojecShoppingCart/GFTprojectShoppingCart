@@ -5,9 +5,11 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
+import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -17,10 +19,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     private final ShoppingCartRepository shoppingCartRepository;
     private final CartComputationsService computationsService;
+    private final ProductServiceImpl productService;
+    private final UserServiceImpl userService;
 
-    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository, CartComputationsService computationsService) {
+    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository, CartComputationsService computationsService, ProductServiceImpl productService, UserServiceImpl userService) {
         this.shoppingCartRepository = shoppingCartRepository;
         this.computationsService = computationsService;
+        this.productService = productService;
+        this.userService = userService;
     }
 
     @Override
@@ -36,7 +42,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public Cart createCart(Long userId) {
         Cart cart = new Cart();
-        cart.setUser_id(userId);
+        cart.setUserId(userId);
         return shoppingCartRepository.save(cart);
     }
 
@@ -62,53 +68,74 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
     }
 
-    @Override
-    public void deleteCart(Long idCart) {
-        shoppingCartRepository.deleteById(idCart);
-    }
 
     @Override
     public Cart submitCart(Long idCart) {
-
+        // We obtain the cart
         Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
+        List<Long> productIds = new ArrayList<>(cart.getProducts().keySet());
 
         try {
-            boolean stock = computationsService.checkStock(cart.getProducts());
+            // We obtain the cart products from their endpoint
+            List<Product> warehouseStock = productService.getProductsByIds(productIds);
+            List<Long> productsWithoutStock = computationsService.checkStock(cart.getProducts(), warehouseStock);
             // TODO Validate User
+
+            userService.validate();
 
             // TODO Compute price -> Cosas
 
-            Map<String, BigDecimal> valuesMap = computationsService.computeFinalValues(cart.getProducts());
+            if (productsWithoutStock.isEmpty()) {
 
-            cart.setFinalWeight(valuesMap.get("totalWeight"));
-            cart.setFinalPrice(valuesMap.get("totalPrice"));
-            
+                // TODO Check TAX / Payment / weight
+
+                // TODO Check cart validity
+                // TODO Change status AND send to almacen
+
+                Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalValues(cart.getProducts(), warehouseStock);
+
+                cart.setFinalWeight(pair.a);
+                cart.setFinalPrice(pair.b);
+                cart.setStatus(Status.SUBMITTED);
+
+                return shoppingCartRepository.save(cart);
+            }
+
         } catch (NotEnoughStockException e) {
             throw new RuntimeException(e);
         }
+        return cart;
+    }
 
-        // TODO Check TAX / Payment / weight
+    public List<Cart> updateProductsFromCarts(List<Product> productList) {
+        List<Long> productsIds = productList.stream().map(Product::getId).toList();
+        List<Cart> shoppingCarts = shoppingCartRepository.findCartsByProductIds(productsIds);
 
-        // TODO Check cart validity
-        // TODO Change status AND send to almacen
+        for (Cart cart : shoppingCarts) {
+            cart.setInvalidProducts(computationsService.checkStock(cart.getProducts(), productList));
+        }
+        return shoppingCarts;
 
-        cart.setStatus(Status.SUBMITTED);
-
-        return shoppingCartRepository.save(cart);
     }
 
     public void addProductWithQuantity(Cart cart, Product product, int quantity) {
 
-        Map<Product, Integer> products = cart.getProducts();
+        Map<Long, Integer> products = cart.getProducts();
         if (cart.getProducts().containsKey(product)) {
-            if(product.getStorageQuantity()>= quantity){
+            if (product.getStorageQuantity() >= quantity) {
                 int currentQuantity = products.get(product);
                 int newQuantity = currentQuantity + quantity;
-                products.put(product, currentQuantity + newQuantity);
+                products.put(product.getId(), currentQuantity + newQuantity);
             }
         } else {
-            products.put(product, quantity);
+            products.put(product.getId(), quantity);
         }
     }
+
+    public Object updateStockCart(Object any) {
+        return null;
+    }
+    @Override
+    public void deleteCart(Long cartId) {shoppingCartRepository.deleteById(cartId);}
 
 }
