@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
@@ -17,8 +18,7 @@ import java.util.*;
 
 import static com.gftproject.shoppingcart.CartsData.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -51,8 +51,8 @@ class ShoppingCartServiceTest {
     }
 
     @Test
-    @DisplayName("Gets a full list of carts")
-    void getAllCarts() {
+    @DisplayName("WHEN the method is called THEN a list of carts all carts should be provided")
+    void findAll() {
         //Given
         when(cartRepository.findAll()).thenReturn(carts);
 
@@ -66,8 +66,8 @@ class ShoppingCartServiceTest {
     }
 
     @Test
-    @DisplayName("WHEN a status is provided, THEN a filtered list of carts should be provided")
-    void getCartsByStatus() {
+    @DisplayName("GIVEN a status WHEN the method is called THEN a filtered list of carts should be provided")
+    void findAllByStatus() {
         //Given
         when(cartRepository.findAllByStatus(any())).thenReturn(carts);
 
@@ -84,7 +84,7 @@ class ShoppingCartServiceTest {
     @DisplayName("Submit a cart")
     void submitCart() {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
-        when(cartRepository.save(any())).thenReturn(createCart001());
+        when(cartRepository.save(any())).thenReturn(createCart004());
         //when(computationsService.computeFinalValues(any()));
 
         Cart submittedCart = service.submitCart(1L);
@@ -101,13 +101,13 @@ class ShoppingCartServiceTest {
 
     @Test
     @DisplayName("Add product to cart and check stock")
-    void addProductWithQuantity() {
+    void addProductToCartWithQuantity() throws ProductNotFoundException {
         Cart cart = new Cart(1L, new ArrayList<>(), new HashMap<>(), 1L, Status.DRAFT, new BigDecimal(14), BigDecimal.ZERO);
         Product product = new Product(1L, new BigDecimal(3), new BigDecimal("0.5"), 5);
         when(cartRepository.findById(any())).thenReturn(Optional.of(cart));
         when(computationsService.checkStock(cart.getProducts(), List.of(product))).thenReturn(List.of(1L, 2L));
         when(cartRepository.save(any())).thenReturn(cart);
-        Cart updatedCart = service.addProductToCartWithQuantity(1L, product, 5);
+        Cart updatedCart = service.addProductToCartWithQuantity(1L, 1L, 5);
         assertNotNull(updatedCart);
 
         assertEquals(1L, updatedCart.getId());
@@ -167,6 +167,11 @@ class ShoppingCartServiceTest {
         verify(cartRepository).deleteById(1L);
     }
 
+    @Test
+    void createCart() {
+        //TODO
+        assertTrue(false);
+    }
 }
 
 

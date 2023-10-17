@@ -1,6 +1,7 @@
 package com.gftproject.shoppingcart.controllers;
 
 import com.gftproject.shoppingcart.CartsData;
+import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
@@ -38,7 +39,7 @@ class ShoppingCartControllerTest {
     }
 
     @Test
-    @DisplayName("Find All Carts")
+    @DisplayName("WHEN the controller is called THEN returns all carts")
     void findAllByEmptyStatus() {
 
         given(service.findAllByStatus(any())).willReturn(CartsData.getMockCarts());
@@ -47,31 +48,32 @@ class ShoppingCartControllerTest {
         ResponseEntity<List<Cart>> response = controller.findAllByStatus(null);
 
         assertNotNull(response.getBody());
-        assertEquals(3, response.getBody().size());
+        assertEquals(4, response.getBody().size());
         verify(service, never()).findAllByStatus(any());
 
     }
 
     @Test
-    @DisplayName("Find all carts with filter")
+    @DisplayName("GIVEN a status as parameter WHEN the controller is called THEN returns a filtered list of carts")
     void findAllByStatus() {
 
-        given(service.findAllByStatus(any())).willReturn(CartsData.getMockCarts());
+        given(service.findAllByStatus(any())).willReturn(List.of(CartsData.createCart004()));
         given(service.findAll()).willReturn(CartsData.getMockCarts());
 
         ResponseEntity<List<Cart>> response = controller.findAllByStatus(Status.SUBMITTED);
 
         assertNotNull(response.getBody());
-        assertEquals(3, response.getBody().size());
+        assertEquals(Status.SUBMITTED, response.getBody().get(0).getStatus());
+        assertEquals(1, response.getBody().size());
         verify(service).findAllByStatus(any());
     }
 
     @Test
-    @DisplayName("Create a shopping cart")
-    void createShoppingCart() {
+    @DisplayName("GIVEN the userID WHEN method called THEN returns the created cart")
+    void createCart() {
         given(service.createCart(any())).willReturn(CartsData.createCart001());
 
-        ResponseEntity<Cart> cart = controller.createShoppingCart("1");
+        ResponseEntity<Cart> cart = controller.createCart("1");
 
         assertNotNull(cart.getBody());
         assertEquals(HttpStatusCode.valueOf(201), cart.getStatusCode());
@@ -91,31 +93,14 @@ class ShoppingCartControllerTest {
     }
 
     @Test
-    @DisplayName("Update stock of a cart")
+    @DisplayName("GIVEN a list of products WHEN the method is called THEN the list of products without enough stock will be updated")
     void updateStockCart() {
-        given(service.updateStockCart(any())).willReturn(CartsData.createCart001());
-
-        ResponseEntity<Cart> cart = controller.updateStockCart(1L);
-
-        assertNotNull(cart.getBody());
-        assertEquals(HttpStatusCode.valueOf(200), cart.getStatusCode());
-        verify(service).submitCart(any());
-    }
-
-    @Test
-    void addToCart() throws Exception{
-        //TODO
-        given(service.submitCart(any())).willReturn(CartsData.createCart001());
-    }
-
-    @Test
-    void updateProductsFromCarts() {
         given(service.updateProductsFromCarts(any())).willReturn(CartsData.getMockCarts());
 
-        ResponseEntity<Cart> cart = controller.updateStockCart(1L);
+        ResponseEntity<List<Cart>> response = controller.updateProductsFromCarts(ProductData.getWarehouseStock());
 
-        assertNotNull(cart.getBody());
-        assertEquals(HttpStatusCode.valueOf(200), cart.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
         verify(service).updateProductsFromCarts(any());
     }
 

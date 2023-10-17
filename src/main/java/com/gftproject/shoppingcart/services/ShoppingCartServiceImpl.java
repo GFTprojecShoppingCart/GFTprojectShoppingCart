@@ -1,6 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
-import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
+import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 @Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
@@ -30,13 +31,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public List<Cart> findAllByStatus(Status status) {
-        return shoppingCartRepository.findAllByStatus(status);
+    public List<Cart> findAll() {
+        return shoppingCartRepository.findAll();
     }
 
     @Override
-    public List<Cart> findAll() {
-        return shoppingCartRepository.findAll();
+    public List<Cart> findAllByStatus(Status status) {
+        return shoppingCartRepository.findAllByStatus(status);
     }
 
     @Override
@@ -46,18 +47,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return shoppingCartRepository.save(cart);
     }
 
-    //TODO
     @Override
-    public Cart addProduct(Long idUser, Long idCart, Product product) {
-        return null;
-    }
-
-    @Override
-    public Cart addProductToCartWithQuantity(Long cartId, Product product, int quantity) {
+    public Cart addProductToCartWithQuantity(Long cartId, Long productId, int quantity) {
         Optional<Cart> optionalCart = shoppingCartRepository.findById(cartId);
 
         if (optionalCart.isPresent()) {
             Cart cart = optionalCart.get();
+
+            Product product = productService.getProductById(productId);
 
             addProductWithQuantity(cart, product, quantity);
             return shoppingCartRepository.save(cart);
@@ -71,14 +68,17 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public Cart submitCart(Long idCart) {
-        // We obtain the cart
-        Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
-        List<Long> productIds = new ArrayList<>(cart.getProducts().keySet());
 
         try {
+            // We obtain the cart
+            Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
+            List<Long> productIds = new ArrayList<>(cart.getProducts().keySet());
+
             // We obtain the cart products from their endpoint
             List<Product> warehouseStock = productService.getProductsByIds(productIds);
-            List<Long> productsWithoutStock = computationsService.checkStock(cart.getProducts(), warehouseStock);
+            List<Long> productsWithoutStock = null;
+            productsWithoutStock = computationsService.checkStock(cart.getProducts(), warehouseStock);
+
             // TODO Validate User
 
             userService.validate();
@@ -100,22 +100,29 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
                 return shoppingCartRepository.save(cart);
             }
-
-        } catch (NotEnoughStockException e) {
-            throw new RuntimeException(e);
+        } catch (ProductNotFoundException e) {
+//            throw new RuntimeException(e);
         }
-        return cart;
+        return new Cart();
     }
 
     public List<Cart> updateProductsFromCarts(List<Product> productList) {
+
         List<Long> productsIds = productList.stream().map(Product::getId).toList();
         List<Cart> shoppingCarts = shoppingCartRepository.findCartsByProductIds(productsIds);
 
-        for (Cart cart : shoppingCarts) {
-            cart.setInvalidProducts(computationsService.checkStock(cart.getProducts(), productList));
+        try {
+
+            for (Cart cart : shoppingCarts) {
+                cart.setInvalidProducts(computationsService.checkStock(cart.getProducts(), productList));
+                shoppingCartRepository.save(cart);
+            }
+
+        } catch (ProductNotFoundException e) {
+            // TODO
+            System.out.println("Oof");
         }
         return shoppingCarts;
-
     }
 
     public void addProductWithQuantity(Cart cart, Product product, int quantity) {
@@ -132,10 +139,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
     }
 
-    public Object updateStockCart(Object any) {
-        return null;
-    }
     @Override
-    public void deleteCart(Long cartId) {shoppingCartRepository.deleteById(cartId);}
+    public void deleteCart(Long cartId) {
+        shoppingCartRepository.deleteById(cartId);
+    }
 
 }
