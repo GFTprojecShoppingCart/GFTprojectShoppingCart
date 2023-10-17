@@ -41,11 +41,6 @@ public class CartComputationsService {
             // Find the product with the given ID in the warehouse stock
             Product product = findProductById(productId, warehouseStock);
 
-            if (product == null) {
-                // Product not found in the warehouse stock, you can throw an exception or handle it as needed.
-                throw new NotEnoughStockException("Product not found in the warehouse: " + productId);
-            }
-
             // Calculate the total weight and price for the product and add it to the totals
             totalWeight = totalWeight.add(product.getWeight().multiply(BigDecimal.valueOf(quantity)));
             totalPrice = totalPrice.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));

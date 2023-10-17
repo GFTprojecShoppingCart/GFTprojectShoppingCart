@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
@@ -12,7 +13,7 @@ public interface ShoppingCartService {
 
     List<Cart> findAll();
 
-    Cart createCart(Long id_user);
+    Cart createCart(Long userId);
 
     Cart addProductToCartWithQuantity(Long cartId, Product product, int quantity);
 
@@ -20,7 +21,7 @@ public interface ShoppingCartService {
 
     void deleteCart(Long idCart);
 
-    Cart submitCart(Long idCart);
+    Cart submitCart(Long idCart) throws NotEnoughStockException;
 
     List<Cart> updateProductsFromCarts(List<Product> productList);
 }

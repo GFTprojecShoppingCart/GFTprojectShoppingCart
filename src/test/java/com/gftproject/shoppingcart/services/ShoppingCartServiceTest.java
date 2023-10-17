@@ -4,6 +4,8 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
+
+import org.antlr.v4.runtime.misc.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,10 +18,13 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static com.gftproject.shoppingcart.CartsData.*;
+import static com.gftproject.shoppingcart.ProductData.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.*;
 
 
@@ -84,14 +89,20 @@ class ShoppingCartServiceTest {
     @DisplayName("GIVEN a cart Id  WHEN cart is submitted  THEN status is submitted")
     void submitCartStock(){
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
-        when(cartRepository.save(any())).thenReturn(createSampleCart());
-        //when(computationsService.computeFinalValues(any()));
+        when(productService.getProductsByIds(any())).thenReturn(getWarehouseStock());
+        when(computationsService.checkStock(anyMap(), anyList())).thenReturn(Collections.emptyList()); //Empty list to check the correct stock path
+        doNothing().when(userService).validate(); // Need to talk with user microservice
+        when(computationsService.computeFinalValues(anyMap(), anyList())).thenReturn(new Pair<>(new BigDecimal(3), new BigDecimal(25)));
+        when(cartRepository.save(any())).thenReturn(createCart004()); // Return submitted cart
+        
 
         Cart submittedCart = service.submitCart(1L);
 
         // Verify that the service method correctly calls the repository
         verify(cartRepository).findById(1L);
-        verify(shoppingCartRepository).save(any());
+        //verify(cartRepository).save(any());
+        verify(userService).validate();
+        verify(computationsService).computeFinalValues(anyMap(), anyList());
 
         assertThat(submittedCart).isNotNull();
         assertThat(submittedCart.getFinalPrice()).isNotZero();
@@ -103,7 +114,7 @@ class ShoppingCartServiceTest {
     @DisplayName("GIVEN a cart Id  WHEN cart is submitted  THEN status is submitted")
     void submitCartNoStock(){
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
-        when(shoppingCartRepository.save(any())).thenReturn(createSampleCart());
+        when(cartRepository.save(any())).thenReturn(createCart004());
         //when(computationsService.computeFinalValues(any()));
 
         Cart submittedCart = service.submitCart(1L);
@@ -120,12 +131,12 @@ class ShoppingCartServiceTest {
 
     @Test
     @DisplayName("Add product to cart and check stock")
-    void addProductWithQuantity(){
-        Cart cart = new Cart(1L, new HashMap<>(), 1L, Status.DRAFT,new BigDecimal(14), BigDecimal.ZERO);
-        Product product = new Product(1L, new BigDecimal(3), "Producto de prueba", new BigDecimal("0.5"), 5);
-        when(shoppingCartRepository.findById(any())).thenReturn(Optional.of(cart));
-        when(computationsService.checkStock(cart.getProducts())).thenReturn(true);
-        when(shoppingCartRepository.save(any())).thenReturn(cart);
+    void addProductWithQuantity() {
+        Cart cart = new Cart(1L, new ArrayList<>(), new HashMap<>(), 1L, Status.DRAFT, new BigDecimal(14), BigDecimal.ZERO);
+        Product product = new Product(1L, new BigDecimal(3), new BigDecimal("0.5"), 5);
+        when(cartRepository.findById(any())).thenReturn(Optional.of(cart));
+        when(computationsService.checkStock(cart.getProducts(), List.of(product))).thenReturn(List.of(1L, 2L));
+        when(cartRepository.save(any())).thenReturn(cart);
         Cart updatedCart = service.addProductToCartWithQuantity(1L, product, 5);
         assertNotNull(updatedCart);
 

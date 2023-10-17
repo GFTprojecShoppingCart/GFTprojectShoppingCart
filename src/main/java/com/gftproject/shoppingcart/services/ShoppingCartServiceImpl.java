@@ -70,41 +70,39 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 
     @Override
-    public Cart submitCart(Long idCart) {
-        // We obtain the cart
+    public Cart submitCart(Long idCart) throws NotEnoughStockException {
+        // Obtenemos el carrito
         Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
+    
+        // Obtener IDs de los productos en el carrito
         List<Long> productIds = new ArrayList<>(cart.getProducts().keySet());
+    
 
-        try {
-            // We obtain the cart products from their endpoint
-            List<Product> warehouseStock = productService.getProductsByIds(productIds);
-            List<Long> productsWithoutStock = computationsService.checkStock(cart.getProducts(), warehouseStock);
-            // TODO Validate User
+        // Obtener los productos del almacén
+        List<Product> warehouseStock = productService.getProductsByIds(productIds);
+        // Comprobar el stock
+        List<Long> productsWithoutStock = computationsService.checkStock(cart.getProducts(), warehouseStock);
+        // TODO: Validar al usuario
 
-            userService.validate();
+        userService.validate();
 
-            // TODO Compute price -> Cosas
+        if (productsWithoutStock.isEmpty()) {
+            // Realizar cálculos de precio
+            Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalValues(cart.getProducts(), warehouseStock);
 
-            if (productsWithoutStock.isEmpty()) {
+            // Cambiar el estado del carrito
+            cart.setFinalWeight(pair.a);
+            cart.setFinalPrice(pair.b);
+            cart.setStatus(Status.SUBMITTED);
 
-                // TODO Check TAX / Payment / weight
+            // Guardar el carrito
+            return shoppingCartRepository.save(cart);
+        } else {
+            // No hay suficiente stock, devuelve el carrito en estado DRAFT
+            throw new NotEnoughStockException(productsWithoutStock);
+        }   
 
-                // TODO Check cart validity
-                // TODO Change status AND send to almacen
-
-                Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalValues(cart.getProducts(), warehouseStock);
-
-                cart.setFinalWeight(pair.a);
-                cart.setFinalPrice(pair.b);
-                cart.setStatus(Status.SUBMITTED);
-
-                return shoppingCartRepository.save(cart);
-            }
-
-        } catch (NotEnoughStockException e) {
-            throw new RuntimeException(e);
-        }
-        return cart;
+        
     }
 
     public List<Cart> updateProductsFromCarts(List<Product> productList) {
