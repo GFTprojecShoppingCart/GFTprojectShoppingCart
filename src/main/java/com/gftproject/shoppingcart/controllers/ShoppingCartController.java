@@ -36,7 +36,7 @@ public class ShoppingCartController {
         return new ResponseEntity<>(cartList, headers, HttpStatus.OK);
     }
 
-    @PostMapping("/carts/{id_user}")
+    @PostMapping("/carts/{userId}")
     public ResponseEntity<Cart> createShoppingCart(@PathVariable String userId) {
         HttpHeaders headers = new HttpHeaders();
         if(StringUtils.isNumeric(userId)){
@@ -54,7 +54,7 @@ public class ShoppingCartController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Long id_cart = Long.parseLong(cartId);
-        return new ResponseEntity<>(service.createCart(id_cart), headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(service.createCart(id_cart), headers, HttpStatus.OK);
 
     }
 
