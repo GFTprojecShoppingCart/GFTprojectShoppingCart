@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -39,7 +40,7 @@ public class ShoppingCartController {
     @PostMapping("/carts/{userId}")
     public ResponseEntity<Cart> createShoppingCart(@PathVariable String userId) {
         HttpHeaders headers = new HttpHeaders();
-        if(StringUtils.isNumeric(userId)){
+        if(!StringUtils.isNumeric(userId)){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         Long id_user = Long.parseLong(userId);

@@ -46,12 +46,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return shoppingCartRepository.save(cart);
     }
 
-    //TODO
-    @Override
-    public Cart addProduct(Long idUser, Long idCart, Product product) {
-        return null;
-    }
-
     @Override
     public Cart addProductToCartWithQuantity(Long cartId, Product product, int quantity) {
         Optional<Cart> optionalCart = shoppingCartRepository.findById(cartId);

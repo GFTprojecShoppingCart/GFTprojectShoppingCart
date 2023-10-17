@@ -17,8 +17,6 @@ public interface ShoppingCartService {
 
     Cart addProductToCartWithQuantity(Long cartId, Product product, int quantity);
 
-    Cart addProduct(Long idUser, Long idCart, Product product);
-
     void deleteCart(Long idCart);
 
     Cart submitCart(Long idCart) throws NotEnoughStockException;
