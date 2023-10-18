@@ -4,7 +4,12 @@ import java.util.List;
 
 public class NotEnoughStockException extends Exception {
 
-    public NotEnoughStockException(List<Long> productIds) {
-        super("Not enough stock of products with Id: " + productIds);
+    public NotEnoughStockException(List<Long> productId){
+        super("Not enough stock of products with Id: " + productId);
+    }
+
+    public NotEnoughStockException(String message) {
+        super(message);
+
     }
 }

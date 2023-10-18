@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
+import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
+import com.gftproject.shoppingcart.model.ErrorResponse;
+
 @ControllerAdvice
 public class ShoppingCartControllerAdvice {
 
@@ -25,7 +29,7 @@ public class ShoppingCartControllerAdvice {
     }
 
     @ExceptionHandler(ProductNotFoundException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
     public ResponseEntity<ErrorResponse> handleProductNotFoundException(ProductNotFoundException ex) {
 

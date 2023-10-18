@@ -16,7 +16,7 @@ public interface ShoppingCartService {
 
     Cart createCart(Long userId);
 
-    Cart addProductToCartWithQuantity(Long cartId, Long productId, int quantity);
+    Cart addProductToCartWithQuantity(Long cartId, Long productId, int quantity) throws ProductNotFoundException;
 
     void deleteCart(Long idCart);
 

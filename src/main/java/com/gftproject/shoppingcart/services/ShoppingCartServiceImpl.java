@@ -48,7 +48,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public Cart addProductToCartWithQuantity(Long cartId, Long productId, int quantity) {
+    public Cart addProductToCartWithQuantity(Long cartId, Long productId, int quantity) throws ProductNotFoundException {
         Optional<Cart> optionalCart = shoppingCartRepository.findById(cartId);
 
         if (optionalCart.isPresent()) {
@@ -57,6 +57,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             Product product = productService.getProductById(productId);
 
             addProductWithQuantity(cart, product, quantity);
+
             return shoppingCartRepository.save(cart);
         } else {
             Cart newCart = new Cart();
@@ -67,32 +68,30 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 
     @Override
-    public Cart submitCart(Long idCart) throws NotEnoughStockException {
+    public Cart submitCart(Long idCart) throws NotEnoughStockException, ProductNotFoundException {
+
+        // TODO: Validar al usuario
+        userService.validate();
+
         // Obtenemos el carrito
         Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
-    
-        // Obtener IDs de los productos en el carrito
-        List<Long> productIds = new ArrayList<>(cart.getProducts().keySet());
-    
 
-        // Obtener los productos del almacén
-        List<Product> warehouseStock = productService.getProductsByIds(productIds);
-        // Comprobar el stock
-        List<Long> productsWithoutStock = null;
-        try {
-            productsWithoutStock = computationsService.checkStock(cart.getProducts(), warehouseStock);
-        } catch (ProductNotFoundException e) {
-            System.out.println("oof");
+        // Primero vemos si es valido desde la ultima revision
+        if (!cart.getInvalidProducts().isEmpty()) {
+            throw new NotEnoughStockException(cart.getInvalidProducts());
         }
-        // TODO: Validar al usuario
 
-        userService.validate(cart.getUserId());
+        // Obtener IDs de los productos en el carrito
+        Map<Long, Integer> productsMap = cart.getProducts();
+    
+        // Comunicar al almacen la compra
+        List<Product> submittedProducts = productService.getProductsToSubmit(productsMap);
 
-        if (productsWithoutStock.isEmpty()) {
+        if (!submittedProducts.isEmpty()) {
             // Realizar cálculos de precio
             Pair<BigDecimal, BigDecimal> pair = null;
             try {
-                pair = computationsService.computeFinalValues(cart.getProducts(), warehouseStock);
+                pair = computationsService.computeFinalValues(cart.getProducts(), submittedProducts);
             } catch (ProductNotFoundException e) {
                 System.out.println("oof");
             }
@@ -104,10 +103,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
             // Guardar el carrito
             return shoppingCartRepository.save(cart);
-        } else {
-            // No hay suficiente stock, devuelve el carrito en estado DRAFT
-            throw new NotEnoughStockException(productsWithoutStock);
-        }   
+        }
+
+        return cart;
+
 
         
     }
@@ -133,16 +132,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public void addProductWithQuantity(Cart cart, Product product, int quantity) {
 
         Map<Long, Integer> products = cart.getProducts();
-        if (cart.getProducts().containsKey(product.getId())) {
-            if (product.getStorageQuantity() >= quantity) {
-                int currentQuantity = products.get(product.getId());
-                int newQuantity = currentQuantity + quantity;
-                products.put(product.getId(), currentQuantity + newQuantity);
-            }
-        } else {
+
+        if (product.getStorageQuantity() >= quantity) {
+
             products.put(product.getId(), quantity);
         }
+
     }
+
 
     @Override
     public void deleteCart(Long cartId) {

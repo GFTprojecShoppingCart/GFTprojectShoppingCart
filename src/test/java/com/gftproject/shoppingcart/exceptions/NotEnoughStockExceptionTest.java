@@ -24,5 +24,6 @@ class NotEnoughStockExceptionTest {
 
         // Verificar que el mensaje de la excepción sea el esperado
         assertThat(exception.getMessage()).isEqualTo("Not enough stock of products with Id: [1, 2, 3]");
+
     }
 }
