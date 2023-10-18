@@ -4,16 +4,13 @@ import com.gftproject.shoppingcart.CartsData;
 import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.model.Cart;
-import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
-import com.gftproject.shoppingcart.services.ShoppingCartService;
 import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -133,13 +130,13 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN cartId, product and quantity WHEN product is added THEN response is OK")
-    public void testAddProductToCartWithQuantity() {
+    void testAddProductToCartWithQuantity() {
         Long cartId = 1L;
         Long productId = 2L;
         int quantity = 3;
         Cart updatedCart = new Cart();
 
-        when(service.addProductToCartWithQuantity(cartId, productId, quantity));
+        when(service.addProductToCartWithQuantity(cartId, productId, quantity)).thenReturn(CartsData.createCart001());
 
         ResponseEntity<Cart> responseEntity = controller.addProductToCart(cartId, productId, quantity);
 
@@ -147,17 +144,3 @@ class ShoppingCartControllerTest {
         assertEquals(updatedCart, responseEntity.getBody());
     }
 }
-
-//    @Test
-//    void deleteShoppingCart() throws Exception {
-//
-//        //deleteCart001 CartsData.java method?
-//        given(service.deleteCart(any())).willReturn(CartsData.createCart001().orElseThrow());
-//
-//        mvc.perform(delete("/carts/1")
-//                .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-//
-//        verify(service).deleteCart(any());
-//    }

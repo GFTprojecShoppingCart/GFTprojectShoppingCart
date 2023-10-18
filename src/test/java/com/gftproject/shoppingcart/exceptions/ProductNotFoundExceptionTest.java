@@ -16,7 +16,7 @@ class ProductNotFoundExceptionTest {
         assertThat(exception).isNotNull();
 
         // Verificar que el mensaje de la excepción sea el esperado
-        assertThat(exception.getMessage()).isEqualTo("The prodict of Id 5 was not found in the warehouse.");
+        assertThat(exception.getMessage()).isEqualTo("The product of Id 5 was not found in the warehouse.");
     }
 
 }

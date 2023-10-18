@@ -6,6 +6,9 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.apache.log4j.Logger;
+
+import java.io.IOException;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -13,41 +16,31 @@ public class UserServiceImpl implements UserService {
     @Value("${spring.app-properties.userEndpoint}")
     private String endpoint;
 
+    private static final Logger logger = Logger.getLogger(UserServiceImpl.class);
+
     @Override
-    public void validate(Long userId) {
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+    public boolean validate(Long userId) {
+        String fullEndpoint = endpoint + "/validateUser/" + userId;
 
-         endpoint += "/validateUser/" + userId;
-
-        try {
-            HttpGet request = new HttpGet(endpoint);
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet request = new HttpGet(fullEndpoint);
             HttpResponse response = httpClient.execute(request);
 
-            // Check the HTTP response status code
             int statusCode = response.getStatusLine().getStatusCode();
 
             if (statusCode == 200) {
-                // User exists
-//                return true;
+                return true;
             } else if (statusCode == 404) {
-                // User does not exist
-//                return false;
+                return false;
             } else {
-                // Handle other status codes or errors as needed
-                System.out.println("Error: HTTP Status Code " + statusCode);
-//                return false;
+                logger.error("Error: HTTP Status Code " + statusCode + " for URL: " + fullEndpoint);
+                return false;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-//            return false;
-        } finally {
-            try {
-                httpClient.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        } catch (IOException e) {
+            logger.error("An error occurred while making an HTTP request to " + fullEndpoint, e);
+            return false;
         }
-
     }
+
 
 }
