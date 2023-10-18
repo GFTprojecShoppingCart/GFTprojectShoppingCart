@@ -14,7 +14,31 @@ import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService{
 
-    String apiUrl = "localhost:8080/getProducts";
+    String apiUrl = "localhost:8080/getProducts/";
+// WebClient
+
+    @Override
+    public Product getProductById(Long productId) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Construct the API URL with query parameters for product IDs
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(apiUrl)
+                .queryParam("productIds", productId);
+
+        ResponseEntity<Product> response = restTemplate.exchange(
+                builder.toUriString(),
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<>() {}
+        );
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return response.getBody();
+        } else {
+            // Handle the response status code and error scenarios here
+            throw new RuntimeException("Failed to retrieve products by IDs: " + response.getStatusCode());
+        }
+    }
 
     @Override
     public List<Product> getProductsByIds(List<Long> productIds) {

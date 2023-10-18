@@ -41,8 +41,6 @@ class ShoppingCartControllerWebTestClientTests {
         @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
         void deleteCart() throws Exception {
 
-
-
             webTestClient.get().uri("/carts/").exchange()
                     .expectStatus().isOk()
                     .expectHeader().contentType(MediaType.APPLICATION_JSON) //para validar la cabecera con contenido
