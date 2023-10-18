@@ -1,6 +1,5 @@
 package com.gftproject.shoppingcart.controllers;
 
-import ch.qos.logback.core.joran.conditional.IfAction;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
@@ -11,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -77,20 +75,6 @@ public class ShoppingCartController {
         }
         return new ResponseEntity<>(updatedCart, headers, HttpStatus.OK);
     }
-
-//    @PutMapping("/addCarts/{cartId}")
-//    public ResponseEntity<Cart> addProductToCartWithQuantity(
-//        @PathVariable Long cartId,
-//        @RequestParam Long productId,
-//        @RequestParam int quantity
-//                ){
-//        Cart updatedCart = service.addProductToCartWithQuantity(cartId, productId, quantity);
-//
-//        if(updatedCart == null){
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//       return new ResponseEntity<>(updatedCart, new HttpHeaders(), HttpStatus.OK);
-//    }
 
     @PutMapping("/carts/updateStock/")
     public ResponseEntity<List<Cart>> updateProductsFromCarts(List<Product> productIds) {
