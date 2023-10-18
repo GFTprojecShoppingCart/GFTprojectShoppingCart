@@ -1,11 +1,16 @@
 package com.gftproject.shoppingcart.exceptions;
 
-public class NotEnoughStockException extends Exception {
-    public NotEnoughStockException(){
-        super("Not enough stock available");
+import java.util.List;
+
+public class NotEnoughStockException extends RuntimeException {
+    private final List<Long> productIds;
+
+    public NotEnoughStockException(List<Long> productIds) {
+        super("Not enough stock of products with Id: " + productIds);
+        this.productIds = productIds;
     }
 
-    public NotEnoughStockException(String message){
-        super(message);
+    public List<Long> getProductIds() {
+        return productIds;
     }
 }
