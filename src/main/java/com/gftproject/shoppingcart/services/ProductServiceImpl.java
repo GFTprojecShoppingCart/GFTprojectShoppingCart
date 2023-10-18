@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Product;
 
@@ -31,7 +32,7 @@ public class ProductServiceImpl implements ProductService{
 // WebClient
 
     @Override
-    public Product getProductById(Long productId) {
+    public Product getProductById(Long productId) throws ProductNotFoundException {
         try {
             String url = apiUrl + "/getProductById";
             String jsonBody = "{\"productId\": " + productId + "}";
@@ -41,7 +42,16 @@ public class ProductServiceImpl implements ProductService{
 
             HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
             ResponseEntity<Product> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Product.class);
+            
+            HttpStatusCode  httpStatusCode  = responseEntity.getStatusCode();
+
+            if (httpStatusCode  == HttpStatus.NOT_FOUND) {
+                // Manejar el caso de código de estado 404 (Not Found) -> Wrong Product Id
+                throw new ProductNotFoundException(responseEntity.getBody().toString());
+            }
+
             return responseEntity.getBody();
+            
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             // Manejar excepciones HTTP (4xx y 5xx) aquí
             // Puedes registrar, lanzar una excepción personalizada o tomar medidas específicas según tus necesidades.
@@ -51,7 +61,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public List<Product> getProductsByIds(List<Long> productIds) {
+    public List<Product> getProductsByIds(List<Long> productIds) throws ProductNotFoundException {
         try {
             String url = apiUrl + "/getProductsByIds";
             // Construir el cuerpo de la solicitud JSON con la lista de productIds
@@ -62,6 +72,14 @@ public class ProductServiceImpl implements ProductService{
 
             HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
             ResponseEntity<List<Product>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<List<Product>>() {});
+            
+            HttpStatusCode  httpStatusCode  = responseEntity.getStatusCode();
+
+            if (httpStatusCode  == HttpStatus.NOT_FOUND) {
+                // Manejar el caso de código de estado 404 (Not Found) -> Wrong Product Id
+                throw new ProductNotFoundException(responseEntity.getBody().toString());
+            }
+            
             return responseEntity.getBody();
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             // Manejar excepciones HTTP (4xx y 5xx) aquí
@@ -72,7 +90,7 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public List<Product> getProductsToSubmit(Map<Long, Integer> product) throws ProductNotFoundException {
+    public List<Product> getProductsToSubmit(Map<Long, Integer> product) throws ProductNotFoundException, NotEnoughStockException {
         try {
             String url = apiUrl + "/getProductsToSubmit";
     
@@ -101,12 +119,12 @@ public class ProductServiceImpl implements ProductService{
 
             if (httpStatusCode  == HttpStatus.NOT_FOUND) {
                 // Manejar el caso de código de estado 404 (Not Found) -> Wrong Product Id
-                throw new ProductNotFoundException();
+                throw new ProductNotFoundException(responseEntity.getBody().toString());
             }
 
             if (httpStatusCode  == HttpStatus.INTERNAL_SERVER_ERROR) {
                 // Manejar el caso de código de estado 500 (Internal Server Error) -> Not stock
-                
+                throw new NotEnoughStockException(responseEntity.getBody().toString());
             }
             
             return responseEntity.getBody();

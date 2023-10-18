@@ -49,7 +49,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public Cart addProductToCartWithQuantity(Long cartId, Long productId, int quantity) {
+    public Cart addProductToCartWithQuantity(Long cartId, Long productId, int quantity) throws ProductNotFoundException {
         Optional<Cart> optionalCart = shoppingCartRepository.findById(cartId);
 
         if (optionalCart.isPresent()) {
@@ -58,6 +58,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             Product product = productService.getProductById(productId);
 
             addProductWithQuantity(cart, product, quantity);
+
             return shoppingCartRepository.save(cart);
         } else {
             Cart newCart = new Cart();
@@ -128,16 +129,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public void addProductWithQuantity(Cart cart, Product product, int quantity) {
 
         Map<Long, Integer> products = cart.getProducts();
-        if (cart.getProducts().containsKey(product)) {
-            if (product.getStorageQuantity() >= quantity) {
-                int currentQuantity = products.get(product);
-                int newQuantity = currentQuantity + quantity;
-                products.put(product.getId(), currentQuantity + newQuantity);
-            }
-        } else {
+        
+        if (product.getStorageQuantity() >= quantity) {
+
             products.put(product.getId(), quantity);
         }
+
     }
+
 
     @Override
     public void deleteCart(Long cartId) {
