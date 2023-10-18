@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;

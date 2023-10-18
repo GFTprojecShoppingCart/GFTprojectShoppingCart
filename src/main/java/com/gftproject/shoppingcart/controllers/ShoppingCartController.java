@@ -54,14 +54,35 @@ public class ShoppingCartController {
 
     }
 
-    @PutMapping("/addCarts/{cartId}")
-    public ResponseEntity<Cart> addProductToCartWithQuantity(@PathVariable Long cartId) {
-        //TODO get productId and quantity from body
-        Long productId = -1L;
-        int quantity = -1;
+    @PostMapping("/carts/{cartId}/addProduct")
+    public ResponseEntity<Cart> addProductToCart(
+            @PathVariable Long cartId,
+            @PathVariable Long productId,
+            @RequestParam int quantity) {
 
-        return new ResponseEntity<>(service.addProductToCartWithQuantity(cartId, productId, quantity), new HttpHeaders(), HttpStatus.OK);
+        HttpHeaders headers = new HttpHeaders();
+
+        Cart updatedCart = service.addProductToCartWithQuantity(cartId, productId, quantity);
+
+        if (updatedCart == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(updatedCart, headers, HttpStatus.OK);
     }
+
+//    @PutMapping("/addCarts/{cartId}")
+//    public ResponseEntity<Cart> addProductToCartWithQuantity(
+//        @PathVariable Long cartId,
+//        @RequestParam Long productId,
+//        @RequestParam int quantity
+//                ){
+//        Cart updatedCart = service.addProductToCartWithQuantity(cartId, productId, quantity);
+//
+//        if(updatedCart == null){
+//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//        }
+//       return new ResponseEntity<>(updatedCart, new HttpHeaders(), HttpStatus.OK);
+//    }
 
     @PutMapping("/carts/updateStock/")
     public ResponseEntity<List<Cart>> updateProductsFromCarts(List<Product> productIds) {
