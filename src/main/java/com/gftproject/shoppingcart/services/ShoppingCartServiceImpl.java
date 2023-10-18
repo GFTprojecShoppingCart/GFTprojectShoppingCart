@@ -5,6 +5,7 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -131,7 +132,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public Object updateStockCart(Object any) {
         return null;
     }
+
     @Override
+    @Transactional
     public void deleteCart(Long cartId) {shoppingCartRepository.deleteById(cartId);}
 
 }
