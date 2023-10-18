@@ -2,6 +2,7 @@ package com.gftproject.shoppingcart.controllers;
 
 import java.util.List;
 
+import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -25,6 +26,17 @@ public class ShoppingCartControllerAdvice {
         ErrorResponse errorResponse = new ErrorResponse("NOT ENOUGH STOCK ERROR", errorMessage);
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handleProductNotFoundException(ProductNotFoundException ex) {
+
+        String errorMessage = ex.getMessage();
+        ErrorResponse errorResponse = new ErrorResponse("PRODUCT NOT FOUND ERROR", errorMessage);
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
 

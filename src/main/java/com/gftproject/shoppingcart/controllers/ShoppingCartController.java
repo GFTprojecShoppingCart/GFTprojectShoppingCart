@@ -1,5 +1,8 @@
 package com.gftproject.shoppingcart.controllers;
 
+import ch.qos.logback.core.joran.conditional.IfAction;
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
+import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
@@ -47,11 +50,16 @@ public class ShoppingCartController {
 
     @PutMapping("/carts/{cartId}")
     public ResponseEntity<Cart> submitCart(@PathVariable String cartId) {
-        if(!StringUtils.isNumeric(cartId)){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        try {
+            if(!StringUtils.isNumeric(cartId)){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(service.submitCart(Long.parseLong(cartId)), new HttpHeaders(), HttpStatus.OK);
+        } catch (NotEnoughStockException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (ProductNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(service.submitCart(Long.parseLong(cartId)), new HttpHeaders(), HttpStatus.OK);
-
     }
 
     @PutMapping("/addCarts/{cartId}")

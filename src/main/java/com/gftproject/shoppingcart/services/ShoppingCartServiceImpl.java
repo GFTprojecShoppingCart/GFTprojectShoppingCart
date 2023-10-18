@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
@@ -78,14 +79,24 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         // Obtener los productos del almacén
         List<Product> warehouseStock = productService.getProductsByIds(productIds);
         // Comprobar el stock
-        List<Long> productsWithoutStock = computationsService.checkStock(cart.getProducts(), warehouseStock);
+        List<Long> productsWithoutStock = null;
+        try {
+            productsWithoutStock = computationsService.checkStock(cart.getProducts(), warehouseStock);
+        } catch (ProductNotFoundException e) {
+            System.out.println("oof");
+        }
         // TODO: Validar al usuario
 
-        userService.validate();
+        userService.validate(cart.getUserId());
 
         if (productsWithoutStock.isEmpty()) {
             // Realizar cálculos de precio
-            Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalValues(cart.getProducts(), warehouseStock);
+            Pair<BigDecimal, BigDecimal> pair = null;
+            try {
+                pair = computationsService.computeFinalValues(cart.getProducts(), warehouseStock);
+            } catch (ProductNotFoundException e) {
+                System.out.println("oof");
+            }
 
             // Cambiar el estado del carrito
             cart.setFinalWeight(pair.a);
@@ -115,13 +126,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             }
 
         } catch (ProductNotFoundException e) {
-            // TODO
-            System.out.println("Oof");
+            return new ArrayList<>();
         }
         return shoppingCarts;
     }
 
-    public void addProductWithQuantity(Cart cart, Product product, int quantity) {
+    public void addProductWithQuantity(Cart cart, Long product, int quantity) {
 
         Map<Long, Integer> products = cart.getProducts();
         if (cart.getProducts().containsKey(product)) {

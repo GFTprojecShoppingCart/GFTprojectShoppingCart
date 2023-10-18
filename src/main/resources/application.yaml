@@ -1,1 +1,31 @@
-#Meter aqui URLs de otros microservicios, y perfiles
+spring:
+  config:
+    activate:
+      on-profile: test
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:h2:mem:devdb
+    driver-class-name: org.h2.Driver
+    username: devuser
+    password: devpassword
+  h2:
+    console:
+      enabled: true
+
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  app-properties:
+    userEndpoint: "https://your-api.com/"
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: testuser
+    password: testpassword

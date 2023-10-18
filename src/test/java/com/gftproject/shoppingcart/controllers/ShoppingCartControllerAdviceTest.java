@@ -2,6 +2,7 @@ package com.gftproject.shoppingcart.controllers;
 
 
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
+import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.ErrorResponse;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -51,4 +52,28 @@ class ShoppingCartControllerAdviceTest {
         assertThat(errorResponse.getError()).isEqualTo("NOT ENOUGH STOCK ERROR");
         assertThat(errorResponse.getMessage()).isEqualTo("Not enough stock of products with Id: [1, 2, 3]");
     }
+
+    @Test
+    @DisplayName("GIVEN a NotEnoughStockException WHEN handling the exception in ShoppingCartControllerAdvice THEN it should return a ResponseEntity with the correct error message and status code")
+    void testHandleProductNotFoundException() {
+        // Crear una instancia de NotEnoughStockException
+        ProductNotFoundException exception = new ProductNotFoundException(1L);
+
+        // Llamar al método handleNotEnoughStockException con la excepción
+        ResponseEntity<ErrorResponse> responseEntity = controllerAdvice.handleProductNotFoundException(exception);
+
+        // Verificar que la respuesta no sea nula
+        assertThat(responseEntity).isNotNull();
+
+        // Verificar el código de estado HTTP de la respuesta
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+
+        // Verificar el mensaje de la respuesta
+        ErrorResponse errorResponse = responseEntity.getBody();
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getError()).isEqualTo("PRODUCT NOT FOUND ERROR");
+        assertThat(errorResponse.getMessage()).isEqualTo("The product of Id 1 was not found in the warehouse.");
+    }
+
+
 }
