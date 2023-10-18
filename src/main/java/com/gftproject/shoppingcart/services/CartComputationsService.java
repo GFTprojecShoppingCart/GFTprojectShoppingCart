@@ -1,7 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
-import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.stereotype.Service;
@@ -9,8 +8,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 @Service
