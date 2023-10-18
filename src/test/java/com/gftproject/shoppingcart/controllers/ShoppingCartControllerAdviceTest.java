@@ -57,7 +57,7 @@ class ShoppingCartControllerAdviceTest {
     @DisplayName("GIVEN a NotEnoughStockException WHEN handling the exception in ShoppingCartControllerAdvice THEN it should return a ResponseEntity with the correct error message and status code")
     void testHandleProductNotFoundException() {
         // Crear una instancia de NotEnoughStockException
-        ProductNotFoundException exception = new ProductNotFoundException(1L);
+        ProductNotFoundException exception = new ProductNotFoundException(List.of(1L));
 
         // Llamar al método handleNotEnoughStockException con la excepción
         ResponseEntity<ErrorResponse> responseEntity = controllerAdvice.handleProductNotFoundException(exception);
@@ -72,7 +72,7 @@ class ShoppingCartControllerAdviceTest {
         ErrorResponse errorResponse = responseEntity.getBody();
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getError()).isEqualTo("PRODUCT NOT FOUND ERROR");
-        assertThat(errorResponse.getMessage()).isEqualTo("The product of Id 1 was not found in the warehouse.");
+        assertThat(errorResponse.getMessage()).isEqualTo("Products not found in warehouse: [1]");
     }
 
 

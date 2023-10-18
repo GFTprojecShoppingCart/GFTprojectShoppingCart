@@ -61,13 +61,20 @@ public class ShoppingCartController {
         }
     }
 
-    @PutMapping("/addCarts/{cartId}")
-    public ResponseEntity<Cart> addProductToCartWithQuantity(@PathVariable Long cartId) throws ProductNotFoundException {
-        //TODO get productId and quantity from body
-        Long productId = -1L;
-        int quantity = -1;
+    @PutMapping("/carts/{cartId}/addProduct/{productId}")
+    public ResponseEntity<Cart> addProductToCart(
+            @PathVariable Long cartId,
+            @PathVariable Long productId,
+            @RequestParam int quantity) throws ProductNotFoundException {
 
-        return new ResponseEntity<>(service.addProductToCartWithQuantity(cartId, productId, quantity), new HttpHeaders(), HttpStatus.OK);
+        HttpHeaders headers = new HttpHeaders();
+
+        Cart updatedCart = service.addProductToCartWithQuantity(cartId, productId, quantity);
+
+        if (updatedCart == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(updatedCart, headers, HttpStatus.OK);
     }
 
     @PutMapping("/carts/updateStock/")

@@ -56,7 +56,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
             Product product = productService.getProductById(productId);
 
-            addProductWithQuantity(cart, product, quantity);
+            Map<Long, Integer> products = cart.getProducts();
+
+            if (product.getStorageQuantity() >= quantity) {
+
+                products.put(product.getId(), quantity);
+            }
 
             return shoppingCartRepository.save(cart);
         } else {
@@ -70,11 +75,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public Cart submitCart(Long idCart) throws NotEnoughStockException, ProductNotFoundException {
 
-        // TODO: Validar al usuario
-        userService.validate();
-
         // Obtenemos el carrito
         Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
+
+        // TODO: Validar al usuario -> sacar
+        userService.validate(cart.getUserId());
 
         // Primero vemos si es valido desde la ultima revision
         if (!cart.getInvalidProducts().isEmpty()) {
@@ -83,18 +88,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         // Obtener IDs de los productos en el carrito
         Map<Long, Integer> productsMap = cart.getProducts();
-    
+
         // Comunicar al almacen la compra
         List<Product> submittedProducts = productService.getProductsToSubmit(productsMap);
 
         if (!submittedProducts.isEmpty()) {
             // Realizar cálculos de precio
             Pair<BigDecimal, BigDecimal> pair = null;
-            try {
-                pair = computationsService.computeFinalValues(cart.getProducts(), submittedProducts);
-            } catch (ProductNotFoundException e) {
-                System.out.println("oof");
-            }
+            pair = computationsService.computeFinalValues(cart.getProducts(), submittedProducts);
 
             // Cambiar el estado del carrito
             cart.setFinalWeight(pair.a);
@@ -108,7 +109,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return cart;
 
 
-        
     }
 
     public List<Cart> updateProductsFromCarts(List<Product> productList) {
@@ -128,18 +128,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
         return shoppingCarts;
     }
-
-    public void addProductWithQuantity(Cart cart, Product product, int quantity) {
-
-        Map<Long, Integer> products = cart.getProducts();
-
-        if (product.getStorageQuantity() >= quantity) {
-
-            products.put(product.getId(), quantity);
-        }
-
-    }
-
 
     @Override
     public void deleteCart(Long cartId) {

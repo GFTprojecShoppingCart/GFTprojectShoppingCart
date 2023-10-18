@@ -161,9 +161,8 @@ class ShoppingCartServiceTest {
         Product product = new Product(1L, new BigDecimal(3), new BigDecimal("0.5"), 5);
 
         when(cartRepository.findById(any())).thenReturn(Optional.of(cart));
-        when(computationsService.checkStock(cart.getProducts(), List.of(product))).thenReturn(List.of(1L, 2L));
         when(cartRepository.save(any())).thenReturn(cart);
-        when(productService.getProductById(any())).thenReturn(ProductData.createProduct001());
+        when(productService.getProductById(any())).thenReturn(product);
 
         Cart updatedCart = service.addProductToCartWithQuantity(1L, 1L, 5);
 
