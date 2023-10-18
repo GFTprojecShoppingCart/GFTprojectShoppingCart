@@ -30,33 +30,10 @@ public class ProductData {
         Map<Long, Integer> products = new HashMap<>();
 
         products.put(1L, 2);
-        products.put(2L, 2);
-        products.put(3L, 1);
+        products.put(2L, 4);
+        products.put(3L, 4);
         products.put(4L, 2);
-
-        return products;
-    }
-
-    public static Map<Long, Integer> getLowWarehouseStock() {
-
-        Map<Long, Integer> products = new HashMap<>();
-
-        products.put(createProduct001().getId(), 2);
-        products.put(createProduct002().getId(), 2);
-        products.put(createProduct003().getId(), 1);
-        products.put(createProduct005().getId(), 4);
-
-        return products;
-    }
-
-    public static Map<Long, Integer> getHighWarehouseStock() {
-
-        Map<Long, Integer> products = new HashMap<>();
-
-        products.put(createProduct001().getId(), 20);
-        products.put(createProduct002().getId(), 20);
-        products.put(createProduct003().getId(), 10);
-        products.put(createProduct005().getId(), 40);
+        products.put(5L, 6);
 
         return products;
     }
@@ -68,6 +45,7 @@ public class ProductData {
         products.add(createProduct001());
         products.add(createProduct002());
         products.add(createProduct003());
+        products.add(createProduct004());
         products.add(createProduct005());
 
         return products;

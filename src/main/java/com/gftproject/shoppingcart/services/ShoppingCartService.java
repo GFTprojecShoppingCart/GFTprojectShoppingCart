@@ -12,15 +12,13 @@ public interface ShoppingCartService {
 
     List<Cart> findAll();
 
-    Cart createCart(Long id_user);
+    Cart createCart(Long userId);
 
-    Cart addProductToCartWithQuantity(Long cartId, Product product, int quantity);
-
-    Cart addProduct(Long idUser, Long idCart, Product product);
+    Cart addProductToCartWithQuantity(Long cartId, Long productId, int quantity);
 
     void deleteCart(Long idCart);
 
     Cart submitCart(Long idCart);
 
-    List<Cart> updateProductsFromCarts(List<Product> productList);
+    List<Cart> updateProductsFromCarts(List<Product> products);
 }

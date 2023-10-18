@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -32,45 +31,41 @@ public class ShoppingCartController {
         } else {
             cartList = service.findAllByStatus(status);
         }
-
         return new ResponseEntity<>(cartList, headers, HttpStatus.OK);
     }
 
     @PostMapping("/carts/{userId}")
-    public ResponseEntity<Cart> createShoppingCart(@PathVariable String userId) {
+    public ResponseEntity<Cart> createCart(@PathVariable String userId) {
         HttpHeaders headers = new HttpHeaders();
-        if(StringUtils.isNumeric(userId)){
+        if(!StringUtils.isNumeric(userId)){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Long id_user = Long.parseLong(userId);
 
-        return new ResponseEntity<>(service.createCart(id_user), headers, HttpStatus.CREATED);
+        return new ResponseEntity<>(service.createCart(Long.parseLong(userId)), headers, HttpStatus.CREATED);
     }
 
     @PutMapping("/carts/{cartId}")
     public ResponseEntity<Cart> submitCart(@PathVariable String cartId) {
-        HttpHeaders headers = new HttpHeaders();
         if(!StringUtils.isNumeric(cartId)){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        Long id_cart = Long.parseLong(cartId);
-        return new ResponseEntity<>(service.createCart(id_cart), headers, HttpStatus.OK);
+        return new ResponseEntity<>(service.submitCart(Long.parseLong(cartId)), new HttpHeaders(), HttpStatus.OK);
 
     }
 
-    @PutMapping("/carts1/{cartId}")
-    public ResponseEntity<Cart> addProductWithQuantity(@PathVariable Long cartId) {
-        //TODO change carts1
-        HttpHeaders headers = new HttpHeaders();
+    @PutMapping("/addCarts/{cartId}")
+    public ResponseEntity<Cart> addProductToCartWithQuantity(@PathVariable Long cartId) {
+        //TODO get productId and quantity from body
+        Long productId = -1L;
+        int quantity = -1;
 
-        return new ResponseEntity<>(service.submitCart(cartId), headers, HttpStatus.OK);
+        return new ResponseEntity<>(service.addProductToCartWithQuantity(cartId, productId, quantity), new HttpHeaders(), HttpStatus.OK);
     }
 
-    @PutMapping("/updateProducts")
-    public ResponseEntity<List<Long>> updateProductsFromCarts(List<Product> productList){
-
-        service.updateProductsFromCarts(productList);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PutMapping("/carts/updateStock/")
+    public ResponseEntity<List<Cart>> updateProductsFromCarts(List<Product> productIds) {
+        List<Cart> updatedCarts = service.updateProductsFromCarts(productIds);
+        return new ResponseEntity<>(updatedCarts, new HttpHeaders(), HttpStatus.OK);
     }
 
     @DeleteMapping("/carts/{idCart}")
@@ -80,8 +75,5 @@ public class ShoppingCartController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PutMapping()
-    public ResponseEntity<Cart> updateStockCart(long l) {
-        return null;
-    }
+
 }
