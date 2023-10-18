@@ -1,5 +1,7 @@
 package com.gftproject.shoppingcart.controllers;
 
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
+import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
@@ -46,7 +48,8 @@ public class ShoppingCartController {
     }
 
     @PutMapping("/carts/{cartId}")
-    public ResponseEntity<Cart> submitCart(@PathVariable String cartId) {
+    public ResponseEntity<Cart> submitCart(@PathVariable String cartId) throws NotEnoughStockException, ProductNotFoundException {
+        
         if(!StringUtils.isNumeric(cartId)){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -54,11 +57,11 @@ public class ShoppingCartController {
 
     }
 
-    @PostMapping("/carts/{cartId}/addProduct")
+    @PutMapping("/carts/{cartId}/addProduct")
     public ResponseEntity<Cart> addProductToCart(
             @PathVariable Long cartId,
             @PathVariable Long productId,
-            @RequestParam int quantity) {
+            @RequestParam int quantity) throws ProductNotFoundException {
 
         HttpHeaders headers = new HttpHeaders();
 
@@ -70,19 +73,14 @@ public class ShoppingCartController {
         return new ResponseEntity<>(updatedCart, headers, HttpStatus.OK);
     }
 
-//    @PutMapping("/addCarts/{cartId}")
-//    public ResponseEntity<Cart> addProductToCartWithQuantity(
-//        @PathVariable Long cartId,
-//        @RequestParam Long productId,
-//        @RequestParam int quantity
-//                ){
-//        Cart updatedCart = service.addProductToCartWithQuantity(cartId, productId, quantity);
-//
-//        if(updatedCart == null){
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//       return new ResponseEntity<>(updatedCart, new HttpHeaders(), HttpStatus.OK);
-//    }
+    @PutMapping("/addCarts/{cartId}")
+    public ResponseEntity<Cart> addProductToCartWithQuantity(@PathVariable Long cartId) throws ProductNotFoundException {
+        //TODO get productId and quantity from body
+        Long productId = -1L;
+        int quantity = -1;
+
+        return new ResponseEntity<>(service.addProductToCartWithQuantity(cartId, productId, quantity), new HttpHeaders(), HttpStatus.OK);
+    }
 
     @PutMapping("/carts/updateStock/")
     public ResponseEntity<List<Cart>> updateProductsFromCarts(List<Product> productIds) {

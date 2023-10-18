@@ -2,6 +2,8 @@ package com.gftproject.shoppingcart.controllers;
 
 import com.gftproject.shoppingcart.CartsData;
 import com.gftproject.shoppingcart.ProductData;
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
+import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
@@ -84,7 +86,7 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN a cartId WHEN the controller is called THEN the cart status will change to submitted")
-    void submitCart() {
+    void submitCart() throws NotEnoughStockException, ProductNotFoundException {
         given(service.submitCart(any())).willReturn(CartsData.createCart001());
 
         ResponseEntity<Cart> cart = controller.submitCart("1");
@@ -121,7 +123,7 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN cartId, product and quantity WHEN product is added THEN response is OK")
-    public void testAddProductToCartWithQuantity() {
+    public void testAddProductToCartWithQuantity() throws ProductNotFoundException {
         Long cartId = 1L;
         Long productId = 2L;
         int quantity = 3;

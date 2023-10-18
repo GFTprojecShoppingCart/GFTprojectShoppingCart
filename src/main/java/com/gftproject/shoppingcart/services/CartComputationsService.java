@@ -16,11 +16,12 @@ import java.util.Map;
 @Service
 public class CartComputationsService {
 
+    //TODO convertir para usarlo en la comprobacion periodica de stock
     public List<Long> checkStock(Map<Long, Integer> cartProducts, List<Product> warehouseStock) throws ProductNotFoundException {
 
         List<Long> productsWithoutStock = new ArrayList<>();
 
-        for (Product product : warehouseStock) {
+        /*for (Product product : warehouseStock) {
             if (cartProducts.containsKey(product.getId())) {
                 int productInCart = cartProducts.get(product.getId());
                 if (product.getStorageQuantity() < productInCart) {
@@ -29,23 +30,21 @@ public class CartComputationsService {
             }else {
                 throw new ProductNotFoundException();
             }
-        }
+        }*/
         return productsWithoutStock;
     }
 
-    public Pair<BigDecimal, BigDecimal> computeFinalValues(Map<Long, Integer> cartProducts, List<Product> warehouseStock) throws ProductNotFoundException {
+    public Pair<BigDecimal, BigDecimal> computeFinalValues(Map<Long, Integer> cartProducts, List<Product> warehouseStock) {
 
         BigDecimal totalWeight = new BigDecimal(0);
         BigDecimal totalPrice = new BigDecimal(0);
 
         for (Product product : warehouseStock) {
-            if (cartProducts.containsKey(product.getId())) {
-                int quantity = cartProducts.get(product.getId());
-                totalWeight = totalWeight.add(product.getWeight().multiply(BigDecimal.valueOf(quantity)));
-                totalPrice = totalPrice.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
-            }else {
-                throw new ProductNotFoundException();
-            }
+            
+            int quantity = cartProducts.get(product.getId());
+            totalWeight = totalWeight.add(product.getWeight().multiply(BigDecimal.valueOf(quantity)));
+            totalPrice = totalPrice.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
+ 
         }
         return new Pair<>(totalWeight, totalPrice);
     }
