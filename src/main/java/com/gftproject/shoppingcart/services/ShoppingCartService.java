@@ -15,11 +15,11 @@ public interface ShoppingCartService {
 
     Cart createCart(Long userId);
 
-    Cart addProductToCartWithQuantity(Long cartId, Product product, int quantity);
+    Cart addProductToCartWithQuantity(Long cartId, Long productId, int quantity);
 
     void deleteCart(Long idCart);
 
     Cart submitCart(Long idCart) throws NotEnoughStockException;
 
-    List<Cart> updateProductsFromCarts(List<Product> productList);
+    List<Cart> updateProductsFromCarts(List<Product> products);
 }
