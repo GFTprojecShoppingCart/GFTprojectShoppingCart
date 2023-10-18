@@ -2,7 +2,7 @@ package com.gftproject.shoppingcart.exceptions;
 
 import java.util.List;
 
-public class NotEnoughStockException extends RuntimeException {
+public class NotEnoughStockException extends Exception {
     private final List<Long> productIds;
 
     public NotEnoughStockException(List<Long> productIds) {

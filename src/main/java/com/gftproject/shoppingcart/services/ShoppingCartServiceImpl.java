@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
@@ -67,25 +68,28 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 
     @Override
-    public Cart submitCart(Long idCart) throws NotEnoughStockException {
-        // Obtenemos el carrito
-        Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
-    
-        // Obtener IDs de los productos en el carrito
-        List<Long> productIds = new ArrayList<>(cart.getProducts().keySet());
-    
+    public Cart submitCart(Long idCart) throws NotEnoughStockException, ProductNotFoundException {
 
-        // Obtener los productos del almacén
-        List<Product> warehouseStock = productService.getProductsByIds(productIds);
-        // Comprobar el stock
-        List<Long> productsWithoutStock = computationsService.checkStock(cart.getProducts(), warehouseStock);
         // TODO: Validar al usuario
-
         userService.validate();
 
-        if (productsWithoutStock.isEmpty()) {
+        // Obtenemos el carrito
+        Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
+
+        // Primero vemos si es valido desde la ultima revision
+        if (!cart.getInvalidProducts().isEmpty()) {
+            throw new NotEnoughStockException(cart.getInvalidProducts());
+        }
+    
+        // Obtener IDs de los productos en el carrito
+        Map<Long, Integer> productsMap = cart.getProducts();
+    
+        // Comunicar al almacen la compra
+        List<Product> submittedProducts = productService.getProductsToSubmit(productsMap);
+    
+        if (!submittedProducts.isEmpty()) {
             // Realizar cálculos de precio
-            Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalValues(cart.getProducts(), warehouseStock);
+            Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalValues(cart.getProducts(), submittedProducts);
 
             // Cambiar el estado del carrito
             cart.setFinalWeight(pair.a);
@@ -94,10 +98,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
             // Guardar el carrito
             return shoppingCartRepository.save(cart);
-        } else {
-            // No hay suficiente stock, devuelve el carrito en estado DRAFT
-            throw new NotEnoughStockException(productsWithoutStock);
-        }   
+        }
+
+        return cart;
+    
 
         
     }
