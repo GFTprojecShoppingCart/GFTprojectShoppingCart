@@ -5,13 +5,16 @@ import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
+import com.gftproject.shoppingcart.services.ShoppingCartService;
 import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -23,8 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 class ShoppingCartControllerTest {
 
@@ -119,6 +121,22 @@ class ShoppingCartControllerTest {
         verify(service).deleteCart(1L);
     }
 
+    @Test
+    @DisplayName("GIVEN cartId, product and quantity WHEN product is added THEN response is OK")
+    public void testAddProductToCartWithQuantity() throws ProductNotFoundException {
+        Long cartId = 1L;
+        Long productId = 2L;
+        int quantity = 3;
+        Cart updatedCart = new Cart();
+
+        when(service.addProductToCartWithQuantity(cartId, productId, quantity));
+
+        ResponseEntity<Cart> responseEntity = controller.addProductToCart(cartId, productId, quantity);
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(updatedCart, responseEntity.getBody());
+    }
+}
 
 //    @Test
 //    void deleteShoppingCart() throws Exception {
@@ -133,4 +151,3 @@ class ShoppingCartControllerTest {
 //
 //        verify(service).deleteCart(any());
 //    }
-}
