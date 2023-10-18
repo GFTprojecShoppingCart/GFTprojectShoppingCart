@@ -131,12 +131,12 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return shoppingCarts;
     }
 
-    public void addProductWithQuantity(Cart cart, Long product, int quantity) {
+    public void addProductWithQuantity(Cart cart, Product product, int quantity) {
 
         Map<Long, Integer> products = cart.getProducts();
-        if (cart.getProducts().containsKey(product)) {
+        if (cart.getProducts().containsKey(product.getId())) {
             if (product.getStorageQuantity() >= quantity) {
-                int currentQuantity = products.get(product);
+                int currentQuantity = products.get(product.getId());
                 int newQuantity = currentQuantity + quantity;
                 products.put(product.getId(), currentQuantity + newQuantity);
             }
