@@ -42,4 +42,8 @@ public class CartComputationsService {
         return new Pair<>(totalWeight, totalPrice);
     }
 
+    public double computeByWeight(double cartWeight) {
+        //TODO
+        return 0;
+    }
 }

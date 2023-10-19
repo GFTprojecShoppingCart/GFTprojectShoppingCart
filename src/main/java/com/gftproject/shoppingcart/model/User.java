@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 public class User {
     long userID;
     String country;
-    long paymentMethodId;
+    String paymentMethod;
 
 }

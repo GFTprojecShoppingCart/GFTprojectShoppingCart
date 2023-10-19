@@ -73,7 +73,8 @@ public class ProductServiceImpl implements ProductService{
             headers.set("Content-Type", "application/json");
 
             HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-            ResponseEntity<List<Product>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<List<Product>>() {});
+            ResponseEntity<List<Product>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<>() {
+            });
             
             HttpStatusCode  httpStatusCode  = responseEntity.getStatusCode();
 

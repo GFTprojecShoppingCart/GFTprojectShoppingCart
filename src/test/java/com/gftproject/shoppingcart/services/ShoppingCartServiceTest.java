@@ -5,6 +5,9 @@ import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
+import com.gftproject.shoppingcart.model.User;
+import com.gftproject.shoppingcart.repositories.CountryRepository;
+import com.gftproject.shoppingcart.repositories.PaymentRepository;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
 
 import org.antlr.v4.runtime.misc.Pair;
@@ -37,6 +40,12 @@ class ShoppingCartServiceTest {
     ShoppingCartRepository cartRepository;
 
     @Mock
+    CountryRepository countryRepository;
+
+    @Mock
+    PaymentRepository paymentRepository;
+
+    @Mock
     CartComputationsService computationsService;
 
     @Mock
@@ -52,7 +61,7 @@ class ShoppingCartServiceTest {
     void setUp() {
         // Instantiate Shopping cart Service and instantiate con new mock de repository
         MockitoAnnotations.openMocks(this);
-        service = new ShoppingCartServiceImpl(cartRepository, computationsService, productService, userService);
+        service = new ShoppingCartServiceImpl(cartRepository, computationsService, productService, userService, countryRepository, paymentRepository);
         carts = Arrays.asList(Optional.of(createCart001()).orElseThrow(), createCart002(), createCart003());
     }
 
@@ -106,8 +115,8 @@ class ShoppingCartServiceTest {
     void submitCartStock() throws ProductNotFoundException, NotEnoughStockException {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
         when(productService.getProductsByIds(any())).thenReturn(getWarehouseStock());
-        when(computationsService.checkStock(anyMap(), anyList())).thenReturn(Collections.emptyList()); //Empty list to check the correct stock path
-        doNothing().when(userService).getUserById(any()); // Need to talk with user microservice
+        when(computationsService.checkStock(anyMap(), anyList())).thenReturn(Collections.emptyList()); //Empty list to check the correct stock pat
+        when(userService.getUserById(any())).thenReturn(new User(1L, "SPAIN", "VISA")); // Need to talk with user microservice
         when(computationsService.computeFinalValues(anyMap(), anyList())).thenReturn(new Pair<>(new BigDecimal(3), new BigDecimal(25)));
         // Return the cart (the argument of the function) instead of execute the save in the repository.
         // As we change status, price and weight in the cart (the argument of the function) we can check the method works because the cart is changing. 
