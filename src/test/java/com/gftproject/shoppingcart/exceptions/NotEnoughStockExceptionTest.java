@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.exceptions;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 
@@ -12,7 +13,8 @@ import static org.assertj.core.api.Assertions.*;
 class NotEnoughStockExceptionTest {
 
     @Test
-    void testNotEnoughStockException() {
+    @DisplayName("")
+    void testNotEnoughStockExceptionList() {
         // Crear una lista de IDs de productos de ejemplo
         List<Long> productIds = Arrays.asList(1L, 2L, 3L);
 
@@ -24,6 +26,24 @@ class NotEnoughStockExceptionTest {
 
         // Verificar que el mensaje de la excepción sea el esperado
         assertThat(exception.getMessage()).isEqualTo("Not enough stock of products with Id: [1, 2, 3]");
+
+    }
+
+    @Test
+    @DisplayName("")
+    void testNotEnoughStockExceptionMessage() {
+        // Crear una lista de IDs de productos de ejemplo
+        List<Long> productIds = Arrays.asList(1L, 2L, 3L);
+
+        // Crear una instancia de NotEnoughStockException
+        NotEnoughStockException exception = new NotEnoughStockException(productIds.toString());
+
+        // Verificar que la excepción no sea nula
+        assertThat(exception).isNotNull();
+
+        // Verificar que el mensaje de la excepción sea el esperado
+        assertThat(exception.getMessage()).isEqualTo("[1, 2, 3]");
+
 
     }
 }

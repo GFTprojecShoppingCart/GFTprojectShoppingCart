@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,15 +48,20 @@ public class ShoppingCartController {
 
     @PutMapping("/carts/{cartId}")
     public ResponseEntity<Cart> submitCart(@PathVariable String cartId) throws NotEnoughStockException, ProductNotFoundException {
-        
-        if(!StringUtils.isNumeric(cartId)){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(service.submitCart(Long.parseLong(cartId)), new HttpHeaders(), HttpStatus.OK);
 
+        try {
+            if(!StringUtils.isNumeric(cartId)){
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            }
+            return new ResponseEntity<>(service.submitCart(Long.parseLong(cartId)), new HttpHeaders(), HttpStatus.OK);
+        } catch (NotEnoughStockException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (ProductNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
-    @PutMapping("/carts/{cartId}/addProduct")
+    @PutMapping("/carts/{cartId}/addProduct/{productId}")
     public ResponseEntity<Cart> addProductToCart(
             @PathVariable Long cartId,
             @PathVariable Long productId,
@@ -73,18 +77,9 @@ public class ShoppingCartController {
         return new ResponseEntity<>(updatedCart, headers, HttpStatus.OK);
     }
 
-    @PutMapping("/addCarts/{cartId}")
-    public ResponseEntity<Cart> addProductToCartWithQuantity(@PathVariable Long cartId) throws ProductNotFoundException {
-        //TODO get productId and quantity from body
-        Long productId = -1L;
-        int quantity = -1;
-
-        return new ResponseEntity<>(service.addProductToCartWithQuantity(cartId, productId, quantity), new HttpHeaders(), HttpStatus.OK);
-    }
-
     @PutMapping("/carts/updateStock/")
-    public ResponseEntity<List<Cart>> updateProductsFromCarts(List<Product> productIds) {
-        List<Cart> updatedCarts = service.updateProductsFromCarts(productIds);
+    public ResponseEntity<List<Cart>> updateProductsFromCarts(@RequestBody List<Product> products) {
+        List<Cart> updatedCarts = service.updateProductsFromCarts(products);
         return new ResponseEntity<>(updatedCarts, new HttpHeaders(), HttpStatus.OK);
     }
 

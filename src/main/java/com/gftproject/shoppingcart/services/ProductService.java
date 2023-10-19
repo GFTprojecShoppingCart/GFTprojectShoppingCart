@@ -9,9 +9,9 @@ import java.util.Map;
 
 public interface ProductService {
 
-    public Product getProductById(Long productId) throws ProductNotFoundException;
+    Product getProductById(Long productId) throws ProductNotFoundException;
 
-    public List<Product> getProductsByIds(List<Long> productIds) throws ProductNotFoundException;
+    List<Product> getProductsByIds(List<Long> productIds) throws ProductNotFoundException;
 
-    public List<Product> getProductsToSubmit(Map<Long, Integer> product) throws ProductNotFoundException, NotEnoughStockException;
+    List<Product> getProductsToSubmit(Map<Long, Integer> product) throws ProductNotFoundException, NotEnoughStockException;
 }

@@ -5,16 +5,13 @@ import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
-import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
-import com.gftproject.shoppingcart.services.ShoppingCartService;
 import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -85,6 +82,17 @@ class ShoppingCartControllerTest {
     }
 
     @Test
+    @DisplayName("GIVEN the userID WHEN method called THEN returns the created cart")
+    void createCartBadRequest() {
+        given(service.createCart(any())).willReturn(CartsData.createCart001());
+
+        ResponseEntity<Cart> cart = controller.createCart("Oof");
+
+        assertEquals(HttpStatusCode.valueOf(400), cart.getStatusCode());
+        verify(service, never()).createCart(any());
+    }
+
+    @Test
     @DisplayName("GIVEN a cartId WHEN the controller is called THEN the cart status will change to submitted")
     void submitCart() throws NotEnoughStockException, ProductNotFoundException {
         given(service.submitCart(any())).willReturn(CartsData.createCart001());
@@ -123,31 +131,13 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN cartId, product and quantity WHEN product is added THEN response is OK")
-    public void testAddProductToCartWithQuantity() throws ProductNotFoundException {
-        Long cartId = 1L;
-        Long productId = 2L;
-        int quantity = 3;
-        Cart updatedCart = new Cart();
+    void testAddProductToCartWithQuantity() throws ProductNotFoundException {
 
-        when(service.addProductToCartWithQuantity(cartId, productId, quantity));
+        when(service.addProductToCartWithQuantity(anyLong(), anyLong(), anyInt())).thenReturn(CartsData.createCart001());
 
-        ResponseEntity<Cart> responseEntity = controller.addProductToCart(cartId, productId, quantity);
+        ResponseEntity<Cart> responseEntity = controller.addProductToCart(1L, 1L, 3);
 
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(updatedCart, responseEntity.getBody());
+
     }
 }
-
-//    @Test
-//    void deleteShoppingCart() throws Exception {
-//
-//        //deleteCart001 CartsData.java method?
-//        given(service.deleteCart(any())).willReturn(CartsData.createCart001().orElseThrow());
-//
-//        mvc.perform(delete("/carts/1")
-//                .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
-//
-//        verify(service).deleteCart(any());
-//    }

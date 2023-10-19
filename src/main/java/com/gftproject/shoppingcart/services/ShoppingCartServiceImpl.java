@@ -2,9 +2,9 @@ package com.gftproject.shoppingcart.services;
 
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
-import com.gftproject.shoppingcart.model.Cart;
-import com.gftproject.shoppingcart.model.Product;
-import com.gftproject.shoppingcart.model.Status;
+import com.gftproject.shoppingcart.model.*;
+import com.gftproject.shoppingcart.repositories.CountryRepository;
+import com.gftproject.shoppingcart.repositories.PaymentRepository;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
 import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 @Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
@@ -24,12 +23,16 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final CartComputationsService computationsService;
     private final ProductServiceImpl productService;
     private final UserServiceImpl userService;
+    private final CountryRepository countryRepository;
+    private final PaymentRepository paymentRepository;
 
-    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository, CartComputationsService computationsService, ProductServiceImpl productService, UserServiceImpl userService) {
+    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository, CartComputationsService computationsService, ProductServiceImpl productService, UserServiceImpl userService, CountryRepository countryRepository, PaymentRepository paymentRepository) {
         this.shoppingCartRepository = shoppingCartRepository;
         this.computationsService = computationsService;
         this.productService = productService;
         this.userService = userService;
+        this.countryRepository = countryRepository;
+        this.paymentRepository = paymentRepository;
     }
 
     @Override
@@ -62,9 +65,16 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         if (optionalCart.isPresent()) {
             Cart cart = optionalCart.get();
 
-            Product product = productService.getProductById(productId);
+            //TODO fix this headache
+//            Product product = productService.getProductById(productId);
+            Product product = new Product(productId, new BigDecimal(3), new BigDecimal(2), 40);
 
-            addProductWithQuantity(cart, product, quantity);
+            Map<Long, Integer> products = cart.getProducts();
+
+            if (product.getStorageQuantity() >= quantity) {
+
+                products.put(product.getId(), quantity);
+            }
 
             return shoppingCartRepository.save(cart);
         } else {
@@ -78,40 +88,45 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public Cart submitCart(Long idCart) throws NotEnoughStockException, ProductNotFoundException {
 
-        // TODO: Validar al usuario
-        userService.validate();
-
         // Obtenemos el carrito
         Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
+
+        User user = userService.getUserById(cart.getUserId());
+        Optional<Country> country = countryRepository.findById(user.getCountry());
+        Optional<Payment> payment = paymentRepository.findById(user.getPaymentMethod());
+
+        if (country.isEmpty() || payment.isEmpty()){
+            throw new ProductNotFoundException("User data incomplete");
+        }
 
         // Primero vemos si es valido desde la ultima revision
         if (!cart.getInvalidProducts().isEmpty()) {
             throw new NotEnoughStockException(cart.getInvalidProducts());
         }
-    
+
         // Obtener IDs de los productos en el carrito
         Map<Long, Integer> productsMap = cart.getProducts();
-    
+
         // Comunicar al almacen la compra
         List<Product> submittedProducts = productService.getProductsToSubmit(productsMap);
-    
-        if (!submittedProducts.isEmpty()) {
-            // Realizar cálculos de precio
-            Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalValues(cart.getProducts(), submittedProducts);
 
-            // Cambiar el estado del carrito
+        if (!submittedProducts.isEmpty()) {
+            // Calculate price
+            Pair<BigDecimal, BigDecimal> pair;
+            pair = computationsService.computeFinalValues(cart.getProducts(), submittedProducts);
+
+            // Change cart status
             cart.setFinalWeight(pair.a);
-            cart.setFinalPrice(pair.b);
+            cart.setFinalPrice(applyTaxes(pair.b, pair.a, user));
             cart.setStatus(Status.SUBMITTED);
 
-            // Guardar el carrito
+            // Update the cart
             return shoppingCartRepository.save(cart);
         }
 
         return cart;
-    
 
-        
+
     }
 
     public List<Cart> updateProductsFromCarts(List<Product> productList) {
@@ -119,35 +134,38 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         List<Long> productsIds = productList.stream().map(Product::getId).toList();
         List<Cart> shoppingCarts = shoppingCartRepository.findCartsByProductIds(productsIds);
 
-        try {
-
-            for (Cart cart : shoppingCarts) {
-                cart.setInvalidProducts(computationsService.checkStock(cart.getProducts(), productList));
-                shoppingCartRepository.save(cart);
-            }
-
-        } catch (ProductNotFoundException e) {
-            // TODO
-            System.out.println("Oof");
+        for (Cart cart : shoppingCarts) {
+            cart.setInvalidProducts(computationsService.checkStock(cart.getProducts(), productList));
+            shoppingCartRepository.save(cart);
         }
+
         return shoppingCarts;
     }
-
-    public void addProductWithQuantity(Cart cart, Product product, int quantity) {
-
-        Map<Long, Integer> products = cart.getProducts();
-        
-        if (product.getStorageQuantity() >= quantity) {
-
-            products.put(product.getId(), quantity);
-        }
-
-    }
-
 
     @Override
     public void deleteCart(Long cartId) {
         shoppingCartRepository.deleteById(cartId);
     }
+
+    public BigDecimal applyTaxes(BigDecimal originalPrice, BigDecimal weight, User user){
+
+        BigDecimal priceWithTaxes = new BigDecimal(0);
+        priceWithTaxes = priceWithTaxes.add(originalPrice);
+
+        double weightPercentage = computationsService.computeByWeight(weight);
+        double cardPercentage = paymentRepository.findById(user.getPaymentMethod()).orElseThrow().getChargePercentage();
+        double countryPercentage = countryRepository.findById(user.getCountry()).orElseThrow().getTaxPercentage();
+
+        BigDecimal finalWeightPrice = priceWithTaxes.multiply(BigDecimal.valueOf(weightPercentage));
+        BigDecimal finalCardPrice = priceWithTaxes.multiply(BigDecimal.valueOf(cardPercentage));
+        BigDecimal finalCountryPrice = priceWithTaxes.multiply(BigDecimal.valueOf(countryPercentage));
+
+        priceWithTaxes = priceWithTaxes.add(finalCardPrice);
+        priceWithTaxes = priceWithTaxes.add(finalWeightPrice);
+        priceWithTaxes = priceWithTaxes.add(finalCountryPrice);
+
+        return priceWithTaxes;
+    }
+
 
 }

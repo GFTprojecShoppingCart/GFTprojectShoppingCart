@@ -29,27 +29,17 @@ class CartComputationsServiceTest {
     @Test
     @DisplayName("GIVEN a shopping cart and a Product list WHEN it scans if there's enough stock for the products in cart THEN will return the elements without enough stock")
     void checkStock() throws ProductNotFoundException {
+        //TODO
         assertThat(computationsService.checkStock(cart.getProducts(), ProductData.getWarehouseStock())).contains(5L);
     }
 
     @Test
     @DisplayName("GIVEN a shopping cart and a Product list WHEN method is called THEN returns the final price and weight of all products in cart ")
-    void computeFinalValues() throws ProductNotFoundException {
+    void computeFinalValues() {
 
         Pair<BigDecimal, BigDecimal> pairWeightValue = computationsService.computeFinalValues(cart.getProducts(), ProductData.getWarehouseStock());
 
         assertThat(new BigDecimal("120.4")).isEqualTo(pairWeightValue.a);
         assertThat(new BigDecimal("287.86")).isEqualTo(pairWeightValue.b);
-    }
-
-    @Test
-    @DisplayName("GIVEN a shopping cart and a Product list WHEN an element in the cart is not in the warehouse THEN throws an exception")
-    void throwsFinalValues() {
-
-        cart.setProducts(ProductData.getMockProductMap());
-        cart.getProducts().remove(2L);
-        assertThatThrownBy(() -> {
-            computationsService.computeFinalValues(cart.getProducts(), ProductData.getWarehouseStock());
-        }).isInstanceOf(ProductNotFoundException.class);
     }
 }
