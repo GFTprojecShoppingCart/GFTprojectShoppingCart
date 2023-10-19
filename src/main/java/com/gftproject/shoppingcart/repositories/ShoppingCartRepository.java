@@ -17,4 +17,5 @@ public interface ShoppingCartRepository extends JpaRepository<Cart, Long > {
     @Query("SELECT c FROM Cart c WHERE :productIds MEMBER OF c.products")
     List<Cart> findCartsByProductIds(List<Long> productIds);
 
+    List<Cart> findAllByUserId(Long userId);
 }

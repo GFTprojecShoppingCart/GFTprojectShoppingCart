@@ -8,6 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -39,7 +42,7 @@ class ShoppingCartControllerWebTestClientTests {
     }
 
         @Test
-        @Order(2)         //Este ha de ser el último test que corra
+        @Order(3)         //Este ha de ser el último test que corra
         @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
         void deleteCart() throws Exception {
 
@@ -61,8 +64,38 @@ class ShoppingCartControllerWebTestClientTests {
                     .expectBodyList(Cart.class)
                     .hasSize(2);//Una vez eliminado el carrito, esperamos que haya 1 menos en la lista
 
-//            client.get().uri("/carts/1").exchange()
-//                    .expectStatus().isNotFound();
+            client.get().uri("/carts/1").exchange()
+                    .expectStatus().isNotFound();
 
     }
+
+//    @Test
+//    @Order(2)
+//    @DisplayName("GIVEN userId WHEN findAllByStatus is executed THEN list carts by status")
+//
+//    void findAll() {
+//        client.get().uri("/carts/").exchange()
+//                .expectStatus().isOk()
+//                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+//                .expectBodyList(Cart.class)
+//                .consumeWith(response-> {
+//                    List<Cart> carts = response.getResponseBody();
+//                });
+//                assertEquals(2, carts.size());
+//                assertEquals();
+
+
+
+
+
+
+//        client.get().uri("/carts/").exchange()
+//                .expectStatus().isOk()
+//                .expectHeader().contentType(APPLICATION_JSON)
+//                .expectBody()
+//                .jsonPath("$[0].cart").isEqualTo("SUMMITED")
+//                .jsonPath("$[0].id").isEqualTo("1L")
+
+
+//    }
 }

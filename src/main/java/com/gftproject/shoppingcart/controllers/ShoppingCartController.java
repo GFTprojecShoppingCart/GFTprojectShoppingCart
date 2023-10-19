@@ -4,6 +4,7 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartService;
+import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,20 @@ public class ShoppingCartController {
         this.service = service;
     }
 
+
+    @GetMapping("/carts/{userId}")
+    public ResponseEntity<List<Cart>> findAllCartsByUserId(@PathVariable Long userId) {
+
+        List<Cart> cartList = service.findAllByUserId(userId);
+
+        if (cartList.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(cartList, HttpStatus.OK);
+        }
+    }
+
+
     @GetMapping("/carts/")
     public ResponseEntity<List<Cart>> findAllByStatus(@RequestParam(required = false) Status status) {
         HttpHeaders headers = new HttpHeaders();
@@ -33,6 +48,7 @@ public class ShoppingCartController {
         }
         return new ResponseEntity<>(cartList, headers, HttpStatus.OK);
     }
+
 
     @PostMapping("/carts/{userId}")
     public ResponseEntity<Cart> createCart(@PathVariable String userId) {

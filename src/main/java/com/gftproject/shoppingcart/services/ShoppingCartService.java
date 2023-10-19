@@ -12,6 +12,8 @@ public interface ShoppingCartService {
 
     List<Cart> findAll();
 
+    List<Cart> findAllByUserId(Long userId);
+
     Cart createCart(Long userId);
 
     Cart addProductToCartWithQuantity(Long cartId, Long productId, int quantity);

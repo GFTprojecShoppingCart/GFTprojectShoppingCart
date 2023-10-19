@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 @Service
 public class ShoppingCartServiceImpl implements ShoppingCartService {
@@ -34,6 +33,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public List<Cart> findAll() {
         return shoppingCartRepository.findAll();
+    }
+
+    @Override
+    public List<Cart> findAllByUserId(Long userId) {
+        return shoppingCartRepository.findAllByUserId(userId);
     }
 
     @Override
