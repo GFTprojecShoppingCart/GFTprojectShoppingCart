@@ -57,15 +57,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         if (optionalCart.isPresent()) {
             Cart cart = optionalCart.get();
 
-            //TODO fix this headache
+            //TODO fix this headache, and also remove items from invalid if we add an existing product with an available amount
 //            Product product = productService.getProductById(productId);
-            Product product = new Product(1, new BigDecimal(3), new BigDecimal(2), 40);
+            Product product = new Product(productId, new BigDecimal(3), new BigDecimal(2), 40);
 
             Map<Long, Integer> products = cart.getProducts();
 
             if (product.getStorageQuantity() >= quantity) {
-
                 products.put(product.getId(), quantity);
+                cart.getInvalidProducts().remove(productId);
             }
 
             return shoppingCartRepository.save(cart);
@@ -127,6 +127,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         List<Cart> shoppingCarts = shoppingCartRepository.findCartsByProductIds(productsIds);
 
         for (Cart cart : shoppingCarts) {
+            //TODO actualizar invalidproducts tambien
             cart.setInvalidProducts(computationsService.checkStock(cart.getProducts(), productList));
             shoppingCartRepository.save(cart);
         }

@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.*;
 class NotEnoughStockExceptionTest {
 
     @Test
-    @DisplayName("")
+    @DisplayName("GIVEN a list of products WHEN the exception is called THEN a custom message will be printed")
     void testNotEnoughStockExceptionList() {
         // Crear una lista de IDs de productos de ejemplo
         List<Long> productIds = Arrays.asList(1L, 2L, 3L);
@@ -30,7 +30,7 @@ class NotEnoughStockExceptionTest {
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("GIVEN a string of products WHEN the exception is called THEN the string will be printed")
     void testNotEnoughStockExceptionMessage() {
         // Crear una lista de IDs de productos de ejemplo
         List<Long> productIds = Arrays.asList(1L, 2L, 3L);
