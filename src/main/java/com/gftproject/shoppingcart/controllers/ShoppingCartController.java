@@ -24,7 +24,7 @@ public class ShoppingCartController {
 
 
     @GetMapping("/carts/{userId}")
-    public ResponseEntity<List<Cart>> findAllCartsByUserId(@PathVariable Long userId) {
+    public ResponseEntity<List<Cart>> findAllByUserId(@PathVariable Long userId) {
 
         List<Cart> cartList = service.findAllByUserId(userId);
 
