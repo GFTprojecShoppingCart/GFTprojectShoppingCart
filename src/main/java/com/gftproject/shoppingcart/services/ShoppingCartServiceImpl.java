@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,7 +44,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public Cart createCart(Long userId) {
         Cart cart = new Cart();
+
         cart.setUserId(userId);
+        cart.setInvalidProducts(new ArrayList<>());
+        cart.setFinalPrice(new BigDecimal(0));
+        cart.setFinalWeight(new BigDecimal(0));
+        cart.setProducts(new HashMap<>());
+        
         return shoppingCartRepository.save(cart);
     }
 
