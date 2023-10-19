@@ -42,7 +42,7 @@ public class CartComputationsService {
         return new Pair<>(totalWeight, totalPrice);
     }
 
-    public double computeByWeight(double cartWeight) {
+    public double computeByWeight(BigDecimal cartWeight) {
         //TODO
         return 0;
     }

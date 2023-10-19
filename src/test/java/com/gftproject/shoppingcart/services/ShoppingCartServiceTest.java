@@ -218,6 +218,11 @@ class ShoppingCartServiceTest {
         verify(cartRepository, times(2)).save(any());
     }
 
+    @Test
+    void applyTaxes() {
+
+    }
+
 
     @Test
     @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
