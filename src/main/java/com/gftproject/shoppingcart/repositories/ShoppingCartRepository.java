@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface ShoppingCartRepository extends JpaRepository<Cart, Long > {
+public interface ShoppingCartRepository extends JpaRepository<Cart, Long> {
 
     List<Cart> findAllByStatus(Status status);
 

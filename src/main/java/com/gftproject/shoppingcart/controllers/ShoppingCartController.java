@@ -78,8 +78,8 @@ public class ShoppingCartController {
     }
 
     @PutMapping("/carts/updateStock/")
-    public ResponseEntity<List<Cart>> updateProductsFromCarts(List<Product> productIds) {
-        List<Cart> updatedCarts = service.updateProductsFromCarts(productIds);
+    public ResponseEntity<List<Cart>> updateProductsFromCarts(@RequestBody List<Product> products) {
+        List<Cart> updatedCarts = service.updateProductsFromCarts(products);
         return new ResponseEntity<>(updatedCarts, new HttpHeaders(), HttpStatus.OK);
     }
 

@@ -3,21 +3,15 @@ package com.gftproject.shoppingcart.services;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Product;
-
+import org.apache.log4j.Logger;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,28 +20,35 @@ import java.util.Map;
 @Service
 public class ProductServiceImpl implements ProductService{
 
-    String apiUrl = "localhost:8080";
+    @Value("${spring.app-properties.productEndpoint}")
+    private String apiUrl;
+
+    private static final Logger logger = Logger.getLogger(ProductServiceImpl.class);
+
 
     RestTemplate restTemplate = new RestTemplate();
 // WebClient
 
     @Override
     public Product getProductById(Long productId) throws ProductNotFoundException {
+
+        String fullUrl = apiUrl + "/getProductById";
+
         try {
-            String url = apiUrl + "/getProductById";
+
             String jsonBody = "{\"productId\": " + productId + "}";
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
 
             HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-            ResponseEntity<Product> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, Product.class);
+            ResponseEntity<Product> responseEntity = restTemplate.exchange(fullUrl, HttpMethod.POST, requestEntity, Product.class);
             
             HttpStatusCode  httpStatusCode  = responseEntity.getStatusCode();
 
             if (httpStatusCode  == HttpStatus.NOT_FOUND) {
                 // Manejar el caso de código de estado 404 (Not Found) -> Wrong Product Id
-                throw new ProductNotFoundException(responseEntity.getBody().toString());
+                throw new ProductNotFoundException(String.valueOf(productId));
             }
 
             return responseEntity.getBody();
@@ -55,7 +56,8 @@ public class ProductServiceImpl implements ProductService{
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             // Manejar excepciones HTTP (4xx y 5xx) aquí
             // Puedes registrar, lanzar una excepción personalizada o tomar medidas específicas según tus necesidades.
-            e.printStackTrace();
+            logger.error("Error: " + e + " for URL: " + fullUrl);
+
             return null;
         }
     }

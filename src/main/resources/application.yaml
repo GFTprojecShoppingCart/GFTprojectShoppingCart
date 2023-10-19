@@ -10,6 +10,7 @@ spring:
       on-profile: dev
   app-properties:
     userEndpoint: "https://your-api.com/"
+    productEndpoint: "https://your-api.com/"
   datasource:
     url: jdbc:h2:mem:devdb
     driver-class-name: org.h2.Driver
@@ -26,8 +27,23 @@ spring:
       on-profile: test
   app-properties:
     userEndpoint: "https://your-api.com/"
+    productEndpoint: "https://your-api.com/"
   datasource:
     url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
     username: testuser
     password: testpassword
+
+---
+spring:
+  config:
+    activate:
+      on-profile: default
+  app-properties:
+    userEndpoint: "https://your-api.com/"
+    productEndpoint: "https://your-api.com/"
+  datasource:
+    url: jdbc:h2:mem:defaultdb
+    driver-class-name: org.h2.Driver
+    username: defaultuser
+    password: defaultpassword

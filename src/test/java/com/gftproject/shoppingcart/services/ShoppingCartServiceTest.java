@@ -1,6 +1,5 @@
 package com.gftproject.shoppingcart.services;
 
-import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
@@ -108,7 +107,7 @@ class ShoppingCartServiceTest {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
         when(productService.getProductsByIds(any())).thenReturn(getWarehouseStock());
         when(computationsService.checkStock(anyMap(), anyList())).thenReturn(Collections.emptyList()); //Empty list to check the correct stock path
-        doNothing().when(userService).validate(any()); // Need to talk with user microservice
+        doNothing().when(userService).getUserById(any()); // Need to talk with user microservice
         when(computationsService.computeFinalValues(anyMap(), anyList())).thenReturn(new Pair<>(new BigDecimal(3), new BigDecimal(25)));
         // Return the cart (the argument of the function) instead of execute the save in the repository.
         // As we change status, price and weight in the cart (the argument of the function) we can check the method works because the cart is changing. 
@@ -121,7 +120,7 @@ class ShoppingCartServiceTest {
         // Verify that the service method correctly calls the repository
         verify(cartRepository).findById(1L);
         //verify(cartRepository).save(any());
-        verify(userService).validate(submittedCart.getUserId());
+        verify(userService).getUserById(submittedCart.getUserId());
         verify(computationsService).computeFinalValues(anyMap(), anyList());
 
         assertThat(submittedCart).isNotNull();
@@ -148,7 +147,7 @@ class ShoppingCartServiceTest {
         verify(cartRepository).findById(1L);
         verify(productService).getProductsByIds(anyList());
         verify(computationsService).checkStock(anyMap(), anyList());
-        verify(userService).validate(any());
+        verify(userService).getUserById(any());
 
         // Verify that the cart remains in "DRAFT" status
         //assertEquals(Status.DRAFT, cart.getStatus());

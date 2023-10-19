@@ -79,7 +79,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
 
         // TODO: Validar al usuario -> sacar
-        userService.validate(cart.getUserId());
+        userService.getUserById(cart.getUserId());
 
         // Primero vemos si es valido desde la ultima revision
         if (!cart.getInvalidProducts().isEmpty()) {
@@ -116,16 +116,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         List<Long> productsIds = productList.stream().map(Product::getId).toList();
         List<Cart> shoppingCarts = shoppingCartRepository.findCartsByProductIds(productsIds);
 
-        try {
-
-            for (Cart cart : shoppingCarts) {
-                cart.setInvalidProducts(computationsService.checkStock(cart.getProducts(), productList));
-                shoppingCartRepository.save(cart);
-            }
-
-        } catch (ProductNotFoundException e) {
-            return new ArrayList<>();
+        for (Cart cart : shoppingCarts) {
+            cart.setInvalidProducts(computationsService.checkStock(cart.getProducts(), productList));
+            shoppingCartRepository.save(cart);
         }
+
         return shoppingCarts;
     }
 
