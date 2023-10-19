@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.exceptions;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 
@@ -12,6 +13,7 @@ import static org.assertj.core.api.Assertions.*;
 class NotEnoughStockExceptionTest {
 
     @Test
+    @DisplayName("GIVEN a list of product IDs WHEN creating NotEnoughStockException THEN the message should contain the product IDs")
     void testNotEnoughStockException() {
         // Crear una lista de IDs de productos de ejemplo
         List<Long> productIds = Arrays.asList(1L, 2L, 3L);

@@ -43,7 +43,7 @@ class ShoppingCartControllerTest {
     }
 
     @Test
-    @DisplayName("WHEN the controller is called THEN returns all carts")
+    @DisplayName("GIVEN a call of controller WHEN findAllByEmptyStatus THEN returns all carts")
     void findAllByEmptyStatus() {
 
         given(service.findAllByStatus(any())).willReturn(CartsData.getMockCarts());
@@ -109,7 +109,7 @@ class ShoppingCartControllerTest {
     }
 
     @Test
-    @DisplayName("WHEN deleteCart is executed THEN Delete a cart object")
+    @DisplayName("GIVEN cartId WHEN deleteCart THEN delete a cart object")
     void deleteCart() {
         // When
         ResponseEntity<Void> response = controller.deleteShoppingCart(1L);
