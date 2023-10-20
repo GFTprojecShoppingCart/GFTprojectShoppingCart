@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -127,12 +128,17 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         List<Cart> shoppingCarts = shoppingCartRepository.findCartsByProductIds(productsIds);
 
         for (Cart cart : shoppingCarts) {
-            //TODO actualizar invalidproducts tambien
+            //TODO actualizar invalidProducts tambien
             cart.setInvalidProducts(computationsService.checkStock(cart.getProducts(), productList));
             shoppingCartRepository.save(cart);
         }
 
         return shoppingCarts;
+    }
+
+    @Override
+    public List<Cart> findAllById(Long cartId) {
+        return shoppingCartRepository.findAllById(Collections.singleton(cartId));
     }
 
     @Override
