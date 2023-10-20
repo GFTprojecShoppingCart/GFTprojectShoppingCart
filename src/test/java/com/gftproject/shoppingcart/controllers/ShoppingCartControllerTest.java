@@ -2,14 +2,19 @@ package com.gftproject.shoppingcart.controllers;
 
 import com.gftproject.shoppingcart.CartsData;
 import com.gftproject.shoppingcart.ProductData;
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
+import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
+import com.gftproject.shoppingcart.services.ShoppingCartService;
 import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -21,8 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 class ShoppingCartControllerTest {
 
@@ -39,7 +43,7 @@ class ShoppingCartControllerTest {
     }
 
     @Test
-    @DisplayName("WHEN the controller is called THEN returns all carts")
+    @DisplayName("GIVEN a call of controller WHEN findAllByEmptyStatus THEN returns all carts")
     void findAllByEmptyStatus() {
 
         given(service.findAllByStatus(any())).willReturn(CartsData.getMockCarts());
@@ -82,7 +86,7 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN a cartId WHEN the controller is called THEN the cart status will change to submitted")
-    void submitCart() {
+    void submitCart() throws NotEnoughStockException, ProductNotFoundException {
         given(service.submitCart(any())).willReturn(CartsData.createCart001());
 
         ResponseEntity<Cart> cart = controller.submitCart("1");
@@ -105,7 +109,7 @@ class ShoppingCartControllerTest {
     }
 
     @Test
-    @DisplayName("WHEN deleteCart is executed THEN Delete a cart object")
+    @DisplayName("GIVEN cartId WHEN deleteCart THEN delete a cart object")
     void deleteCart() {
         // When
         ResponseEntity<Void> response = controller.deleteShoppingCart(1L);
@@ -117,4 +121,19 @@ class ShoppingCartControllerTest {
         verify(service).deleteCart(1L);
     }
 
+    @Test
+    @DisplayName("GIVEN cartId, product and quantity WHEN product is added THEN response is OK")
+    public void testAddProductToCartWithQuantity() throws ProductNotFoundException {
+        Long cartId = 1L;
+        Long productId = 2L;
+        int quantity = 3;
+        Cart updatedCart = new Cart();
+
+        when(service.addProductToCartWithQuantity(cartId, productId, quantity));
+
+        ResponseEntity<Cart> responseEntity = controller.addProductToCart(cartId, productId, quantity);
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(updatedCart, responseEntity.getBody());
+    }
 }

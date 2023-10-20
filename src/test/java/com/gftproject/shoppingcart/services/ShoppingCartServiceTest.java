@@ -1,10 +1,13 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
+
+import org.antlr.v4.runtime.misc.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,9 +20,12 @@ import java.math.BigDecimal;
 import java.util.*;
 
 import static com.gftproject.shoppingcart.CartsData.*;
+import static com.gftproject.shoppingcart.ProductData.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.*;
 
 
@@ -51,7 +57,7 @@ class ShoppingCartServiceTest {
     }
 
     @Test
-    @DisplayName("WHEN the method is called THEN a list of carts all carts should be provided")
+    @DisplayName("GIVEN the method is called WHEN findAll THEN provide a list of all carts")
     void findAll() {
         //Given
         when(cartRepository.findAll()).thenReturn(carts);
@@ -81,26 +87,59 @@ class ShoppingCartServiceTest {
     }
 
     @Test
-    @DisplayName("Submit a cart")
-    void submitCart() {
+    @DisplayName("GIVEN a cart Id  WHEN cart is submitted  THEN status is submitted")
+    void submitCartStock() throws ProductNotFoundException, NotEnoughStockException{
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
-        when(cartRepository.save(any())).thenReturn(createCart004());
-        //when(computationsService.computeFinalValues(any()));
+        when(productService.getProductsByIds(any())).thenReturn(getWarehouseStock());
+        when(computationsService.checkStock(anyMap(), anyList())).thenReturn(Collections.emptyList()); //Empty list to check the correct stock path
+        doNothing().when(userService).validate(); // Need to talk with user microservice
+        when(computationsService.computeFinalValues(anyMap(), anyList())).thenReturn(new Pair<>(new BigDecimal(3), new BigDecimal(25)));
+        // Return the cart (the argument of the function) instead of execute the save in the repository.
+        // As we change status, price and weight in the cart (the argument of the function) we can check the method works because the cart is changing. 
+        //Now we can see if the cart change the STATUS and get the created pair
+        when(cartRepository.save(any(Cart.class))).thenAnswer(invocation -> invocation.getArgument(0)); // Return submitted cart
+        
 
         Cart submittedCart = service.submitCart(1L);
 
         // Verify that the service method correctly calls the repository
         verify(cartRepository).findById(1L);
-        verify(cartRepository).save(any());
+        //verify(cartRepository).save(any());
+        verify(userService).validate();
+        verify(computationsService).computeFinalValues(anyMap(), anyList());
 
         assertThat(submittedCart).isNotNull();
-        assertThat(submittedCart.getFinalPrice()).isNotZero();
+        assertThat(submittedCart.getFinalPrice()).isNotZero().isEqualTo(new BigDecimal(25));
         assertThat(submittedCart.getStatus()).isEqualTo(Status.SUBMITTED);
         assertThat(submittedCart.getId()).isEqualTo(1L);
     }
 
     @Test
-    @DisplayName("Add product to cart and check stock")
+    @DisplayName("GIVEN a cart Id with products without stock  WHEN cart is submitted  THEN error is shown")
+    void submitCartNoStock() throws ProductNotFoundException{
+        when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
+        when(productService.getProductsByIds(any())).thenReturn(getWarehouseStock());
+        when(computationsService.checkStock(anyMap(), anyList())).thenReturn(List.of(1L, 2L)); // Simulate not enough stock for products with IDs 1 and 2
+
+    
+
+        // Act and Assert
+        assertThrows(NotEnoughStockException.class, () -> {
+            service.submitCart(1L); // Submit the cart
+        });
+
+        // Verify that the service method correctly calls the repository and other services
+        verify(cartRepository).findById(1L);
+        verify(productService).getProductsByIds(anyList());
+        verify(computationsService).checkStock(anyMap(), anyList());
+        verify(userService).validate();
+
+        // Verify that the cart remains in "DRAFT" status
+        //assertEquals(Status.DRAFT, cart.getStatus());
+    }
+
+    @Test
+    @DisplayName("GIVEN a cart Id and products with quantity WHEN addProductToCartWithQuantity THEN add product to cart and check stock")
     void addProductToCartWithQuantity() throws ProductNotFoundException {
         Cart cart = new Cart(1L, new ArrayList<>(), new HashMap<>(), 1L, Status.DRAFT, new BigDecimal(14), BigDecimal.ZERO);
         Product product = new Product(1L, new BigDecimal(3), new BigDecimal("0.5"), 5);
@@ -116,7 +155,7 @@ class ShoppingCartServiceTest {
     }
 
     @Test
-    @DisplayName("GIVEN a list of updated products WHEN we recieve updated products THEN upda")
+    @DisplayName("GIVEN a list of updated products WHEN we receive updated products THEN upda")
     void updateProductsFromCarts() {
         // Create sample data for testing
         Product product1 = new Product(1L, new BigDecimal("10.0"), new BigDecimal("0.5"), 10);

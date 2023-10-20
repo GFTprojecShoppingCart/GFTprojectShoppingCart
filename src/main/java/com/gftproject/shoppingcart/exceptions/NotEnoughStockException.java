@@ -1,11 +1,15 @@
 package com.gftproject.shoppingcart.exceptions;
 
+import java.util.List;
+
 public class NotEnoughStockException extends Exception {
-    public NotEnoughStockException(){
-        super("Not enough stock available");
+
+    public NotEnoughStockException(List<Long> productId){
+        super("Not enough stock of products with Id: " + productId);
     }
 
-    public NotEnoughStockException(String message){
+    public NotEnoughStockException(String message) {
         super(message);
+
     }
 }

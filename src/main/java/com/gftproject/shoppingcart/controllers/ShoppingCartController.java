@@ -1,5 +1,7 @@
 package com.gftproject.shoppingcart.controllers;
 
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
+import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
@@ -9,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,7 +64,8 @@ public class ShoppingCartController {
     }
 
     @PutMapping("/carts/{cartId}")
-    public ResponseEntity<Cart> submitCart(@PathVariable String cartId) {
+    public ResponseEntity<Cart> submitCart(@PathVariable String cartId) throws NotEnoughStockException, ProductNotFoundException {
+        
         if(!StringUtils.isNumeric(cartId)){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -69,8 +73,24 @@ public class ShoppingCartController {
 
     }
 
+    @PutMapping("/carts/{cartId}/addProduct")
+    public ResponseEntity<Cart> addProductToCart(
+            @PathVariable Long cartId,
+            @PathVariable Long productId,
+            @RequestParam int quantity) throws ProductNotFoundException {
+
+        HttpHeaders headers = new HttpHeaders();
+
+        Cart updatedCart = service.addProductToCartWithQuantity(cartId, productId, quantity);
+
+        if (updatedCart == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(updatedCart, headers, HttpStatus.OK);
+    }
+
     @PutMapping("/addCarts/{cartId}")
-    public ResponseEntity<Cart> addProductToCartWithQuantity(@PathVariable Long cartId) {
+    public ResponseEntity<Cart> addProductToCartWithQuantity(@PathVariable Long cartId) throws ProductNotFoundException {
         //TODO get productId and quantity from body
         Long productId = -1L;
         int quantity = -1;

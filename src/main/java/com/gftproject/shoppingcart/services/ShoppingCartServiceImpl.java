@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
@@ -53,7 +54,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public Cart addProductToCartWithQuantity(Long cartId, Long productId, int quantity) {
+    public Cart addProductToCartWithQuantity(Long cartId, Long productId, int quantity) throws ProductNotFoundException {
         Optional<Cart> optionalCart = shoppingCartRepository.findById(cartId);
 
         if (optionalCart.isPresent()) {
@@ -62,6 +63,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             Product product = productService.getProductById(productId);
 
             addProductWithQuantity(cart, product, quantity);
+
             return shoppingCartRepository.save(cart);
         } else {
             Cart newCart = new Cart();
@@ -72,43 +74,42 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
 
     @Override
-    public Cart submitCart(Long idCart) {
+    public Cart submitCart(Long idCart) throws NotEnoughStockException, ProductNotFoundException {
 
-        try {
-            // We obtain the cart
-            Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
-            List<Long> productIds = new ArrayList<>(cart.getProducts().keySet());
+        // TODO: Validar al usuario
+        userService.validate();
 
-            // We obtain the cart products from their endpoint
-            List<Product> warehouseStock = productService.getProductsByIds(productIds);
-            List<Long> productsWithoutStock = null;
-            productsWithoutStock = computationsService.checkStock(cart.getProducts(), warehouseStock);
+        // Obtenemos el carrito
+        Cart cart = shoppingCartRepository.findById(idCart).orElseThrow();
 
-            // TODO Validate User
-
-            userService.validate();
-
-            // TODO Compute price -> Cosas
-
-            if (productsWithoutStock.isEmpty()) {
-
-                // TODO Check TAX / Payment / weight
-
-                // TODO Check cart validity
-                // TODO Change status AND send to almacen
-
-                Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalValues(cart.getProducts(), warehouseStock);
-
-                cart.setFinalWeight(pair.a);
-                cart.setFinalPrice(pair.b);
-                cart.setStatus(Status.SUBMITTED);
-
-                return shoppingCartRepository.save(cart);
-            }
-        } catch (ProductNotFoundException e) {
-//            throw new RuntimeException(e);
+        // Primero vemos si es valido desde la ultima revision
+        if (!cart.getInvalidProducts().isEmpty()) {
+            throw new NotEnoughStockException(cart.getInvalidProducts());
         }
-        return new Cart();
+
+        // Obtener IDs de los productos en el carrito
+        Map<Long, Integer> productsMap = cart.getProducts();
+
+        // Comunicar al almacen la compra
+        List<Product> submittedProducts = productService.getProductsToSubmit(productsMap);
+
+        if (!submittedProducts.isEmpty()) {
+            // Realizar cálculos de precio
+            Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalValues(cart.getProducts(), submittedProducts);
+
+            // Cambiar el estado del carrito
+            cart.setFinalWeight(pair.a);
+            cart.setFinalPrice(pair.b);
+            cart.setStatus(Status.SUBMITTED);
+
+            // Guardar el carrito
+            return shoppingCartRepository.save(cart);
+        }
+
+        return cart;
+
+
+
     }
 
     public List<Cart> updateProductsFromCarts(List<Product> productList) {
@@ -133,16 +134,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public void addProductWithQuantity(Cart cart, Product product, int quantity) {
 
         Map<Long, Integer> products = cart.getProducts();
-        if (cart.getProducts().containsKey(product)) {
-            if (product.getStorageQuantity() >= quantity) {
-                int currentQuantity = products.get(product);
-                int newQuantity = currentQuantity + quantity;
-                products.put(product.getId(), currentQuantity + newQuantity);
-            }
-        } else {
+
+        if (product.getStorageQuantity() >= quantity) {
+
             products.put(product.getId(), quantity);
         }
+
     }
+
 
     public Object updateStockCart(Object any) {
         return null;
