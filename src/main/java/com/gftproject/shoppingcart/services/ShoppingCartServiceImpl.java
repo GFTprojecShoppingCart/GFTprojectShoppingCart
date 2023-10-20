@@ -179,7 +179,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         BigDecimal priceWithTaxes = new BigDecimal(0);
         priceWithTaxes = priceWithTaxes.add(originalPrice);
 
-        double weightPercentage = computationsService.computeByWeight(weight);
+        double weightPercentage = computationsService.computeByWeight(weight.doubleValue());
         double cardPercentage = paymentRepository.findById(user.getPaymentMethod()).orElseThrow().getChargePercentage();
         double countryPercentage = countryRepository.findById(user.getCountry()).orElseThrow().getTaxPercentage();
 

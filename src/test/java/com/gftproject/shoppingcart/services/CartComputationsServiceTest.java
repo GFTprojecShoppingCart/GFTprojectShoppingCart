@@ -42,4 +42,13 @@ class CartComputationsServiceTest {
         assertThat(new BigDecimal("120.4")).isEqualTo(pairWeightValue.a);
         assertThat(new BigDecimal("287.86")).isEqualTo(pairWeightValue.b);
     }
+
+    @Test
+    @DisplayName("GIVEN the total weight of a cart WHEN the fee is calculated THEN returns the corresponding value")
+    void computeByWeight() {
+
+        double result = computationsService.computeByWeight(3);
+
+        assertThat(result).isEqualTo(5);
+    }
 }

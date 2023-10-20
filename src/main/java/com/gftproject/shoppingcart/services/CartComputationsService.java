@@ -33,30 +33,27 @@ public class CartComputationsService {
         BigDecimal totalPrice = new BigDecimal(0);
 
         for (Product product : warehouseStock) {
-            
+
             int quantity = cartProducts.get(product.getId());
             totalWeight = totalWeight.add(product.getWeight().multiply(BigDecimal.valueOf(quantity)));
             totalPrice = totalPrice.add(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
- 
+
         }
         return new Pair<>(totalWeight, totalPrice);
     }
-    public double computeByWeight(double cartWeight){
+
+    public double computeByWeight(double cartWeight) {
         double weightCost;
-        if(cartWeight <=5){
-            weightCost =5;
-        }else if(cartWeight<=10){
+        if (cartWeight <= 5) {
+            weightCost = 5;
+        } else if (cartWeight <= 10) {
             weightCost = 10;
-        }else if(cartWeight<=20){
+        } else if (cartWeight <= 20) {
             weightCost = 20;
-        }else{
+        } else {
             weightCost = 50;
         }
         return weightCost;
     }
 
-    public double computeByWeight(BigDecimal cartWeight) {
-        //TODO
-        return 0;
-    }
 }
