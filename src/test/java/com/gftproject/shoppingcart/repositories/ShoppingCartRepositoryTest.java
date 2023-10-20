@@ -22,6 +22,18 @@ class ShoppingCartRepositoryTest {
     @Autowired
     ShoppingCartRepository shoppingCartRepository;
 
+
+    @Test
+    @DisplayName("Find all by Carts by Status")
+    void testFindAllByUserId() {
+        List<Cart> cart = shoppingCartRepository.findAllByUserId(1L);
+
+        assertFalse(cart.isEmpty());
+        assertEquals(2, cart.size());
+        assertEquals(1, cart.get(0).getUserId());
+    }
+
+
     @Test
     @DisplayName("GIVEN a status WHEN testFindAllByStatus THEN find all carts by status")
     void testFindAllByStatus() {

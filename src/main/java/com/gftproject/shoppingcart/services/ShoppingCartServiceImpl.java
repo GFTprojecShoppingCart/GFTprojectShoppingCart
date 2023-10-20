@@ -6,6 +6,7 @@ import com.gftproject.shoppingcart.model.*;
 import com.gftproject.shoppingcart.repositories.CountryRepository;
 import com.gftproject.shoppingcart.repositories.PaymentRepository;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
+import jakarta.transaction.Transactional;
 import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public List<Cart> findAll() {
         return shoppingCartRepository.findAll();
+    }
+
+    @Override
+    public List<Cart> findAllByUserId(Long userId) {
+        return shoppingCartRepository.findAllByUserId(userId);
     }
 
     @Override
@@ -119,6 +125,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return cart;
 
 
+
     }
 
     public List<Cart> updateProductsFromCarts(List<Product> productList) {
@@ -135,7 +142,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return shoppingCarts;
     }
 
+    public void addProductWithQuantity(Cart cart, Product product, int quantity) {
+
+        Map<Long, Integer> products = cart.getProducts();
+
+        if (product.getStorageQuantity() >= quantity) {
+
+            products.put(product.getId(), quantity);
+        }
+
+    }
+
     @Override
+    @Transactional
     public void deleteCart(Long cartId) {
         shoppingCartRepository.deleteById(cartId);
     }
