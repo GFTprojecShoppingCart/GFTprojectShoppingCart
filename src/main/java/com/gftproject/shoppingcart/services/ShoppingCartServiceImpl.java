@@ -140,7 +140,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             products.put(product.getId(), quantity);
         }
 
-    }
+    }git
 
     @Override
     @Transactional
