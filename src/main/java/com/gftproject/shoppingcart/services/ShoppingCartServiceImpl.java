@@ -6,11 +6,14 @@ import com.gftproject.shoppingcart.model.*;
 import com.gftproject.shoppingcart.repositories.CountryRepository;
 import com.gftproject.shoppingcart.repositories.PaymentRepository;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
+import jakarta.transaction.Transactional;
 import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -40,6 +43,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    public List<Cart> findAllByUserId(Long userId) {
+        return shoppingCartRepository.findAllByUserId(userId);
+    }
+
+    @Override
     public List<Cart> findAllByStatus(Status status) {
         return shoppingCartRepository.findAllByStatus(status);
     }
@@ -47,7 +55,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public Cart createCart(Long userId) {
         Cart cart = new Cart();
+
         cart.setUserId(userId);
+        cart.setInvalidProducts(new ArrayList<>());
+        cart.setFinalPrice(new BigDecimal(0));
+        cart.setFinalWeight(new BigDecimal(0));
+        cart.setProducts(new HashMap<>());
+        cart.setStatus(Status.DRAFT);
+
         return shoppingCartRepository.save(cart);
     }
 
@@ -120,6 +135,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return cart;
 
 
+
     }
 
     public List<Cart> updateProductsFromCarts(List<Product> productList) {
@@ -141,7 +157,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return shoppingCartRepository.findAllById(Collections.singleton(cartId));
     }
 
+    public void addProductWithQuantity(Cart cart, Product product, int quantity) {
+
+        Map<Long, Integer> products = cart.getProducts();
+
+        if (product.getStorageQuantity() >= quantity) {
+
+            products.put(product.getId(), quantity);
+        }
+
+    }
+
     @Override
+    @Transactional
     public void deleteCart(Long cartId) {
         shoppingCartRepository.deleteById(cartId);
     }
