@@ -100,5 +100,8 @@ class ShoppingCartControllerWebTestClientTests {
                     .expectHeader().contentType(MediaType.APPLICATION_JSON)
                     .expectBodyList(Cart.class)
                     .hasSize(3);//Una vez eliminado el carrito, esperamos que haya 1 menos en la lista
+
+//            client.get().uri("/carts/1").exchange()
+//                    .expectStatus().isNotFound();
     }
 }
