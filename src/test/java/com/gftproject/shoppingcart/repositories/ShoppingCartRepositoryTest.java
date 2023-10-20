@@ -22,7 +22,7 @@ public class ShoppingCartRepositoryTest {
     ShoppingCartRepository shoppingCartRepository;
 
     @Test
-    @DisplayName("Find all by Carts by Status")
+    @DisplayName("GIVEN a status WHEN testFindAllByStatus THEN find all carts by status")
     void testFindAllByStatus() {
         List<Cart> cart = shoppingCartRepository.findAllByStatus(Status.DRAFT);
 
@@ -32,6 +32,7 @@ public class ShoppingCartRepositoryTest {
     }
 
     @Test
+    @DisplayName("GIVEN cartId WHEN deleteCart THEN delete a cart object")
     void deleteCart() {
         Cart cart = shoppingCartRepository.findById(1L).orElseThrow();
         assertEquals(1L, cart.getId());

@@ -57,7 +57,7 @@ class ShoppingCartServiceTest {
     }
 
     @Test
-    @DisplayName("WHEN the method is called THEN a list of carts all carts should be provided")
+    @DisplayName("GIVEN the method is called WHEN findAll THEN provide a list of all carts")
     void findAll() {
         //Given
         when(cartRepository.findAll()).thenReturn(carts);
@@ -139,7 +139,7 @@ class ShoppingCartServiceTest {
     }
 
     @Test
-    @DisplayName("Add product to cart and check stock")
+    @DisplayName("GIVEN a cart Id and products with quantity WHEN addProductToCartWithQuantity THEN add product to cart and check stock")
     void addProductToCartWithQuantity() throws ProductNotFoundException {
         Cart cart = new Cart(1L, new ArrayList<>(), new HashMap<>(), 1L, Status.DRAFT, new BigDecimal(14), BigDecimal.ZERO);
         Product product = new Product(1L, new BigDecimal(3), new BigDecimal("0.5"), 5);
@@ -155,7 +155,7 @@ class ShoppingCartServiceTest {
     }
 
     @Test
-    @DisplayName("GIVEN a list of updated products WHEN we recieve updated products THEN upda")
+    @DisplayName("GIVEN a list of updated products WHEN we receive updated products THEN upda")
     void updateProductsFromCarts() {
         // Create sample data for testing
         Product product1 = new Product(1L, new BigDecimal("10.0"), new BigDecimal("0.5"), 10);
