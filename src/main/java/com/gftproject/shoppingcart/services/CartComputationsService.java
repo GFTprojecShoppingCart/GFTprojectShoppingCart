@@ -55,8 +55,4 @@ public class CartComputationsService {
         return weightCost;
     }
 
-    public double computeByWeight(BigDecimal cartWeight) {
-        //TODO
-        return 0;
-    }
 }

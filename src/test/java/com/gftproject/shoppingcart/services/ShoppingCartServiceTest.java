@@ -122,7 +122,7 @@ class ShoppingCartServiceTest {
         //Now we can see if the cart change the STATUS and get the created pair
         when(cartRepository.save(any(Cart.class))).thenAnswer(invocation -> invocation.getArgument(0)); // Return submitted cart
         
-
+        //TODO mock the country and payment repository to avoid NotFoundError
         Cart submittedCart = service.submitCart(1L);
 
         // Verify that the service method correctly calls the repository
@@ -145,7 +145,7 @@ class ShoppingCartServiceTest {
         when(computationsService.checkStock(anyMap(), anyList())).thenReturn(List.of(1L, 2L)); // Simulate not enough stock for products with IDs 1 and 2
 
     
-
+        //TODO mock all the repositories to test only testSumbit
         // Act and Assert
         assertThrows(NotEnoughStockException.class, () -> {
             service.submitCart(1L); // Submit the cart
@@ -171,7 +171,7 @@ class ShoppingCartServiceTest {
         when(cartRepository.save(any())).thenReturn(cart);
         when(productService.getProductById(any())).thenReturn(product);
 
-        Cart updatedCart = service.addProductToCartWithQuantity(1L, 1L, 5);
+        Cart updatedCart = service.addProductToCartWithQuantity(1L, 5L, 5);
 
         assertThat(updatedCart).isNotNull();
         assertThat(updatedCart.getId()).isEqualTo(1L);
