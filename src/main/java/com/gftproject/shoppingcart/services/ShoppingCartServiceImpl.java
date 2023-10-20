@@ -60,7 +60,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         cart.setFinalPrice(new BigDecimal(0));
         cart.setFinalWeight(new BigDecimal(0));
         cart.setProducts(new HashMap<>());
-        
+        cart.setStatus(Status.DRAFT);
+               
         return shoppingCartRepository.save(cart);
     }
 
