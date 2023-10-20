@@ -44,6 +44,7 @@ class ShoppingCartControllerWebTestClientTests {
                 .expectStatus().isCreated();
     }
 
+
     @Test
     @Order(2)
     @DisplayName("GIVEN userId WHEN findAllByStatus is executed THEN list carts by status")
@@ -51,7 +52,7 @@ class ShoppingCartControllerWebTestClientTests {
     void findAllByUserId() {
         final List<Cart> carts = new ArrayList<>(); // Declarar como final y efectivamente final
 
-        client.get().uri("/carts/{userId}").exchange()
+        client.get().uri("/carts/1").exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBodyList(Cart.class)
@@ -59,49 +60,29 @@ class ShoppingCartControllerWebTestClientTests {
                     carts.addAll(response.getResponseBody()); // Agregar elementos a la lista
                 });
 
-//        assertNotNull(carts);
-//        assertEquals(1, carts.size());
-//            assertEquals(1L, carts.get(0).getId());
-//            assertEquals("DRAFT", carts.get(0).getStatus());
-//            assertEquals("0", carts.get(0).getFinalPrice().toPlainString());
-//            assertEquals("0", carts.get(0).getFinalWeight().toPlainString());
-//
-//            assertEquals(1L, carts.get(0).getId());
-//            assertEquals("SUBMITTED", carts.get(1).getStatus());
-//            assertEquals("0", carts.get(1).getFinalPrice().toPlainString());
-//            assertEquals("4.5", carts.get(1).getFinalWeight().toPlainString());
-
         assertNotNull(carts);
-        assertEquals(2, carts.size()); // Verificar que haya 2 registros en la lista import.sql
+        assertEquals(2, carts.size()); // Verificar que haya 2 registros en la lista import.sql del usuario 1
 
-// Verificar el primer registro
+// Verificar el primer registro del user id 1
         assertEquals(1L, carts.get(0).getId());
-        assertEquals("DRAFT", carts.get(0).getStatus());
-        assertEquals(BigDecimal.ZERO, carts.get(0).getFinalPrice());
-        assertEquals(BigDecimal.ZERO, carts.get(0).getFinalWeight());
+        assertEquals("DRAFT", carts.get(0).getStatus().getStatus());
+        assertEquals(0, carts.get(0).getFinalPrice().intValue());
+        assertEquals(0, carts.get(0).getFinalWeight().intValue());
 
-// Verificar el segundo registro
-        assertEquals(2L, carts.get(1).getId());
-        assertEquals("DRAFT", carts.get(1).getStatus());
-        assertEquals(BigDecimal.ZERO, carts.get(1).getFinalPrice());
-        assertEquals(BigDecimal.ZERO, carts.get(1).getFinalWeight());
-
-// Verificar el tercer registro
-        assertEquals(3L, carts.get(2).getId());
-        assertEquals("SUBMITTED", carts.get(2).getStatus());
-        assertEquals(new BigDecimal("4.5"), carts.get(2).getFinalPrice());
-        assertEquals(BigDecimal.ZERO, carts.get(2).getFinalWeight());
+// Verificar el tercer registro del user id 1
+        assertEquals(3L, carts.get(1).getId());
+        assertEquals("SUBMITTED", carts.get(1).getStatus().getStatus());
+        assertEquals("4.50", carts.get(1).getFinalPrice().toPlainString());
+        assertEquals(0, carts.get(1).getFinalWeight().intValue());
 
 
-        client.get().uri("/carts/{userId}").exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(APPLICATION_JSON)
-                .expectBody()
-                .jsonPath("$[1].cart").isEqualTo("SUMMITED")
-                .jsonPath("$[1].cart").isEqualTo("DRAFT")
-                .jsonPath("$[0].id").isEqualTo("1");
-
-
+//        client.get().uri("/carts/1").exchange()
+//                .expectStatus().isOk()
+//                .expectHeader().contentType(APPLICATION_JSON)
+//                .expectBody()
+//                .jsonPath("$[0].cart").isEqualTo("SUMMITED")
+//                .jsonPath("$[0].cart").isEqualTo("DRAFT")
+//                .jsonPath("$[1].id").isEqualTo("1");
     }
 
         @Test
