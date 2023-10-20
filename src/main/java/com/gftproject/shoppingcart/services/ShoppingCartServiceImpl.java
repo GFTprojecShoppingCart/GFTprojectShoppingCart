@@ -142,11 +142,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     }
 
-
-    public Object updateStockCart(Object any) {
-        return null;
-    }
-
     @Override
     @Transactional
     public void deleteCart(Long cartId) {

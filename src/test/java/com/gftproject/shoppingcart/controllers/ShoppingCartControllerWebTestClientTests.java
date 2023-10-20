@@ -61,13 +61,13 @@ class ShoppingCartControllerWebTestClientTests {
 
         // Verificar el primer registro del user id 1
         assertEquals(1L, carts.get(0).getId());
-        assertEquals("DRAFT", carts.get(0).getStatus().getStatus());
+        assertEquals("DRAFT", carts.get(0).getStatus().name());
         assertEquals(0, carts.get(0).getFinalPrice().intValue());
         assertEquals(0, carts.get(0).getFinalWeight().intValue());
 
         // Verificar el tercer registro del user id 1
         assertEquals(3L, carts.get(1).getId());
-        assertEquals("SUBMITTED", carts.get(1).getStatus().getStatus());
+        assertEquals("SUBMITTED", carts.get(1).getStatus().name());
         assertEquals("4.50", carts.get(1).getFinalPrice().toPlainString());
         assertEquals(0, carts.get(1).getFinalWeight().intValue());
 
