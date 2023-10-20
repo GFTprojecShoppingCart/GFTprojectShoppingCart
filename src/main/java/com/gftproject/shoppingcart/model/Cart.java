@@ -20,6 +20,7 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @ElementCollection
     List<Long> invalidProducts;
     
     @ElementCollection

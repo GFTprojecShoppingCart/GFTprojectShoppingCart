@@ -1,7 +1,5 @@
 package com.gftproject.shoppingcart.services;
 
-import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
-import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Product;
 import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.stereotype.Service;
@@ -9,28 +7,23 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 @Service
 public class CartComputationsService {
 
-    //TODO convertir para usarlo en la comprobacion periodica de stock
-    public List<Long> checkStock(Map<Long, Integer> cartProducts, List<Product> warehouseStock) throws ProductNotFoundException {
+    public List<Long> checkStock(Map<Long, Integer> cartProducts, List<Product> updatedProducts) {
 
         List<Long> productsWithoutStock = new ArrayList<>();
 
-        /*for (Product product : warehouseStock) {
+        for (Product product : updatedProducts) {
             if (cartProducts.containsKey(product.getId())) {
                 int productInCart = cartProducts.get(product.getId());
                 if (product.getStorageQuantity() < productInCart) {
                     productsWithoutStock.add(product.getId());
                 }
-            }else {
-                throw new ProductNotFoundException();
             }
-        }*/
+        }
         return productsWithoutStock;
     }
 
@@ -62,4 +55,8 @@ public class CartComputationsService {
         return weightCost;
     }
 
+    public double computeByWeight(BigDecimal cartWeight) {
+        //TODO
+        return 0;
+    }
 }

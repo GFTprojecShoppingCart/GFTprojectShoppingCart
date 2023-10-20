@@ -10,7 +10,7 @@ import lombok.Setter;
 @Entity
 @Getter @Setter
 @AllArgsConstructor @NoArgsConstructor
-public class Payments {
+public class Payment {
     @Id
     private String paymentMethod;
 
