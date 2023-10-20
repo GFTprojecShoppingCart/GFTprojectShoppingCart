@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.repositories;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
@@ -16,7 +17,7 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Status;
 
 @DataJpaTest
-public class ShoppingCartRepositoryTest {
+class ShoppingCartRepositoryTest {
 
     @Autowired
     ShoppingCartRepository shoppingCartRepository;
@@ -27,8 +28,7 @@ public class ShoppingCartRepositoryTest {
         List<Cart> cart = shoppingCartRepository.findAllByStatus(Status.DRAFT);
 
         assertFalse(cart.isEmpty());
-        assertEquals(2, cart.size());
-
+        assertThat(cart).isNotEmpty().hasSize(2);
     }
 
     @Test
