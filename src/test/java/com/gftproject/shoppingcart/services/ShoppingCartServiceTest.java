@@ -77,11 +77,11 @@ class ShoppingCartServiceTest {
         Cart createdCart = service.createCart(userId);
 
         verify(cartRepository, times(1)).save(any(Cart.class));
-        assertEquals(userId, createdCart.getUserId());
+        assertThat(createdCart.getUserId()).isEqualTo(userId);
     }
 
     @Test
-    @DisplayName("WHEN the method is called THEN a list of carts all carts should be provided")
+    @DisplayName("GIVEN the method is called WHEN findAll THEN provide a list of all carts")
     void findAll() {
         //Given
         when(cartRepository.findAll()).thenReturn(carts);
@@ -90,8 +90,7 @@ class ShoppingCartServiceTest {
         List<Cart> allCarts = service.findAll();
 
         //then
-        assertNotNull(allCarts);
-        assertEquals(3, allCarts.size());
+        assertThat(allCarts).isNotNull().hasSize(3);
         verify(cartRepository).findAll();
     }
 
@@ -163,7 +162,7 @@ class ShoppingCartServiceTest {
     }
 
     @Test
-    @DisplayName("Add product to cart and check stock")
+    @DisplayName("GIVEN a cart Id and products with quantity WHEN addProductToCartWithQuantity THEN add product to cart and check stock")
     void addProductToCartWithQuantity() throws ProductNotFoundException {
         Cart cart = new Cart(1L, new ArrayList<>(), new HashMap<>(), 1L, Status.DRAFT, new BigDecimal(14), BigDecimal.ZERO);
         Product product = new Product(1L, new BigDecimal(3), new BigDecimal("0.5"), 5);
@@ -174,14 +173,14 @@ class ShoppingCartServiceTest {
 
         Cart updatedCart = service.addProductToCartWithQuantity(1L, 1L, 5);
 
-        assertNotNull(updatedCart);
-        assertEquals(1L, updatedCart.getId());
-        assertEquals(5, updatedCart.getProducts().get(1L));
+        assertThat(updatedCart).isNotNull();
+        assertThat(updatedCart.getId()).isEqualTo(1L);
+        assertThat(updatedCart.getProducts()).containsKey(5L);
         verify(cartRepository).save(cart);
     }
 
     @Test
-    @DisplayName("GIVEN a list of updated products WHEN we recieve updated products THEN upda")
+    @DisplayName("GIVEN a list of updated products WHEN we receive updated products THEN upda")
     void updateProductsFromCarts() {
         // Create sample data for testing
         Product product1 = new Product(1L, new BigDecimal("10.0"), new BigDecimal("0.5"), 10);
@@ -209,12 +208,11 @@ class ShoppingCartServiceTest {
         List<Cart> updatedCarts = service.updateProductsFromCarts(updatedProducts);
 
         // Assertions
-        assertEquals(2, updatedCarts.size());
-        assertEquals(1L, updatedCarts.get(0).getId());
-        assertEquals(2L, updatedCarts.get(1).getId());
+        assertThat(updatedCarts).hasSize(2);
+        assertThat(updatedCarts.get(0).getId()).isEqualTo(1L);
+        assertThat(updatedCarts.get(1).getId()).isEqualTo(2L);
 
         verify(cartRepository, Mockito.times(2)).save(any(Cart.class));
-
         verify(cartRepository, times(2)).save(any());
     }
 

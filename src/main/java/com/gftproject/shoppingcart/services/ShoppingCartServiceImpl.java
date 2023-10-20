@@ -6,6 +6,7 @@ import com.gftproject.shoppingcart.model.*;
 import com.gftproject.shoppingcart.repositories.CountryRepository;
 import com.gftproject.shoppingcart.repositories.PaymentRepository;
 import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
+import jakarta.transaction.Transactional;
 import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,11 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
+    public List<Cart> findAllByUserId(Long userId) {
+        return shoppingCartRepository.findAllByUserId(userId);
+    }
+
+    @Override
     public List<Cart> findAllByStatus(Status status) {
         return shoppingCartRepository.findAllByStatus(status);
     }
@@ -65,15 +71,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         if (optionalCart.isPresent()) {
             Cart cart = optionalCart.get();
 
-            //TODO fix this headache
+            //TODO fix this headache, and also remove items from invalid if we add an existing product with an available amount
 //            Product product = productService.getProductById(productId);
             Product product = new Product(productId, new BigDecimal(3), new BigDecimal(2), 40);
 
             Map<Long, Integer> products = cart.getProducts();
 
             if (product.getStorageQuantity() >= quantity) {
-
                 products.put(product.getId(), quantity);
+                cart.getInvalidProducts().remove(productId);
             }
 
             return shoppingCartRepository.save(cart);
@@ -127,6 +133,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return cart;
 
 
+
     }
 
     public List<Cart> updateProductsFromCarts(List<Product> productList) {
@@ -135,6 +142,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         List<Cart> shoppingCarts = shoppingCartRepository.findCartsByProductIds(productsIds);
 
         for (Cart cart : shoppingCarts) {
+            //TODO actualizar invalidproducts tambien
             cart.setInvalidProducts(computationsService.checkStock(cart.getProducts(), productList));
             shoppingCartRepository.save(cart);
         }
@@ -142,7 +150,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         return shoppingCarts;
     }
 
+    public void addProductWithQuantity(Cart cart, Product product, int quantity) {
+
+        Map<Long, Integer> products = cart.getProducts();
+
+        if (product.getStorageQuantity() >= quantity) {
+
+            products.put(product.getId(), quantity);
+        }
+
+    }
+
     @Override
+    @Transactional
     public void deleteCart(Long cartId) {
         shoppingCartRepository.deleteById(cartId);
     }

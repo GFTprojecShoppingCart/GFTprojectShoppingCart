@@ -41,6 +41,19 @@ public class CartComputationsService {
         }
         return new Pair<>(totalWeight, totalPrice);
     }
+    public double computeByWeight(double cartWeight){
+        double weightCost;
+        if(cartWeight <=5){
+            weightCost =5;
+        }else if(cartWeight<=10){
+            weightCost = 10;
+        }else if(cartWeight<=20){
+            weightCost = 20;
+        }else{
+            weightCost = 50;
+        }
+        return weightCost;
+    }
 
     public double computeByWeight(BigDecimal cartWeight) {
         //TODO
