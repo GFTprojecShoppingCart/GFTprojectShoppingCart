@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +23,7 @@ public class Cart {
     List<Long> invalidProducts;
     
     @ElementCollection
-    private Map<Long, Integer> products = new HashMap<>();
+    private Map<Long, Integer> products;
 
     @NotNull(message = "The user ID must be provided")
     private long userId;
