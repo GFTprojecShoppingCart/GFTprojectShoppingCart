@@ -16,7 +16,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class ShoppingCartControllerWebTestClientTests {
 
@@ -29,7 +28,6 @@ class ShoppingCartControllerWebTestClientTests {
     }
     String userId = "1";
     @Test
-    @Order(1)
     @DisplayName("GIVEN an user id WHEN a cart is created")
     void createCartTest() {
 
@@ -42,7 +40,6 @@ class ShoppingCartControllerWebTestClientTests {
 
 
     @Test
-    @Order(2)
     @DisplayName("GIVEN user id WHEN findAllByStatus is executed THEN list carts by status")
 
     void findAllByUserId() {
@@ -83,7 +80,6 @@ class ShoppingCartControllerWebTestClientTests {
 
 
         @Test
-        @Order(3)         //Este ha de ser el último test que corra
         @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
         void deleteCart() throws Exception {
 
@@ -92,7 +88,7 @@ class ShoppingCartControllerWebTestClientTests {
                     .expectHeader().contentType(MediaType.APPLICATION_JSON) //para validar la cabecera con contenido
                     // json
                     .expectBodyList(Cart.class)
-                    .hasSize(3); //Esperamos 4 elementos en la lista de carritos del cliente
+                    .hasSize(4); //Esperamos 4 elementos en la lista de carritos del cliente
 
             client.delete().uri("/carts/1")
                     .exchange()
@@ -103,6 +99,6 @@ class ShoppingCartControllerWebTestClientTests {
                     .expectStatus().isOk()
                     .expectHeader().contentType(MediaType.APPLICATION_JSON)
                     .expectBodyList(Cart.class)
-                    .hasSize(2);//Una vez eliminado el carrito, esperamos que haya 1 menos en la lista
+                    .hasSize(3);//Una vez eliminado el carrito, esperamos que haya 1 menos en la lista
     }
 }

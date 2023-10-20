@@ -5,16 +5,13 @@ import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
-import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.Status;
-import com.gftproject.shoppingcart.services.ShoppingCartService;
 import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -22,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,8 +49,7 @@ class ShoppingCartControllerTest {
 
         ResponseEntity<List<Cart>> response = controller.findAllByStatus(null);
 
-        assertNotNull(response.getBody());
-        assertEquals(4, response.getBody().size());
+        assertThat(response.getBody()).isNotNull().hasSize(4);
         verify(service, never()).findAllByStatus(any());
 
     }
@@ -66,9 +63,9 @@ class ShoppingCartControllerTest {
 
         ResponseEntity<List<Cart>> response = controller.findAllByStatus(Status.SUBMITTED);
 
-        assertNotNull(response.getBody());
-        assertEquals(Status.SUBMITTED, response.getBody().get(0).getStatus());
-        assertEquals(1, response.getBody().size());
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().get(0).getStatus()).isEqualTo(Status.SUBMITTED);
+        assertThat(response.getBody()).hasSize(1);
         verify(service).findAllByStatus(any());
     }
 
@@ -79,9 +76,20 @@ class ShoppingCartControllerTest {
 
         ResponseEntity<Cart> cart = controller.createCart("1");
 
-        assertNotNull(cart.getBody());
-        assertEquals(HttpStatusCode.valueOf(201), cart.getStatusCode());
+        assertThat(cart.getBody()).isNotNull();
+        assertThat(cart.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(201));
         verify(service).createCart(any());
+    }
+
+    @Test
+    @DisplayName("GIVEN the userID WHEN method called THEN returns the created cart")
+    void createCartBadRequest() {
+        given(service.createCart(any())).willReturn(CartsData.createCart001());
+
+        ResponseEntity<Cart> cart = controller.createCart("Oof");
+
+        assertThat(cart.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(400));
+        verify(service, never()).createCart(any());
     }
 
     @Test
@@ -91,8 +99,8 @@ class ShoppingCartControllerTest {
 
         ResponseEntity<Cart> cart = controller.submitCart("1");
 
-        assertNotNull(cart.getBody());
-        assertEquals(HttpStatusCode.valueOf(200), cart.getStatusCode());
+        assertThat(cart.getBody()).isNotNull();
+        assertThat(cart.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
         verify(service).submitCart(any());
     }
 
@@ -103,8 +111,8 @@ class ShoppingCartControllerTest {
 
         ResponseEntity<List<Cart>> response = controller.updateProductsFromCarts(ProductData.getWarehouseStock());
 
-        assertNotNull(response.getBody());
-        assertEquals(HttpStatusCode.valueOf(200), response.getStatusCode());
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
         verify(service).updateProductsFromCarts(any());
     }
 
@@ -115,7 +123,7 @@ class ShoppingCartControllerTest {
         ResponseEntity<Void> response = controller.deleteShoppingCart(1L);
 
         // Then
-        assertEquals(HttpStatus.valueOf(200), response.getStatusCode());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.valueOf(200));
 
         // Verification
         verify(service).deleteCart(1L);
@@ -123,17 +131,13 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN cartId, product and quantity WHEN product is added THEN response is OK")
-    public void testAddProductToCartWithQuantity() throws ProductNotFoundException {
-        Long cartId = 1L;
-        Long productId = 2L;
-        int quantity = 3;
-        Cart updatedCart = new Cart();
+    void testAddProductToCartWithQuantity() throws ProductNotFoundException {
 
-        when(service.addProductToCartWithQuantity(cartId, productId, quantity));
+        when(service.addProductToCartWithQuantity(anyLong(), anyLong(), anyInt())).thenReturn(CartsData.createCart001());
 
-        ResponseEntity<Cart> responseEntity = controller.addProductToCart(cartId, productId, quantity);
+        ResponseEntity<Cart> responseEntity = controller.addProductToCart(1L, 1L, 3);
 
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(updatedCart, responseEntity.getBody());
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+
     }
 }
