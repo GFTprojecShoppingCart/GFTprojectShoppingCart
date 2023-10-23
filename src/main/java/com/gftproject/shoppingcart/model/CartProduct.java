@@ -19,9 +19,9 @@ public class CartProduct {
     private Cart cart;
 
     @Id
-    @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    private Long product;
+
+    boolean valid;
 
     @Min(value = 0, message = "Product quantity should be zero or greater")
     private int quantity;

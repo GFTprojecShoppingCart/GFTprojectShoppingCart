@@ -26,20 +26,16 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final UserServiceImpl userService;
     private final CountryRepository countryRepository;
     private final PaymentRepository paymentRepository;
-    private final CartProductServiceImpl cartProductService;
     private final CartProductsRepository cartProductRepository;
-    private final ProductRepository productRepository;
 
-    public ShoppingCartServiceImpl(ShoppingCartRepository cartRepository, CartComputationsService computationsService, ProductServiceImpl productService, UserServiceImpl userService, CountryRepository countryRepository, PaymentRepository paymentRepository, CartProductServiceImpl cartProductService, CartProductsRepository cartProductRepository, ProductRepository productRepository) {
+    public ShoppingCartServiceImpl(ShoppingCartRepository cartRepository, CartComputationsService computationsService, ProductServiceImpl productService, UserServiceImpl userService, CountryRepository countryRepository, PaymentRepository paymentRepository, CartProductServiceImpl cartProductService, CartProductsRepository cartProductRepository) {
         this.cartRepository = cartRepository;
         this.computationsService = computationsService;
         this.productService = productService;
         this.userService = userService;
         this.countryRepository = countryRepository;
         this.paymentRepository = paymentRepository;
-        this.cartProductService = cartProductService;
         this.cartProductRepository = cartProductRepository;
-        this.productRepository = productRepository;
     }
 
     @Override
@@ -68,6 +64,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
         return cartRepository.save(cart);
     }
+/*
 
     public Cart addProductToCartWithQuantityOof(Long userId, Long cartId, Long productId, int quantity) throws NotEnoughStockException {
 
@@ -107,9 +104,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             return cartRepository.save(newCart);
         }
     }
+*/
 
-    @Autowired
-    public Cart addProductToCartWithQuantity(Long userId, Long cartId, Long productId, int quantity) throws ProductNotFoundException {
+    @Override
+    public Cart addProductToCartWithQuantity(long userId, long cartId, long productId, int quantity) {
         // Check if the cart exists or create a new one if it doesn't
         Cart cart = cartRepository.findById(cartId).orElseGet(() -> {
             Cart newCart = new Cart(userId, Status.DRAFT, BigDecimal.ZERO, BigDecimal.ZERO);
@@ -117,17 +115,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         });
 
         // Check if the product exists
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
+//        ProductDTO product = productRepository.findById(productId)
+//                .orElseThrow(() -> new ProductNotFoundException("Product not found"));
 
         // Check if the product is already in the cart
-        CartProduct cartProduct = cartProductRepository.findByCartAndProduct(cart, product);
+//        CartProduct cartProduct = cartProductRepository.findByCartAndProduct(cart, 1L);
+        CartProduct cartProduct = new CartProduct();
+
         if (cartProduct != null) {
             // Product is in the cart, update the quantity
             cartProduct.setQuantity(cartProduct.getQuantity() + quantity);
         } else {
             // Product is not in the cart, add it
-            cartProduct = new CartProduct(cart, product, quantity);
+            cartProduct = new CartProduct(cart, 1L, true, quantity);
         }
 
         // Save the changes to the cart and cartProduct
@@ -204,7 +204,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
 
         // Primero vemos si es valido desde la ultima revision
-        List<Long> productsNoStock = computationsService.getProductIdsWithoutStock(null);
+        List<Long> productsNoStock = computationsService.getProductIdsWithoutStock(new ArrayList<>(), new ArrayList<>());
         if (!productsNoStock.isEmpty()) {
             throw new NotEnoughStockException(productsNoStock);
         }
@@ -246,7 +246,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         Map<Long, ProductDTO> productMap = updatedProducts.stream()
                 .collect(Collectors.toMap(ProductDTO::getId, Function.identity()));
 
-        for (Cart cart : shoppingCarts) {
+        /*for (Cart cart : shoppingCarts) {
             List<CartProduct> cartProducts = null;
             for (CartProduct product : cartProducts) {
                 //If product exists on the map of updated products
@@ -256,7 +256,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 }
             }
             cartRepository.save(cart);
-        }
+        }*/
 
 //        return shoppingCarts;
     }

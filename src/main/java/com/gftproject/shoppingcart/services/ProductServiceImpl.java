@@ -3,7 +3,6 @@ package com.gftproject.shoppingcart.services;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.CartProduct;
-import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.ProductDTO;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
@@ -105,7 +104,7 @@ public class ProductServiceImpl implements ProductService{
             List<JSONObject> productObjects = new ArrayList<>();
             for (CartProduct product : productList) {
                 JSONObject productObject = new JSONObject();
-                productObject.put("productId", product.getProduct().getId());
+                productObject.put("productId", product.getProduct());
 //                productObject.put("quantity", product.getQuantity());
                 productObjects.add(productObject);
             }

@@ -3,7 +3,6 @@ package com.gftproject.shoppingcart.services;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.CartProduct;
-import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.ProductDTO;
 
 import java.util.List;

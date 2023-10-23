@@ -1,7 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
 import com.gftproject.shoppingcart.model.CartProduct;
-import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.ProductDTO;
 import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.stereotype.Service;
@@ -16,11 +15,11 @@ import java.util.stream.Collectors;
 @Service
 public class CartComputationsService {
 
-    public List<Long> getProductIdsWithoutStock(List<CartProduct> productList) {
+    public List<Long> getProductIdsWithoutStock(List<CartProduct> productList, List<ProductDTO> oof) {
         List<Long> productsWithoutStock = new ArrayList<>();
         for (CartProduct cartProduct : productList) {
-            if (cartProduct.getQuantity() > cartProduct.getProduct().getStorageQuantity()) {
-                productsWithoutStock.add(cartProduct.getProduct().getId());
+            if (cartProduct.getQuantity() > oof.get(0).getStock()) {
+                productsWithoutStock.add(cartProduct.getProduct());
             }
         }
         return productsWithoutStock;
@@ -37,7 +36,7 @@ public class CartComputationsService {
 
         for (CartProduct cartProduct : cartProducts) {
             int quantity = cartProduct.getQuantity();
-            ProductDTO warehouseProduct = productMap.get(cartProduct.getProduct().getId());
+            ProductDTO warehouseProduct = productMap.get(cartProduct.getProduct());
             totalWeight = totalWeight.add(warehouseProduct.getWeight().multiply(BigDecimal.valueOf(quantity)));
             totalPrice = totalPrice.add(warehouseProduct.getPrice().multiply(BigDecimal.valueOf(quantity)));
 

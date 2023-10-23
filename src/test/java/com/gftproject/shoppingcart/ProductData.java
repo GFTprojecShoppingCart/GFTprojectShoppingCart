@@ -1,6 +1,5 @@
 package com.gftproject.shoppingcart;
 
-import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.ProductDTO;
 
 import java.math.BigDecimal;
