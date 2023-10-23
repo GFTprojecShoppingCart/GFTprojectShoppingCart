@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ class UserServiceTest {
     }
 
     @Test
-    void getUserById(){
+    void getUserById() throws UserNotFoundException {
         //TODO mock the endpoint
         User user = userService.getUserById(1L);
 
