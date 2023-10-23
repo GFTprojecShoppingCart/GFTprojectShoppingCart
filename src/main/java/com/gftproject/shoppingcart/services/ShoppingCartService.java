@@ -26,4 +26,6 @@ public interface ShoppingCartService {
     Cart submitCart(Long idCart) throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException;
 
     List<Cart> updateProductsFromCarts(List<Product> products);
+
+    List<Cart> findAllById(Long cartId);
 }

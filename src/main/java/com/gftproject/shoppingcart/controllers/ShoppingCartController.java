@@ -52,6 +52,13 @@ public class ShoppingCartController {
         return new ResponseEntity<>(cartList, headers, HttpStatus.OK);
     }
 
+    @GetMapping("/carts/{cartId}")
+    public ResponseEntity<List<Cart>> findAllByCartID(@PathVariable String cartId) {
+        if(!StringUtils.isNumeric(cartId)){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(service.findAllById(Long.parseLong(cartId)), new HttpHeaders(), HttpStatus.OK);
+    }
 
     @PostMapping("/carts/{userId}")
     public ResponseEntity<Cart> createCart(@PathVariable String userId) throws UserNotFoundException {
