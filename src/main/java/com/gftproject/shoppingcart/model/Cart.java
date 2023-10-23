@@ -4,26 +4,25 @@ package com.gftproject.shoppingcart.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 @Entity
 @Data
-//@Getter @Setter @RequiredArgsConstructor -> already implemented by Data
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @ElementCollection
-    List<Long> invalidProducts;
-    
-    @ElementCollection
-    private Map<Long, Integer> products;
+//    @ElementCollection
+    @ManyToMany
+    private List<Product> productList;
 
     @NotNull(message = "The user ID must be provided")
     private long userId;
@@ -36,5 +35,12 @@ public class Cart {
     @Min(value = 0, message = "Final weight should be zero or greater")
     private BigDecimal finalWeight;
 
+    public Cart(List<Product> productList, long userId, Status status, BigDecimal finalPrice, BigDecimal finalWeight) {
+        this.productList = productList;
+        this.userId = userId;
+        this.status = status;
+        this.finalPrice = finalPrice;
+        this.finalWeight = finalWeight;
+    }
 }
 

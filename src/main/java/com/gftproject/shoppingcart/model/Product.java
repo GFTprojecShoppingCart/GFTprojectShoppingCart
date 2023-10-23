@@ -1,16 +1,19 @@
 package com.gftproject.shoppingcart.model;
 
 
-import lombok.*;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
+@Entity
+@Table(name = "Product")
 @Data
 @AllArgsConstructor @NoArgsConstructor
 public class Product {
+    @Id
     private long id;
-    private BigDecimal price;
-    private BigDecimal weight;
+    private int quantity;
     private int storageQuantity;
 }
 
