@@ -2,15 +2,28 @@ package com.gftproject.shoppingcart.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.Product;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+
+
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.math.BigDecimal;
+
+import javax.print.attribute.standard.Media;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -125,4 +138,48 @@ class ShoppingCartControllerWebTestClientTests {
 //                    .expectStatus().isNotFound();
 
     }
+    @Test
+    @Order(3)
+    @DisplayName("GIVEN cartId WHEN updateCart is executed THEN update the cart")
+    void updateProductsFromCart() throws Exception {
+        List<Product> products = List.of(
+                new Product(1L, new BigDecimal("19.99"), new BigDecimal("2.5"), 10),
+                new Product(2L, new BigDecimal("9.99"), new BigDecimal("1.0"),5 )
+        );
+
+        client.put()
+                .uri("/carts/updateStock/")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .bodyValue(products)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(APPLICATION_JSON);
+                assertNotNull(products);
+
+    }
+    @Test
+    @Order(4)
+    @DisplayName("GIVEN cartId, productId, and quantity WHEN addProductToCart is executed THEN update the cart")
+    void addProductToCart() throws Exception {
+        Long cartId = 1L;
+        Long productId = 2L;
+        int quantity = 3;
+
+
+        WebTestClient.ResponseSpec response = client.put()
+                .uri("/carts/{cartId}/addProduct/{productId}?quantity={quantity}", cartId, productId, quantity)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk();
+
+        response.expectBody()
+                .jsonPath("$.id").isNumber()
+                .jsonPath("$.userId").isNumber()
+                .jsonPath("$.status").isEqualTo("DRAFT")
+                .jsonPath("$.finalPrice").isEqualTo(0.00)
+                .jsonPath("$.finalWeight").isEqualTo(0.00);
+    }
+
 }

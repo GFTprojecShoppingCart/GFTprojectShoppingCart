@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ProductData {
 
-    public static Product createProduct001() {
+    public static ProductData createProduct001() {
         return new Product(1L, 3);
     }
 

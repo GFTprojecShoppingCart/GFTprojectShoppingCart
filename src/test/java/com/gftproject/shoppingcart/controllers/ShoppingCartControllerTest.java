@@ -6,6 +6,8 @@ import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.CartProduct;
+import com.gftproject.shoppingcart.model.ProductDTO;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -106,7 +108,7 @@ class ShoppingCartControllerTest {
     @Test
     @DisplayName("GIVEN a list of products WHEN the method is called THEN the list of products without enough stock will be updated")
     void updateProductsFromCarts() {
-        given(service.updateProductsFromCarts(any())).willReturn(CartsData.getMockCarts());
+        List<ProductDTO> productDataList = ProductData.getWarehouseStock();
 
         ResponseEntity<Void> response = controller.updateProductsFromCarts(ProductData.getWarehouseStock());
 
