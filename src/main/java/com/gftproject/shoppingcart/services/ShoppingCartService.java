@@ -4,7 +4,7 @@ import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
-import com.gftproject.shoppingcart.model.Product;
+import com.gftproject.shoppingcart.model.ProductDTO;
 import com.gftproject.shoppingcart.model.Status;
 
 import java.util.List;
@@ -19,11 +19,11 @@ public interface ShoppingCartService {
 
     Cart createCart(Long userId) throws UserNotFoundException;
 
-    Cart addProductToCartWithQuantity(Long cartId, Long productId, int quantity) throws ProductNotFoundException;
+    Cart addProductToCartWithQuantity(long userId, long cartId, long productId, int quantity) throws ProductNotFoundException, NotEnoughStockException;
 
     void deleteCart(Long idCart);
 
     Cart submitCart(Long idCart) throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException;
 
-    List<Cart> updateProductsFromCarts(List<Product> products);
+    void updateProductsFromCarts(List<ProductDTO> products);
 }

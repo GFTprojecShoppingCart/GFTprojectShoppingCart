@@ -108,9 +108,8 @@ class ShoppingCartControllerTest {
     void updateProductsFromCarts() {
         given(service.updateProductsFromCarts(any())).willReturn(CartsData.getMockCarts());
 
-        ResponseEntity<List<Cart>> response = controller.updateProductsFromCarts(ProductData.getWarehouseStock());
+        ResponseEntity<Void> response = controller.updateProductsFromCarts(ProductData.getWarehouseStock());
 
-        assertThat(response.getBody()).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
         verify(service).updateProductsFromCarts(any());
     }
@@ -130,11 +129,11 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN cartId, product and quantity WHEN product is added THEN response is OK")
-    void testAddProductToCartWithQuantity() throws ProductNotFoundException {
+    void testAddProductToCartWithQuantity() throws ProductNotFoundException, NotEnoughStockException {
 
-        when(service.addProductToCartWithQuantity(anyLong(), anyLong(), anyInt())).thenReturn(CartsData.createCart001());
+        when(service.addProductToCartWithQuantity(anyLong(), anyLong(), anyLong(), anyInt())).thenReturn(CartsData.createCart001());
 
-        ResponseEntity<Cart> responseEntity = controller.addProductToCart(1L, 1L, 3);
+        ResponseEntity<Cart> responseEntity = controller.addProductToCart(1L, 1L, 3L, 4);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 

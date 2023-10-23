@@ -2,7 +2,8 @@ package com.gftproject.shoppingcart.services;
 
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
-import com.gftproject.shoppingcart.model.Product;
+import com.gftproject.shoppingcart.model.CartProduct;
+import com.gftproject.shoppingcart.model.ProductDTO;
 import org.apache.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,9 +14,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class ProductServiceImpl implements ProductService{
@@ -30,11 +31,14 @@ public class ProductServiceImpl implements ProductService{
 // WebClient
 
     @Override
-    public Product getProductById(Long productId) throws ProductNotFoundException {
+    public ProductDTO getProductById(Long productId) throws ProductNotFoundException {
 
         String fullUrl = apiUrl + "/getProductById";
 
-        try {
+        //TODO
+        return new ProductDTO(3, new BigDecimal("23.2"), 10, new BigDecimal("50.0"));
+
+        /*try {
 
             String jsonBody = "{\"productId\": " + productId + "}";
 
@@ -42,7 +46,7 @@ public class ProductServiceImpl implements ProductService{
             headers.set("Content-Type", "application/json");
 
             HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-            ResponseEntity<Product> responseEntity = restTemplate.exchange(fullUrl, HttpMethod.POST, requestEntity, Product.class);
+            ResponseEntity<ProductRequest> responseEntity = restTemplate.exchange(fullUrl, HttpMethod.POST, requestEntity, ProductRequest.class);
             
             HttpStatusCode  httpStatusCode  = responseEntity.getStatusCode();
 
@@ -59,11 +63,11 @@ public class ProductServiceImpl implements ProductService{
             logger.error("Error: " + e + " for URL: " + fullUrl);
 
             return null;
-        }
+        }*/
     }
 
-    @Override
-    public List<Product> getProductsByIds(List<Long> productIds) throws ProductNotFoundException {
+/*    @Override
+    public List<ProductRequest> getProductsByIds(List<Long> productIds) throws ProductNotFoundException {
         try {
             String url = apiUrl + "/getProductsByIds";
             // Construir el cuerpo de la solicitud JSON con la lista de productIds
@@ -73,7 +77,7 @@ public class ProductServiceImpl implements ProductService{
             headers.set("Content-Type", "application/json");
 
             HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-            ResponseEntity<List<Product>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<>() {
+            ResponseEntity<List<ProductRequest>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<>() {
             });
             
             HttpStatusCode  httpStatusCode  = responseEntity.getStatusCode();
@@ -90,21 +94,18 @@ public class ProductServiceImpl implements ProductService{
             e.printStackTrace();
             return null;
         }
-    }
+    }*/
 
-    @Override
-    public List<Product> getProductsToSubmit(Map<Long, Integer> product) throws ProductNotFoundException, NotEnoughStockException {
+    public List<ProductDTO> submitPurchase(List<CartProduct> productList) throws ProductNotFoundException, NotEnoughStockException {
         try {
             String url = apiUrl + "/getProductsToSubmit";
     
             // Crear una lista de objetos JSON para los productos y cantidades
             List<JSONObject> productObjects = new ArrayList<>();
-            for (Map.Entry<Long, Integer> entry : product.entrySet()) {
-                Long productId = entry.getKey();
-                Integer quantity = entry.getValue();
+            for (CartProduct product : productList) {
                 JSONObject productObject = new JSONObject();
-                productObject.put("productId", productId);
-                productObject.put("quantity", quantity);
+                productObject.put("productId", product.getProduct());
+//                productObject.put("quantity", product.getQuantity());
                 productObjects.add(productObject);
             }
     
@@ -116,7 +117,7 @@ public class ProductServiceImpl implements ProductService{
             headers.set("Content-Type", "application/json");
     
             HttpEntity<String> requestEntity = new HttpEntity<>(requestBodyJson.toString(), headers);
-            ResponseEntity<List<Product>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<List<Product>>() {});
+            ResponseEntity<List<ProductDTO>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<>() {});
             
             HttpStatusCode  httpStatusCode  = responseEntity.getStatusCode();
 
