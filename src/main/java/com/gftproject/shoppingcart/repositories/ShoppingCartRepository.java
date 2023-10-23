@@ -13,8 +13,8 @@ public interface ShoppingCartRepository extends JpaRepository<Cart, Long> {
 
     List<Cart> findAllByStatus(Status status);
 
-    @Query("SELECT c FROM Cart c JOIN c.productList p WHERE KEY(p) IN :productIds")
-    List<Cart> findCartsByProductIds(List<Long> productIds);
+/*    @Query("SELECT c FROM Cart c JOIN c.productList p WHERE KEY(p) IN :productIds")
+    List<Cart> findCartsByProductIds(List<Long> productIds);*/
 
     List<Cart> findAllByUserId(Long userId);
 }

@@ -1,6 +1,5 @@
 package com.gftproject.shoppingcart.model;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Entity
 @Data
@@ -20,27 +18,22 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-//    @ElementCollection
-    @ManyToMany
-    private List<Product> productList;
-
     @NotNull(message = "The user ID must be provided")
     private long userId;
 
-    @Enumerated(EnumType.STRING) // Use EnumType.STRING to map the enum by its name
+    @Enumerated(EnumType.STRING)
     private Status status;
 
     @Min(value = 0, message = "Final price should be zero or greater")
     private BigDecimal finalPrice;
+
     @Min(value = 0, message = "Final weight should be zero or greater")
     private BigDecimal finalWeight;
 
-    public Cart(List<Product> productList, long userId, Status status, BigDecimal finalPrice, BigDecimal finalWeight) {
-        this.productList = productList;
+    public Cart(long userId, Status status, BigDecimal finalPrice, BigDecimal finalWeight) {
         this.userId = userId;
         this.status = status;
         this.finalPrice = finalPrice;
         this.finalWeight = finalWeight;
     }
 }
-

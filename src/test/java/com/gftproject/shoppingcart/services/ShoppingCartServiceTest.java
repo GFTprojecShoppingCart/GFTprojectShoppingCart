@@ -55,7 +55,7 @@ class ShoppingCartServiceTest {
     void setUp() {
         // Instantiate Shopping cart Service and instantiate con new mock de repository
         MockitoAnnotations.openMocks(this);
-        service = new ShoppingCartServiceImpl(cartRepository, computationsService, productService, userService, countryRepository, paymentRepository);
+        service = new ShoppingCartServiceImpl(cartRepository, computationsService, productService, userService, countryRepository, paymentRepository, null, cartProductsRepository, null);
         carts = Arrays.asList(Optional.of(createCart001()).orElseThrow(), createCart002(), createCart003());
     }
 

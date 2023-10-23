@@ -2,6 +2,7 @@ package com.gftproject.shoppingcart.services;
 
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
+import com.gftproject.shoppingcart.model.CartProduct;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.ProductDTO;
 import org.apache.log4j.Logger;
@@ -96,15 +97,15 @@ public class ProductServiceImpl implements ProductService{
         }
     }*/
 
-    public List<ProductDTO> submitPurchase(List<Product> productList) throws ProductNotFoundException, NotEnoughStockException {
+    public List<ProductDTO> submitPurchase(List<CartProduct> productList) throws ProductNotFoundException, NotEnoughStockException {
         try {
             String url = apiUrl + "/getProductsToSubmit";
     
             // Crear una lista de objetos JSON para los productos y cantidades
             List<JSONObject> productObjects = new ArrayList<>();
-            for (Product product : productList) {
+            for (CartProduct product : productList) {
                 JSONObject productObject = new JSONObject();
-                productObject.put("productId", product.getId());
+                productObject.put("productId", product.getProduct().getId());
 //                productObject.put("quantity", product.getQuantity());
                 productObjects.add(productObject);
             }

@@ -21,7 +21,7 @@ class CartComputationsServiceTest {
     void setUp() {
         computationsService = new CartComputationsService();
         cart = CartsData.createCart001();
-        cart.setProductList(ProductData.getMockProductMap());
+        cart.setCartProducts(ProductData.getMockProductMap());
     }
 
     @Test

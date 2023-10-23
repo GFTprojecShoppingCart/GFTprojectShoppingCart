@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.model.CartProduct;
 import com.gftproject.shoppingcart.model.Product;
 import com.gftproject.shoppingcart.model.ProductDTO;
 import org.antlr.v4.runtime.misc.Pair;
@@ -15,17 +16,17 @@ import java.util.stream.Collectors;
 @Service
 public class CartComputationsService {
 
-    public List<Long> getProductIdsWithoutStock(List<Product> productList) {
+    public List<Long> getProductIdsWithoutStock(List<CartProduct> productList) {
         List<Long> productsWithoutStock = new ArrayList<>();
-        for (Product product : productList) {
-            if (product.getQuantity() > product.getStorageQuantity()) {
-                productsWithoutStock.add(product.getId());
+        for (CartProduct cartProduct : productList) {
+            if (cartProduct.getQuantity() > cartProduct.getProduct().getStorageQuantity()) {
+                productsWithoutStock.add(cartProduct.getProduct().getId());
             }
         }
         return productsWithoutStock;
     }
 
-    public Pair<BigDecimal, BigDecimal> computeFinalValues(List<Product> cartProducts, List<ProductDTO> warehouseStock) {
+    public Pair<BigDecimal, BigDecimal> computeFinalValues(List<CartProduct> cartProducts, List<ProductDTO> warehouseStock) {
 
         BigDecimal totalWeight = new BigDecimal(0);
         BigDecimal totalPrice = new BigDecimal(0);
@@ -34,10 +35,9 @@ public class CartComputationsService {
                 .collect(Collectors.toMap(ProductDTO::getId, Function.identity()));
 
 
-        for (Product product : cartProducts) {
-
-            int quantity = product.getQuantity();
-            ProductDTO warehouseProduct = productMap.get(product.getId());
+        for (CartProduct cartProduct : cartProducts) {
+            int quantity = cartProduct.getQuantity();
+            ProductDTO warehouseProduct = productMap.get(cartProduct.getProduct().getId());
             totalWeight = totalWeight.add(warehouseProduct.getWeight().multiply(BigDecimal.valueOf(quantity)));
             totalPrice = totalPrice.add(warehouseProduct.getPrice().multiply(BigDecimal.valueOf(quantity)));
 
