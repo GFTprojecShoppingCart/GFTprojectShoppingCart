@@ -13,5 +13,5 @@ public interface ProductService {
 
     List<Product> getProductsByIds(List<Long> productIds) throws ProductNotFoundException;
 
-    List<Product> getProductsToSubmit(Map<Long, Integer> product) throws ProductNotFoundException, NotEnoughStockException;
+    List<Product> getProductsToSubmit(List<Product> productList) throws ProductNotFoundException, NotEnoughStockException;
 }

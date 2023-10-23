@@ -26,7 +26,11 @@ public class ProductServiceImpl implements ProductService{
     private static final Logger logger = Logger.getLogger(ProductServiceImpl.class);
 
 
-    RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
+
+    public ProductServiceImpl(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 // WebClient
 
     @Override
@@ -58,6 +62,7 @@ public class ProductServiceImpl implements ProductService{
             // Puedes registrar, lanzar una excepción personalizada o tomar medidas específicas según tus necesidades.
             logger.error("Error: " + e + " for URL: " + fullUrl);
 
+            //TODO devolver excepcion personalizada
             return null;
         }
     }
@@ -93,20 +98,18 @@ public class ProductServiceImpl implements ProductService{
     }
 
     @Override
-    public List<Product> getProductsToSubmit(Map<Long, Integer> product) throws ProductNotFoundException, NotEnoughStockException {
+    public List<Product> getProductsToSubmit(List<Product> productList) throws ProductNotFoundException, NotEnoughStockException {
         try {
             String url = apiUrl + "/getProductsToSubmit";
     
             // Crear una lista de objetos JSON para los productos y cantidades
             List<JSONObject> productObjects = new ArrayList<>();
-            for (Map.Entry<Long, Integer> entry : product.entrySet()) {
-                Long productId = entry.getKey();
-                Integer quantity = entry.getValue();
+            for (Product product : productList) {
                 JSONObject productObject = new JSONObject();
-                productObject.put("productId", productId);
-                productObject.put("quantity", quantity);
+                productObject.put("productId", product.getId());
+                productObject.put("quantity", product.getStorageQuantity());
                 productObjects.add(productObject);
-            }
+}
     
             // Crear el objeto JSON principal con la lista de productos
             JSONObject requestBodyJson = new JSONObject();
