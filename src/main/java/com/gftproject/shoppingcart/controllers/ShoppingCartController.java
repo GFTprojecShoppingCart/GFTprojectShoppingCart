@@ -2,6 +2,7 @@ package com.gftproject.shoppingcart.controllers;
 
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
+import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.ProductDTO;
 import com.gftproject.shoppingcart.model.Status;
@@ -53,7 +54,7 @@ public class ShoppingCartController {
 
 
     @PostMapping("/carts/{userId}")
-    public ResponseEntity<Cart> createCart(@PathVariable String userId) {
+    public ResponseEntity<Cart> createCart(@PathVariable String userId) throws UserNotFoundException {
         HttpHeaders headers = new HttpHeaders();
         if(!StringUtils.isNumeric(userId)){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -74,6 +75,8 @@ public class ShoppingCartController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (ProductNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 

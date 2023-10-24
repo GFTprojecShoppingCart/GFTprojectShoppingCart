@@ -2,6 +2,7 @@ package com.gftproject.shoppingcart.services;
 
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
+import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.*;
 import com.gftproject.shoppingcart.repositories.CartProductsRepository;
 import com.gftproject.shoppingcart.repositories.CartRepository;
@@ -54,7 +55,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public Cart createCart(Long userId) {
+    public Cart createCart(Long userId) throws UserNotFoundException {
+        //User user = userService.getUserById(userId);
+        User user = new User();
         Cart cart = new Cart();
 
         cart.setUserId(userId);
@@ -99,7 +102,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public Cart submitCart(Long idCart) throws NotEnoughStockException, ProductNotFoundException {
+    public Cart submitCart(Long idCart) throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException {
 
         // Obtain the cart
         Cart cart = cartRepository.findById(idCart).orElseThrow();

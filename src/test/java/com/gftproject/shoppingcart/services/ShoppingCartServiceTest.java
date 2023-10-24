@@ -3,6 +3,7 @@ package com.gftproject.shoppingcart.services;
 import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
+import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.*;
 import com.gftproject.shoppingcart.repositories.CountryRepository;
 import com.gftproject.shoppingcart.repositories.PaymentRepository;
@@ -61,7 +62,7 @@ class ShoppingCartServiceTest {
 
     @Test
     @DisplayName("GIVEN an userId WHEN a cart is created THEN returns the created cart associated to the user")
-    void createCart() {
+    void createCart() throws UserNotFoundException {
         Long userId = 1L;
         Cart expectedCart = new Cart();
         expectedCart.setUserId(userId);
@@ -105,7 +106,7 @@ class ShoppingCartServiceTest {
 
     @Test
     @DisplayName("GIVEN a cart Id  WHEN cart is submitted  THEN status is submitted")
-    void submitCartStock() throws ProductNotFoundException, NotEnoughStockException {
+    void submitCartStock() throws ProductNotFoundException, NotEnoughStockException, UserNotFoundException {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
 //        when(productService.getProductsByIds(any())).thenReturn(getWarehouseStock());
         when(computationsService.getProductIdsWithoutStock(anyList())).thenReturn(Collections.emptyList()); //Empty list to check the correct stock pat
@@ -133,7 +134,7 @@ class ShoppingCartServiceTest {
 
     @Test
     @DisplayName("GIVEN a cart Id with products without stock  WHEN cart is submitted  THEN error is shown")
-    void submitCartNoStock() throws ProductNotFoundException {
+    void submitCartNoStock() throws ProductNotFoundException, UserNotFoundException {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
 //        when(productService.getProductsByIds(any())).thenReturn(getWarehouseStock());
         when(computationsService.getProductIdsWithoutStock(anyList())).thenReturn(List.of(1L, 2L)); // Simulate not enough stock for products with IDs 1 and 2

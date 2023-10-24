@@ -1,6 +1,7 @@
 package com.gftproject.shoppingcart.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.User;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -22,7 +23,7 @@ public class UserServiceImpl implements UserService {
     private static final Logger logger = Logger.getLogger(UserServiceImpl.class);
 
     @Override
-    public User getUserById(Long userId) {
+    public User getUserById(Long userId) throws UserNotFoundException {
         String fullEndpoint = endpoint + "/validateUser/" + userId;
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
@@ -35,7 +36,7 @@ public class UserServiceImpl implements UserService {
                 String responseBody = EntityUtils.toString(response.getEntity());
                 return new ObjectMapper().readValue(responseBody, User.class);
             } else if (statusCode == 404) {
-                return null;
+                throw new UserNotFoundException(String.valueOf(userId));
             } else {
                 logger.error("Error: HTTP Status Code " + statusCode + " for URL: " + fullEndpoint);
                 return null;
