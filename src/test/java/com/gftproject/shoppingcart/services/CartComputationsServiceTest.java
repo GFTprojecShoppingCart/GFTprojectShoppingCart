@@ -3,12 +3,17 @@ package com.gftproject.shoppingcart.services;
 import com.gftproject.shoppingcart.CartsData;
 import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.CartProduct;
+import com.gftproject.shoppingcart.model.ProductDTO;
+import com.gftproject.shoppingcart.model.Status;
 import org.antlr.v4.runtime.misc.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,14 +26,23 @@ class CartComputationsServiceTest {
     void setUp() {
         computationsService = new CartComputationsService();
         cart = CartsData.createCart001();
-        cart.setCartProducts(ProductData.getMockProductMap());
     }
 
     @Test
     @DisplayName("GIVEN a shopping cart and a Product list WHEN it scans if there's enough stock for the products in cart THEN will return the elements without enough stock")
     void checkStock() {
-        //TODO
-        assertThat(computationsService.getProductIdsWithoutStock(cart.getProductList())).contains(5L);
+        Cart cart = new Cart(1L, Status.SUBMITTED, new BigDecimal("100.00"), new BigDecimal("5.0"));
+
+        List<CartProduct> cartProductList = new ArrayList<>();
+        CartProduct cartProduct = new CartProduct(cart, 1L, true, 5);
+        cartProductList.add(cartProduct);
+
+
+        List<ProductDTO> productDTOList = new ArrayList<>();
+        ProductDTO productDTO = new ProductDTO(1L, new BigDecimal("50.00"), 10, new BigDecimal("10.00"));
+        productDTOList.add(productDTO);
+        List<Long> productsWithoutStock = computationsService.getProductIdsWithoutStock(cartProductList, productDTOList);
+        assertThat(productsWithoutStock.contains(5L));
     }
 
     @Test
