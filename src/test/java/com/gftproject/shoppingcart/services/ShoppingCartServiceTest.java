@@ -117,9 +117,13 @@ class ShoppingCartServiceTest {
     @DisplayName("GIVEN a cart Id  WHEN cart is submitted  THEN status is submitted")
     void submitCartStock() throws ProductNotFoundException, NotEnoughStockException, UserNotFoundException {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
+        when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(4), new BigDecimal(5)));
+        when(computationsService.applyTaxes(any(), any(), anyDouble(), anyDouble())).thenReturn(new BigDecimal(6));
 //        when(productService.getProductsByIds(any())).thenReturn(getWarehouseStock());
         when(userService.getUserById(any())).thenReturn(new User(1L, "SPAIN", "VISA")); // Need to talk with user microservice
         when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(3), new BigDecimal(25)));
+        when(countryRepository.findById(any())).thenReturn(Optional.of(new Country("Stony", 1.5)));
+        when(paymentRepository.findById(any())).thenReturn(Optional.of(new Payment("VISA", 2.5)));
         // Return the cart (the argument of the function) instead of execute the save in the repository.
         // As we change status, price and weight in the cart (the argument of the function) we can check the method works because the cart is changing. 
         //Now we can see if the cart change the STATUS and get the created pair
@@ -135,7 +139,8 @@ class ShoppingCartServiceTest {
         verify(computationsService).computeFinalWeightAndPrice(anyList(), anyList());
 
         assertThat(submittedCart).isNotNull();
-        assertThat(submittedCart.getFinalPrice()).isNotZero().isEqualTo(new BigDecimal(25));
+        assertThat(submittedCart.getFinalWeight()).isNotZero().isEqualTo(new BigDecimal(3));
+        assertThat(submittedCart.getFinalPrice()).isNotZero().isEqualTo(new BigDecimal(6));
         assertThat(submittedCart.getStatus()).isEqualTo(Status.SUBMITTED);
         assertThat(submittedCart.getId()).isEqualTo(1L);
     }
