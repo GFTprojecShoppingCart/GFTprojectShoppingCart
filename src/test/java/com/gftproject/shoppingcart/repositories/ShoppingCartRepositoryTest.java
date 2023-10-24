@@ -15,16 +15,16 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Status;
 
 @DataJpaTest
-class ShoppingCartRepositoryTest {
+class CartRepositoryTest {
 
     @Autowired
-    ShoppingCartRepository shoppingCartRepository;
+    CartRepository CartRepository;
 
 
     @Test
     @DisplayName("Find all by Carts by Status")
     void testFindAllByUserId() {
-        List<Cart> cart = shoppingCartRepository.findAllByUserId(1L);
+        List<Cart> cart = CartRepository.findAllByUserId(1L);
 
         assertFalse(cart.isEmpty());
         assertEquals(2, cart.size());
@@ -35,7 +35,7 @@ class ShoppingCartRepositoryTest {
     @Test
     @DisplayName("GIVEN a status WHEN testFindAllByStatus THEN find all carts by status")
     void testFindAllByStatus() {
-        List<Cart> cart = shoppingCartRepository.findAllByStatus(Status.DRAFT);
+        List<Cart> cart = CartRepository.findAllByStatus(Status.DRAFT);
 
         assertFalse(cart.isEmpty());
         assertThat(cart).isNotEmpty().hasSize(2);
@@ -44,13 +44,13 @@ class ShoppingCartRepositoryTest {
     @Test
     @DisplayName("GIVEN cartId WHEN deleteCart THEN delete a cart object")
     void deleteCart() {
-        Cart cart = shoppingCartRepository.findById(1L).orElseThrow();
+        Cart cart = CartRepository.findById(1L).orElseThrow();
         assertEquals(1L, cart.getId());
 
-        shoppingCartRepository.delete(cart);
+        CartRepository.delete(cart);
 
         assertThrows(NoSuchElementException.class, () -> {
-            shoppingCartRepository.findById(1L).orElseThrow();
+            CartRepository.findById(1L).orElseThrow();
         });
 
     }

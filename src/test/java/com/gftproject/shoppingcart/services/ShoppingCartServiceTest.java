@@ -6,7 +6,7 @@ import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.*;
 import com.gftproject.shoppingcart.repositories.CountryRepository;
 import com.gftproject.shoppingcart.repositories.PaymentRepository;
-import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
+import com.gftproject.shoppingcart.repositories.CartRepository;
 import org.antlr.v4.runtime.misc.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,7 +31,7 @@ class ShoppingCartServiceTest {
     ShoppingCartServiceImpl service;
 
     @Mock
-    ShoppingCartRepository cartRepository;
+    CartRepository cartRepository;
 
     @Mock
     CountryRepository countryRepository;

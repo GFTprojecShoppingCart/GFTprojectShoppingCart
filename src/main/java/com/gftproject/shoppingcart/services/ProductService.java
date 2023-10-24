@@ -11,7 +11,5 @@ public interface ProductService {
 
     ProductDTO getProductById(Long productId) throws ProductNotFoundException;
 
-//    List<ProductDTO> getProductsByIds(List<Long> productIds) throws ProductNotFoundException;
-
     List<ProductDTO> submitPurchase(List<CartProduct> productList) throws ProductNotFoundException, NotEnoughStockException;
 }

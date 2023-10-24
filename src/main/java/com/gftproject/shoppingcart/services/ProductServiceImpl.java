@@ -15,12 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
 import java.util.List;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 @Service
 public class ProductServiceImpl implements ProductService{
 
@@ -70,36 +65,6 @@ public class ProductServiceImpl implements ProductService{
             return null;
         }
     }
-
-/*    @Override
-    public List<ProductRequest> getProductsByIds(List<Long> productIds) throws ProductNotFoundException {
-        try {
-            String url = apiUrl + "/getProductsByIds";
-            // Construir el cuerpo de la solicitud JSON con la lista de productIds
-            String jsonBody = "{\"productIds\": " + productIds + "}";
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "application/json");
-
-            HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-            ResponseEntity<List<ProductRequest>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<>() {
-            });
-            
-            HttpStatusCode  httpStatusCode  = responseEntity.getStatusCode();
-
-            if (httpStatusCode  == HttpStatus.NOT_FOUND) {
-                // Manejar el caso de código de estado 404 (Not Found) -> Wrong Product Id
-                throw new ProductNotFoundException(responseEntity.getBody().toString());
-            }
-            
-            return responseEntity.getBody();
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
-            // Manejar excepciones HTTP (4xx y 5xx) aquí
-            // Puedes registrar, lanzar una excepción personalizada o tomar medidas específicas según tus necesidades.
-            e.printStackTrace();
-            return null;
-        }
-    }*/
 
     public List<ProductDTO> submitPurchase(List<CartProduct> productList) throws ProductNotFoundException, NotEnoughStockException {
         try {
