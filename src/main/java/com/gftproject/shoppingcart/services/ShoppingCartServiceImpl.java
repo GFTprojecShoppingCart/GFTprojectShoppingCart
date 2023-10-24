@@ -122,21 +122,20 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             throw new NotEnoughStockException(invalidProductIds);
         }
 
-        // Obtain IDs of the products in cart
-
         // Communicate the purchase to the warehouse service
         List<ProductDTO> submittedProducts = productService.submitPurchase(cartProductList);
 
         Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalValues(cartProductList, submittedProducts);
+        double cardPercentage = paymentRepository.findById(user.getPaymentMethod()).orElseThrow().getChargePercentage();
+        double countryPercentage = countryRepository.findById(user.getCountry()).orElseThrow().getTaxPercentage();
 
         // Change cart status and final values if the purchase was made correctly
         cart.setFinalWeight(pair.a);
-        cart.setFinalPrice(applyTaxes(pair.b, pair.a, user));
+        cart.setFinalPrice(computationsService.applyTaxes(pair.b, pair.a, cardPercentage, countryPercentage));
         cart.setStatus(Status.SUBMITTED);
 
         // Update the cart into the database
         return cartRepository.save(cart);
-
     }
 
 
@@ -166,26 +165,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             cartProductRepository.delete(product);
         }
         cartRepository.deleteById(cartId);
-    }
-
-    public BigDecimal applyTaxes(BigDecimal originalPrice, BigDecimal weight, User user) {
-
-        BigDecimal priceWithTaxes = new BigDecimal(0);
-        priceWithTaxes = priceWithTaxes.add(originalPrice);
-
-        double weightPercentage = computationsService.computeByWeight(weight.doubleValue());
-        double cardPercentage = paymentRepository.findById(user.getPaymentMethod()).orElseThrow().getChargePercentage();
-        double countryPercentage = countryRepository.findById(user.getCountry()).orElseThrow().getTaxPercentage();
-
-        BigDecimal finalWeightPrice = priceWithTaxes.multiply(BigDecimal.valueOf(weightPercentage));
-        BigDecimal finalCardPrice = priceWithTaxes.multiply(BigDecimal.valueOf(cardPercentage));
-        BigDecimal finalCountryPrice = priceWithTaxes.multiply(BigDecimal.valueOf(countryPercentage));
-
-        priceWithTaxes = priceWithTaxes.add(finalCardPrice);
-        priceWithTaxes = priceWithTaxes.add(finalWeightPrice);
-        priceWithTaxes = priceWithTaxes.add(finalCountryPrice);
-
-        return priceWithTaxes;
     }
 
 }
