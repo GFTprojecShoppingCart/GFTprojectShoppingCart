@@ -204,7 +204,7 @@ class ShoppingCartServiceTest {
             updatedProducts.add(product2_updated);
 
             // Mock repository behavior
-            when(cartRepository.findCartsByProductIds(anyList())).thenReturn(List.of(cart1, cart2));
+//            when(cartRepository.findCartsByProductIds(anyList())).thenReturn(List.of(cart1, cart2));
             when(cartRepository.save(any(Cart.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             service.updateProductsFromCarts(updatedProducts);
