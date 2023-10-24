@@ -113,7 +113,9 @@
              <artifactId>spring-boot-maven-plugin</artifactId>
              <configuration>
                 <excludes>
-                   <exclude>
+                   <!-- <exclude>com/gftproject/shoppingcart/model/**</exclude>
+                    <exclude>com/gftproject/shoppingcart/exceptions/**</exclude>
+-->                   <exclude>
                       <groupId>org.projectlombok</groupId>
                       <artifactId>lombok</artifactId>
                    </exclude>

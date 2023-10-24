@@ -18,13 +18,13 @@ import com.gftproject.shoppingcart.model.Status;
 class CartRepositoryTest {
 
     @Autowired
-    CartRepository CartRepository;
+    CartRepository shoppingCartRepository;
 
 
     @Test
     @DisplayName("Find all by Carts by Status")
     void testFindAllByUserId() {
-        List<Cart> cart = CartRepository.findAllByUserId(1L);
+        List<Cart> cart = shoppingCartRepository.findAllByUserId(1L);
 
         assertFalse(cart.isEmpty());
         assertEquals(2, cart.size());
@@ -35,7 +35,7 @@ class CartRepositoryTest {
     @Test
     @DisplayName("GIVEN a status WHEN testFindAllByStatus THEN find all carts by status")
     void testFindAllByStatus() {
-        List<Cart> cart = CartRepository.findAllByStatus(Status.DRAFT);
+        List<Cart> cart = shoppingCartRepository.findAllByStatus(Status.DRAFT);
 
         assertFalse(cart.isEmpty());
         assertThat(cart).isNotEmpty().hasSize(2);
@@ -44,13 +44,13 @@ class CartRepositoryTest {
     @Test
     @DisplayName("GIVEN cartId WHEN deleteCart THEN delete a cart object")
     void deleteCart() {
-        Cart cart = CartRepository.findById(1L).orElseThrow();
+        Cart cart = shoppingCartRepository.findById(1L).orElseThrow();
         assertEquals(1L, cart.getId());
 
-        CartRepository.delete(cart);
+        shoppingCartRepository.delete(cart);
 
         assertThrows(NoSuchElementException.class, () -> {
-            CartRepository.findById(1L).orElseThrow();
+            shoppingCartRepository.findById(1L).orElseThrow();
         });
 
     }

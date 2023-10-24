@@ -70,8 +70,9 @@ public class ShoppingCartMicroServicesTest {
     @DisplayName("GIVEN an user id WHEN a cart is created")
     void testAddProductToCartWithQuantity() {
         // Configura el comportamiento de WireMock para simular la respuesta del servicio externo
-        wireMockServer.stubFor(WireMock.put(WireMock.urlMatching("/products/getBasicInfo")).withRequestBody(WireMock.equalToJson("[2]"))
+        wireMockServer.stubFor(WireMock.post(WireMock.urlMatching("/products/getBasicInfo")).withRequestBody(WireMock.equalToJson("[2]"))
                             .willReturn(aResponse().withStatus(200)
+                            .withHeader("Content-Type", "application/json")
                             .withBody("{\"id\": 2, \"price\": 10.0, \"stock\": 100, \"weight\": 0.5}")));
 
         // Parámetros de solicitud

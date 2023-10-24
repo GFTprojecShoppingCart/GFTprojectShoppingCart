@@ -6,7 +6,6 @@ import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -15,24 +14,13 @@ import java.util.stream.Collectors;
 @Service
 public class CartComputationsService {
 
-    public List<Long> getProductIdsWithoutStock(List<CartProduct> productList, List<ProductDTO> oof) {
-        List<Long> productsWithoutStock = new ArrayList<>();
-        for (CartProduct cartProduct : productList) {
-            if (cartProduct.getQuantity() > oof.get(0).getStock()) {
-                productsWithoutStock.add(cartProduct.getProduct());
-            }
-        }
-        return productsWithoutStock;
-    }
-
-    public Pair<BigDecimal, BigDecimal> computeFinalValues(List<CartProduct> cartProducts, List<ProductDTO> warehouseStock) {
+    public Pair<BigDecimal, BigDecimal> computeFinalWeightAndPrice(List<CartProduct> cartProducts, List<ProductDTO> warehouseStock) {
 
         BigDecimal totalWeight = new BigDecimal(0);
         BigDecimal totalPrice = new BigDecimal(0);
 
         Map<Long, ProductDTO> productMap = warehouseStock.stream()
                 .collect(Collectors.toMap(ProductDTO::getId, Function.identity()));
-
 
         for (CartProduct cartProduct : cartProducts) {
             int quantity = cartProduct.getQuantity();
@@ -56,6 +44,24 @@ public class CartComputationsService {
             weightCost = 50;
         }
         return weightCost;
+    }
+
+    public BigDecimal applyTaxes(BigDecimal originalPrice, BigDecimal weight, double cardPercentage, double countryPercentage) {
+
+        BigDecimal priceWithTaxes = new BigDecimal(0);
+        priceWithTaxes = priceWithTaxes.add(originalPrice);
+
+        double weightPercentage = computeByWeight(weight.doubleValue());
+
+        BigDecimal finalWeightPrice = priceWithTaxes.multiply(BigDecimal.valueOf(weightPercentage));
+        BigDecimal finalCardPrice = priceWithTaxes.multiply(BigDecimal.valueOf(cardPercentage));
+        BigDecimal finalCountryPrice = priceWithTaxes.multiply(BigDecimal.valueOf(countryPercentage));
+
+        priceWithTaxes = priceWithTaxes.add(finalCardPrice);
+        priceWithTaxes = priceWithTaxes.add(finalWeightPrice);
+        priceWithTaxes = priceWithTaxes.add(finalCountryPrice);
+
+        return priceWithTaxes;
     }
 
 }

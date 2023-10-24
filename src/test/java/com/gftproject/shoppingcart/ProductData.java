@@ -1,12 +1,17 @@
 package com.gftproject.shoppingcart;
 
+import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.CartProduct;
 import com.gftproject.shoppingcart.model.ProductDTO;
+import com.gftproject.shoppingcart.model.Status;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProductData {
+
+    static Cart cart = new Cart(1L, 1L, Status.DRAFT, BigDecimal.ZERO, BigDecimal.ZERO);
 
     public static ProductDTO createProductDTO001() {
         return new ProductDTO(1L, new BigDecimal("25.99"), 3, new BigDecimal("55"));
@@ -27,6 +32,13 @@ public class ProductData {
     public static ProductDTO createProductDTO005() {
         return new ProductDTO(5L, new BigDecimal("14.99"), 1, new BigDecimal("0.3"));
     }
+
+    public static CartProduct createCartProduct001() {
+        CartProduct cartProduct = new CartProduct(cart, 1L, true, 5);
+        cartProduct.setCart(cart);
+        return cartProduct;
+    }
+
 
     public static List<ProductDTO> getWarehouseStock() {
 

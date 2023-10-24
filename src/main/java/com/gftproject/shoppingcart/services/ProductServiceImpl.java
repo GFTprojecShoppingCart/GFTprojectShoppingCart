@@ -15,6 +15,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 @Service
 public class ProductServiceImpl implements ProductService{
@@ -40,12 +42,14 @@ public class ProductServiceImpl implements ProductService{
         try {
 
             
-            String jsonBody = "{[ " + productId + "]}";
+            //String jsonBody = "[" + productId + "]";
+            List<Long> lista = Collections.singletonList(productId);
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
 
-            HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
+            HttpEntity<List<Long>> requestEntity = new HttpEntity<>(lista, headers);
+            System.out.println(requestEntity);
             ResponseEntity<ProductDTO> responseEntity = restTemplate.exchange(fullUrl, HttpMethod.POST, requestEntity, ProductDTO.class);
             
             HttpStatusCode  httpStatusCode  = responseEntity.getStatusCode();
