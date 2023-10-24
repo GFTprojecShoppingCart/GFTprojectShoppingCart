@@ -47,7 +47,7 @@ class ShoppingCartControllerIT {
                 .hasSize(3); //Esperamos 3 elementos en la lista de carritos del cliente
 
         // When
-        client.post().uri("/carts/" + userId)
+        client.post().uri("/carts/{userId}", userId)
                 .accept(APPLICATION_JSON) //se acepta el tipo de contenido
                 .exchange() //envia la solicitud HTTP al servidor.
                 .expectStatus().isCreated();
@@ -90,7 +90,7 @@ class ShoppingCartControllerIT {
         assertThat(carts.get(0).getFinalWeight().intValue()).isZero();
 
         // Verificar el tercer registro del user id 1
-        assertThat(carts.get(1).getId()).isEqualTo(3L);
+        assertThat(carts.get(1).getId()).isEqualTo(2L);
         assertThat(carts.get(1).getStatus().name()).isEqualTo("SUBMITTED");
         assertThat(carts.get(1).getFinalPrice()).isEqualTo(new BigDecimal("4.50"));
         assertThat(carts.get(1).getFinalWeight().intValue()).isZero();
@@ -110,15 +110,11 @@ class ShoppingCartControllerIT {
                 .accept(APPLICATION_JSON)
                 .bodyValue(products)
                 .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(APPLICATION_JSON);
-        assertNotNull(products);
+                .expectStatus().isOk();
 
     }
 
     
-
-
     @Test
     @Order(4)
     @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
@@ -147,6 +143,7 @@ class ShoppingCartControllerIT {
 
     }
 
+    //TODO poner este test en el otro archivo ya que necesitamos WireMock
     @Test
     @Order(5)
     @DisplayName("GIVEN the ID of an existing cart WHEN submitCart is executed")

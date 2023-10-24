@@ -39,9 +39,6 @@ public class ShoppingCartMicroServicesTest {
     private int port;
     private WebTestClient client;
 
-    @Autowired
-    private ShoppingCartService shoppingCartService;
-
 
     @BeforeAll
     static void setUp() {

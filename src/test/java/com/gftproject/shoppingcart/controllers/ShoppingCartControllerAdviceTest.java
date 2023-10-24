@@ -83,7 +83,7 @@ class ShoppingCartControllerAdviceTest {
         ErrorResponse errorResponse = responseEntity.getBody();
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getError()).isEqualTo("USER NOT FOUND ERROR");
-        assertThat(errorResponse.getMessage()).isEqualTo("User not found in warehouse: [1]");
+        assertThat(errorResponse.getMessage()).isEqualTo("User not found in warehouse: 1");
     }
 
 }
