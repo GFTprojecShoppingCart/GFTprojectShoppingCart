@@ -1,4 +1,4 @@
-package com.gftproject.shoppingcart.controllers;
+package com.gftproject.shoppingcart.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gftproject.shoppingcart.model.Cart;
