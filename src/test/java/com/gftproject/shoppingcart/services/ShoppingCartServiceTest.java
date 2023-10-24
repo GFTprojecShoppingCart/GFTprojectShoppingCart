@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.CartsData;
 import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
@@ -119,7 +120,6 @@ class ShoppingCartServiceTest {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
         when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(4), new BigDecimal(5)));
         when(computationsService.applyTaxes(any(), any(), anyDouble(), anyDouble())).thenReturn(new BigDecimal(6));
-//        when(productService.getProductsByIds(any())).thenReturn(getWarehouseStock());
         when(userService.getUserById(any())).thenReturn(new User(1L, "SPAIN", "VISA")); // Need to talk with user microservice
         when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(3), new BigDecimal(25)));
         when(countryRepository.findById(any())).thenReturn(Optional.of(new Country("Stony", 1.5)));
@@ -129,7 +129,6 @@ class ShoppingCartServiceTest {
         //Now we can see if the cart change the STATUS and get the created pair
         when(cartRepository.save(any(Cart.class))).thenAnswer(invocation -> invocation.getArgument(0)); // Return submitted cart
 
-        //TODO mock the country and payment repository to avoid NotFoundError
         Cart submittedCart = service.submitCart(1L);
 
         // Verify that the service method correctly calls the repository
@@ -147,21 +146,19 @@ class ShoppingCartServiceTest {
 
     @Test
     @DisplayName("GIVEN a cart Id with products without stock  WHEN cart is submitted  THEN error is shown")
-    void submitCartNoStock() throws ProductNotFoundException, UserNotFoundException {
+    void submitCartNoStock() throws UserNotFoundException {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
-//        when(productService.getProductsByIds(any())).thenReturn(getWarehouseStock());
+        when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(4), new BigDecimal(5)));
+        when(userService.getUserById(any())).thenReturn(new User(1L, "SPAIN", "VISA")); // Need to talk with user microservice
+        when(cartProductsRepository.findAllByCartId(anyLong())).thenReturn(List.of(ProductData.createCartProductFalse()));
+        when(countryRepository.findById(any())).thenReturn(Optional.of(new Country("Stony", 1.5)));
+        when(paymentRepository.findById(any())).thenReturn(Optional.of(new Payment("VISA", 2.5)));
 
-
-        //TODO mock all the repositories to test only testSumbit
-        // Act and Assert
         assertThrows(NotEnoughStockException.class, () -> {
             service.submitCart(1L); // Submit the cart
         });
 
         // Verify that the service method correctly calls the repository and other services
-        verify(cartRepository).findById(1L);
-//        verify(productService).getProductsByIds(anyList());
-        verify(userService).getUserById(any());
 
         // Verify that the cart remains in "DRAFT" status
         //assertEquals(Status.DRAFT, cart.getStatus());

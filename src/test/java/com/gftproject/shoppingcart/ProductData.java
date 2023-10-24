@@ -50,4 +50,9 @@ public class ProductData {
 
         return products;
     }
+
+    public static CartProduct createCartProductFalse() {
+        return new CartProduct(cart, 1L, false, 500);
+    }
+
 }
