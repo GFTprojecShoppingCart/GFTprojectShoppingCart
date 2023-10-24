@@ -56,8 +56,6 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public Cart createCart(Long userId) throws UserNotFoundException {
-        //User user = userService.getUserById(userId);
-        User user = new User();
         Cart cart = new Cart();
 
         cart.setUserId(userId);
@@ -128,7 +126,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         // Communicate the purchase to the warehouse service
         List<ProductDTO> submittedProducts = productService.submitPurchase(cartProductList);
 
-        Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalValues(cartProductList, submittedProducts);
+        Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalWeightAndPrice(cartProductList, submittedProducts);
         double cardPercentage = paymentRepository.findById(user.getPaymentMethod()).orElseThrow().getChargePercentage();
         double countryPercentage = countryRepository.findById(user.getCountry()).orElseThrow().getTaxPercentage();
 
@@ -142,6 +140,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
 
+    @Override
     public void updateProductsFromCarts(List<ProductDTO> updatedProducts) {
 
         // Transform the list into a map of Ids

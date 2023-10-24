@@ -47,3 +47,6 @@ spring:
     driver-class-name: org.h2.Driver
     username: defaultuser
     password: defaultpassword
+  server:
+    port: 8085
+
