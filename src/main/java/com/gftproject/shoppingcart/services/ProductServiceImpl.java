@@ -2,8 +2,10 @@ package com.gftproject.shoppingcart.services;
 
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
-import com.gftproject.shoppingcart.model.Product;
+import com.gftproject.shoppingcart.model.CartProduct;
+import com.gftproject.shoppingcart.model.ProductDTO;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -13,9 +15,11 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 @Service
 public class ProductServiceImpl implements ProductService{
@@ -34,7 +38,7 @@ public class ProductServiceImpl implements ProductService{
 // WebClient
 
     @Override
-    public Product getProductById(Long productId) throws ProductNotFoundException {
+    public ProductDTO getProductById(Long productId) throws ProductNotFoundException {
 
         String fullUrl = apiUrl + "/getProductById";
 
@@ -46,7 +50,7 @@ public class ProductServiceImpl implements ProductService{
             headers.set("Content-Type", "application/json");
 
             HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-            ResponseEntity<Product> responseEntity = restTemplate.exchange(fullUrl, HttpMethod.POST, requestEntity, Product.class);
+            ResponseEntity<ProductDTO> responseEntity = restTemplate.exchange(fullUrl, HttpMethod.POST, requestEntity, ProductDTO.class);
             
             HttpStatusCode  httpStatusCode  = responseEntity.getStatusCode();
 
@@ -67,8 +71,8 @@ public class ProductServiceImpl implements ProductService{
         }
     }
 
-    @Override
-    public List<Product> getProductsByIds(List<Long> productIds) throws ProductNotFoundException {
+/*    @Override
+    public List<ProductRequest> getProductsByIds(List<Long> productIds) throws ProductNotFoundException {
         try {
             String url = apiUrl + "/getProductsByIds";
             // Construir el cuerpo de la solicitud JSON con la lista de productIds
@@ -78,7 +82,7 @@ public class ProductServiceImpl implements ProductService{
             headers.set("Content-Type", "application/json");
 
             HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-            ResponseEntity<List<Product>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<>() {
+            ResponseEntity<List<ProductRequest>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<>() {
             });
             
             HttpStatusCode  httpStatusCode  = responseEntity.getStatusCode();
@@ -95,31 +99,28 @@ public class ProductServiceImpl implements ProductService{
             e.printStackTrace();
             return null;
         }
-    }
+    }*/
 
-    @Override
-    public List<Product> getProductsToSubmit(List<Product> productList) throws ProductNotFoundException, NotEnoughStockException {
+    public List<ProductDTO> submitPurchase(List<CartProduct> productList) throws ProductNotFoundException, NotEnoughStockException {
         try {
             String url = apiUrl + "/getProductsToSubmit";
-    
-            // Crear una lista de objetos JSON para los productos y cantidades
-            List<JSONObject> productObjects = new ArrayList<>();
-            for (Product product : productList) {
+
+            JSONArray productArray = new JSONArray();
+
+            for (CartProduct product : productList) {
                 JSONObject productObject = new JSONObject();
-                productObject.put("productId", product.getId());
-                productObject.put("quantity", product.getStorageQuantity());
-                productObjects.add(productObject);
-}
-    
-            // Crear el objeto JSON principal con la lista de productos
-            JSONObject requestBodyJson = new JSONObject();
-            requestBodyJson.put("products", productObjects);
-    
+
+                productObject.put("quantity", product.getQuantity());
+                productObject.put("productId", product.getProduct());
+
+                productArray.put(productObject);
+                }
+        
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
     
-            HttpEntity<String> requestEntity = new HttpEntity<>(requestBodyJson.toString(), headers);
-            ResponseEntity<List<Product>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<List<Product>>() {});
+            HttpEntity<String> requestEntity = new HttpEntity<>(productArray.toString(), headers);
+            ResponseEntity<List<ProductDTO>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<>() {});
             
             HttpStatusCode  httpStatusCode  = responseEntity.getStatusCode();
 
