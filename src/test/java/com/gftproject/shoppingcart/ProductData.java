@@ -34,9 +34,7 @@ public class ProductData {
     }
 
     public static CartProduct createCartProduct001() {
-        CartProduct cartProduct = new CartProduct(cart, 1L, true, 5);
-        cartProduct.setCart(cart);
-        return cartProduct;
+        return new CartProduct(cart, 1L, true, 5);
     }
 
 

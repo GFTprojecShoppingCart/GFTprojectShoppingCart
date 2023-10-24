@@ -76,7 +76,7 @@ import com.gftproject.shoppingcart.model.*;
 
             // Check if the product exists
             ProductDTO product = productService.getProductById(productId);
-            if (quantity > product.getStock()) {
+            if (quantity <= product.getStock()) {
 
                 // Check if the product is already in the cart
                 CartProduct cartProduct = cartProductRepository.findByCartAndProduct(cart, 1L);
