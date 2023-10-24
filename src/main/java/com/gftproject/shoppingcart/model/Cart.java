@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Data
@@ -20,6 +21,9 @@ public class Cart {
 
     @NotNull(message = "The user ID must be provided")
     private long userId;
+
+    @OneToMany(mappedBy = "cart")
+    private List<CartProduct> cartProducts;
 
     @Enumerated(EnumType.STRING)
     private Status status;
