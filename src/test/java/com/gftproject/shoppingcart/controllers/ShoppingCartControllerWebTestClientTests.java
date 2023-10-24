@@ -2,23 +2,15 @@ package com.gftproject.shoppingcart.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gftproject.shoppingcart.model.Cart;
-//import com.gftproject.shoppingcart.model.Product;
-import org.springframework.http.HttpStatus;
-import static org.junit.jupiter.api.Assertions.*;
+import com.gftproject.shoppingcart.model.ProductDTO;
+
+import org.hamcrest.Matcher;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-
-
-
 import org.springframework.test.web.reactive.server.WebTestClient;
-
 import java.math.BigDecimal;
-
-import javax.print.attribute.standard.Media;
-import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +21,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.hamcrest.Matchers.*;
 import static org.assertj.core.api.Assertions.assertThat;
+//import static org.hamcrest.MatcherAssert.assertThat;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -114,9 +107,9 @@ class ShoppingCartControllerWebTestClientTests {
     @Order(3)
     @DisplayName("GIVEN cartId WHEN updateCart is executed THEN update the cart")
     void updateProductsFromCart() throws Exception {
-        List<Product> products = List.of(
-                new Product(1L, new BigDecimal("19.99"), new BigDecimal("2.5"), 10),
-                new Product(2L, new BigDecimal("9.99"), new BigDecimal("1.0"),5 )
+        List<ProductDTO> products = List.of(
+                new ProductDTO(1L, new BigDecimal("19.99"), 10, new BigDecimal("2.0")),
+                new ProductDTO(2L, new BigDecimal("9.99"), 5, new BigDecimal("1.0") )
         );
 
         client.put()

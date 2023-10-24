@@ -18,7 +18,7 @@ import com.gftproject.shoppingcart.model.Status;
 class ShoppingCartRepositoryTest {
 
     @Autowired
-    ShoppingCartRepository shoppingCartRepository;
+    CartRepository shoppingCartRepository;
 
 
     @Test
