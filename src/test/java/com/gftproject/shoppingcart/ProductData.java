@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ProductData {
 
-    static Cart cart = new Cart(1L, 1L, new ArrayList<>(), Status.DRAFT, BigDecimal.ZERO, BigDecimal.ZERO);
+    static Cart cart = new Cart(1L, 1L, Status.DRAFT, BigDecimal.ZERO, BigDecimal.ZERO);
 
     public static ProductDTO createProductDTO001() {
         return new ProductDTO(1L, new BigDecimal("25.99"), 3, new BigDecimal("55"));
@@ -35,7 +35,6 @@ public class ProductData {
 
     public static CartProduct createCartProduct001() {
         CartProduct cartProduct = new CartProduct(cart, 1L, true, 5);
-        cart.getCartProducts().add(cartProduct);
         cartProduct.setCart(cart);
         return cartProduct;
     }

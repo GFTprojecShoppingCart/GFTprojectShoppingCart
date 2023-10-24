@@ -150,7 +150,7 @@ class ShoppingCartControllerWebTestClientTests {
     @Test
     @Order(3)
     @DisplayName("GIVEN cartId WHEN updateCart is executed THEN update the cart")
-    void updateProductsFromCart() throws Exception {
+    void updateProductsFromCart() {
         List<ProductDTO> products = List.of(
                 new ProductDTO(1L, new BigDecimal("19.99"), 10, new BigDecimal("2.5")),
                 new ProductDTO(2L, new BigDecimal("9.99"), 5, new BigDecimal("1.0"))
@@ -171,7 +171,7 @@ class ShoppingCartControllerWebTestClientTests {
     @Test
     @Order(4)
     @DisplayName("GIVEN cartId, productId, and quantity WHEN addProductToCart is executed THEN update the cart")
-    void addProductToCart() throws Exception {
+    void addProductToCart() {
         Long cartId = 1L;
         Long productId = 2L;
         int quantity = 3;

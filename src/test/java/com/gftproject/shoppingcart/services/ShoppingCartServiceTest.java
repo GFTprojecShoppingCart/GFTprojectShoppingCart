@@ -1,13 +1,11 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.CartsData;
 import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
-import com.gftproject.shoppingcart.model.Cart;
-import com.gftproject.shoppingcart.model.ProductDTO;
-import com.gftproject.shoppingcart.model.Status;
-import com.gftproject.shoppingcart.model.User;
+import com.gftproject.shoppingcart.model.*;
 import com.gftproject.shoppingcart.repositories.CartProductsRepository;
 import com.gftproject.shoppingcart.repositories.CartRepository;
 import com.gftproject.shoppingcart.repositories.CountryRepository;
@@ -22,7 +20,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static com.gftproject.shoppingcart.CartsData.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,6 +65,7 @@ class ShoppingCartServiceTest {
     void setUp() {
         // Instantiate Shopping cart Service and instantiate con new mock de repository
         MockitoAnnotations.openMocks(this);
+
         service = new ShoppingCartServiceImpl(cartRepository, computationsService, productService, userService, countryRepository, paymentRepository, cartProductsRepository);
         carts = Arrays.asList(Optional.of(createCart001()).orElseThrow(), createCart002(), createCart003());
     }
@@ -164,7 +166,7 @@ class ShoppingCartServiceTest {
     @Test
     @DisplayName("GIVEN a cart Id and products with quantity WHEN addProductToCartWithQuantity THEN add product to cart and check stock")
     void addProductToCartWithQuantity() throws ProductNotFoundException, NotEnoughStockException {
-        Cart cart = new Cart(1L, 1L, new ArrayList<>(), Status.DRAFT, new BigDecimal(14), BigDecimal.ZERO);
+        Cart cart = new Cart(1L, 1L, Status.DRAFT, new BigDecimal(14), BigDecimal.ZERO);
         ProductDTO product = new ProductDTO(1L, new BigDecimal(3), 5, new BigDecimal(4));
 
         when(cartRepository.findById(any())).thenReturn(Optional.of(cart));
@@ -179,25 +181,41 @@ class ShoppingCartServiceTest {
         verify(cartRepository).save(cart);
     }
 
-    @Test
-    @DisplayName("GIVEN a list of updated products WHEN we receive updated products THEN upda")
-    void updateProductsFromCarts() {
-        // Create sample data for testing
+        @Test
+        @DisplayName("GIVEN a list of updated products WHEN we receive updated products THEN upda")
+        void updateProductsFromCarts() {
+            // Create sample data for testing
+            ProductDTO product1 = ProductData.createProductDTO002();
+            ProductDTO product2 = ProductData.createProductDTO003();
 
-        Cart cart1 = new Cart(1L, 1L, new ArrayList<>(),Status.DRAFT, new BigDecimal("0.0"), new BigDecimal("0.0"));
-        Cart cart2 = new Cart(2L, 2L, new ArrayList<>(),Status.DRAFT, new BigDecimal("0.0"), new BigDecimal("0.0"));
+            ProductDTO product1_updated = new ProductDTO(2L, new BigDecimal("19.99"), 2, new BigDecimal("5"));
+            ProductDTO product2_updated = new ProductDTO(3L, new BigDecimal("10.0"), 5, new BigDecimal("1.0"));
 
-        // Mock repository behavior
-        when(cartRepository.findCartsByProductIds(anyList())).thenReturn(List.of(cart1, cart2));
-        when(cartRepository.save(any(Cart.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            Cart cart1 = CartsData.createCart001();
+            Cart cart2 = CartsData.createCart002();
 
-        // Test the service method
-        service.updateProductsFromCarts(ProductData.getWarehouseStock());
+/*            cart1.getCartProducts().add(new CartProduct(cart1, 2L, true, 2));
+            cart2.getCartProducts().add(new CartProduct(cart2, 2L, true, 3));
+            cart2.getCartProducts().add(new CartProduct(cart2, 3L, true, 4));*/
 
-        // Assertions
-        verify(cartRepository, Mockito.times(2)).save(any(Cart.class));
-        verify(cartRepository, times(2)).save(any());
-    }
+
+            List<ProductDTO> updatedProducts = new ArrayList<>();
+            updatedProducts.add(product1_updated);
+            updatedProducts.add(product2_updated);
+
+            // Mock repository behavior
+            when(cartRepository.findCartsByProductIds(anyList())).thenReturn(List.of(cart1, cart2));
+            when(cartRepository.save(any(Cart.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            service.updateProductsFromCarts(updatedProducts);
+            // Assertions
+            assertThat(updatedProducts).hasSize(2);
+            assertThat(updatedProducts.get(0).getId()).isEqualTo(1L);
+            assertThat(updatedProducts.get(1).getId()).isEqualTo(2L);
+
+            verify(cartRepository, Mockito.times(2)).save(any(Cart.class));
+            verify(cartRepository, times(2)).save(any());
+        }
 
     @Test
     @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
