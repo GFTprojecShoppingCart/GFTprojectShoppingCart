@@ -2,7 +2,8 @@ package com.gftproject.shoppingcart.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gftproject.shoppingcart.model.Cart;
-import com.gftproject.shoppingcart.model.Product;
+import com.gftproject.shoppingcart.model.ProductDTO;
+
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,9 +143,9 @@ class ShoppingCartControllerWebTestClientTests {
     @Order(3)
     @DisplayName("GIVEN cartId WHEN updateCart is executed THEN update the cart")
     void updateProductsFromCart() throws Exception {
-        List<Product> products = List.of(
-                new Product(1L, new BigDecimal("19.99"), new BigDecimal("2.5"), 10),
-                new Product(2L, new BigDecimal("9.99"), new BigDecimal("1.0"),5 )
+        List<ProductDTO> products = List.of(
+                new ProductDTO(1L, new BigDecimal("19.99"), 10, new BigDecimal("2.5") ),
+                new ProductDTO(2L, new BigDecimal("9.99"),5 , new BigDecimal("1.0"))
         );
 
         client.put()

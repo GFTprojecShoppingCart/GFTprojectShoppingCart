@@ -76,6 +76,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             return cartRepository.save(newCart);
         });
 
+        System.out.println(cart);
+        System.out.println(productId);
+
         // Check if the product exists
         ProductDTO product = productService.getProductById(productId);
         if (quantity > product.getStock()) {

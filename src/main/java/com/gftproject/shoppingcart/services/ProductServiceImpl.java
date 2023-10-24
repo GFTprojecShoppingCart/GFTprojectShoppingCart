@@ -35,11 +35,12 @@ public class ProductServiceImpl implements ProductService{
     @Override
     public ProductDTO getProductById(Long productId) throws ProductNotFoundException {
 
-        String fullUrl = apiUrl + "/getProductById";
+        String fullUrl = apiUrl + "/products/getBasicInfo";
 
         try {
 
-            String jsonBody = "{\"productId\": " + productId + "}";
+            
+            String jsonBody = "{[ " + productId + "]}";
 
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
