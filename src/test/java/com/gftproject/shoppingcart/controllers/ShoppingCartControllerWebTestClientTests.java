@@ -2,16 +2,14 @@ package com.gftproject.shoppingcart.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gftproject.shoppingcart.model.Cart;
-import com.gftproject.shoppingcart.model.Product;
-import org.hamcrest.Matchers;
+//import com.gftproject.shoppingcart.model.Product;
+import org.springframework.http.HttpStatus;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
+
 
 
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -19,18 +17,18 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.math.BigDecimal;
 
 import javax.print.attribute.standard.Media;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -111,33 +109,7 @@ class ShoppingCartControllerWebTestClientTests {
     }
 
 
-    @Test
-    @Order(3)
-    @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
-    void deleteCart() throws Exception {
 
-        client.get().uri("/carts/").exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON) //para validar la cabecera con contenido
-                // json
-                .expectBodyList(Cart.class)
-                .hasSize(4); //Esperamos 4 elementos en la lista de carritos del cliente
-
-        client.delete().uri("/carts/" +  userId)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody().isEmpty();
-
-        client.get().uri("/carts/").exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON)
-                .expectBodyList(Cart.class)
-                .hasSize(3);//Una vez eliminado el carrito, esperamos que haya 1 menos en la lista
-
-//                    client.get().uri("/carts/1").exchange()
-//                    .expectStatus().isNotFound();
-
-    }
     @Test
     @Order(3)
     @DisplayName("GIVEN cartId WHEN updateCart is executed THEN update the cart")
@@ -156,8 +128,8 @@ class ShoppingCartControllerWebTestClientTests {
                 .expectStatus().isOk()
                 .expectHeader().contentType(APPLICATION_JSON);
                 assertNotNull(products);
-
     }
+
     @Test
     @Order(4)
     @DisplayName("GIVEN cartId, productId, and quantity WHEN addProductToCart is executed THEN update the cart")
@@ -180,6 +152,35 @@ class ShoppingCartControllerWebTestClientTests {
                 .jsonPath("$.status").isEqualTo("DRAFT")
                 .jsonPath("$.finalPrice").isEqualTo(0.00)
                 .jsonPath("$.finalWeight").isEqualTo(0.00);
+    }
+
+
+    @Test
+    @Order(5)
+    @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
+    void deleteCart() throws Exception {
+
+        client.get().uri("/carts/").exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON) //para validar la cabecera con contenido
+                // json
+                .expectBodyList(Cart.class)
+                .hasSize(4); //Esperamos 4 elementos en la lista de carritos del cliente
+
+        client.delete().uri("/carts/" + userId)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody().isEmpty();
+
+        client.get().uri("/carts/").exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBodyList(Cart.class)
+                .hasSize(3);//Una vez eliminado el carrito, esperamos que haya 1 menos en la lista
+
+//                    client.get().uri("/carts/1").exchange()
+//                    .expectStatus().isNotFound();
+
     }
 
 }
