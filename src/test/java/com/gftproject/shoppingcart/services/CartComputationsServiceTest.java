@@ -45,11 +45,17 @@ class CartComputationsServiceTest {
         assertThat(productsWithoutStock.contains(5L));
     }
 
-    @Test
+   @Test
     @DisplayName("GIVEN a shopping cart and a Product list WHEN method is called THEN returns the final price and weight of all products in cart ")
     void computeFinalValues() {
+        Cart cart = new Cart(1L, Status.DRAFT, BigDecimal.ZERO, BigDecimal.ZERO);
+        List<CartProduct> productList = new ArrayList<>();
+        CartProduct product1 = new CartProduct();
+        productList.add(product1);
+        cart.setCartProducts(productList);
 
-        Pair<BigDecimal, BigDecimal> pairWeightValue = computationsService.computeFinalValues(cart.getProductList(), ProductData.getWarehouseStock());
+
+        Pair<BigDecimal, BigDecimal> pairWeightValue = computationsService.computeFinalValues(cart.getCartProducts(), ProductData.getWarehouseStock());
 
         assertThat(new BigDecimal("120.4")).isEqualTo(pairWeightValue.a);
         assertThat(new BigDecimal("287.86")).isEqualTo(pairWeightValue.b);

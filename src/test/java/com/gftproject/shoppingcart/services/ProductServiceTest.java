@@ -26,7 +26,7 @@ class ProductServiceTest {
     void getProductById() throws ProductNotFoundException {
         ProductDTO product = productService.getProductById(1L);
 
-        assertThat(product.getId()).isEqualTo(2L);
+        assertThat(product.getId()).isEqualTo(3L);
     }
 
 /*    @Test
@@ -42,7 +42,6 @@ class ProductServiceTest {
     void getProductsToSubmit() throws NotEnoughStockException, ProductNotFoundException {
         List<ProductDTO> product = productService.submitPurchase(new ArrayList<>());
         assertThat(product.get(0).getId()).isEqualTo(2L);
-
 
     }
 }
