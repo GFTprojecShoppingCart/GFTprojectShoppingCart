@@ -24,16 +24,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-class ShoppingCartControllerWebTestClientTests {
+class ShoppingCartControllerIT {
 
-    private ObjectMapper objectMapper;
     @Autowired
     private WebTestClient client;
-
-    @BeforeEach
-    void setUp() {
-        ObjectMapper objectMapper = new ObjectMapper();
-    }
 
     String userId = "1"; //  Creamos una variable de un userID que existe en nuestra db
     String cartId = "1";
@@ -101,27 +95,32 @@ class ShoppingCartControllerWebTestClientTests {
         assertThat(carts.get(1).getFinalPrice()).isEqualTo(new BigDecimal("4.50"));
         assertThat(carts.get(1).getFinalWeight().intValue()).isZero();
     }
-
     @Test
     @Order(3)
-    @DisplayName("GIVEN the ID of an existing cart WHEN submitCart is executed")
-    void submitCart() {
-        client.put().uri("/carts/" + cartId).exchange()
+    @DisplayName("GIVEN cartId WHEN updateCart is executed THEN update the cart")
+    void updateProductsFromCart() {
+        List<ProductDTO> products = List.of(
+                new ProductDTO(1L, new BigDecimal("19.99"), 10, new BigDecimal("2.5")),
+                new ProductDTO(2L, new BigDecimal("9.99"), 5, new BigDecimal("1.0"))
+        );
+
+        client.put()
+                .uri("/carts/updateStock/")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .bodyValue(products)
+                .exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType(APPLICATION_JSON)
-                .expectBody(Cart.class)
-                .consumeWith(response -> {
-                    Cart cart = response.getResponseBody();
-                    assertThat(cart.getStatus()).isEqualTo(Status.SUBMITTED);
-                    assertThat(cart.getFinalPrice()).isNotZero();
-                    assertThat(cart.getFinalWeight()).isNotZero();
-                });
+                .expectHeader().contentType(APPLICATION_JSON);
+        assertNotNull(products);
 
     }
 
+    
+
 
     @Test
-    @Order(3)
+    @Order(4)
     @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
     void deleteCart() {
 
@@ -149,24 +148,21 @@ class ShoppingCartControllerWebTestClientTests {
     }
 
     @Test
-    @Order(3)
-    @DisplayName("GIVEN cartId WHEN updateCart is executed THEN update the cart")
-    void updateProductsFromCart() {
-        List<ProductDTO> products = List.of(
-                new ProductDTO(1L, new BigDecimal("19.99"), 10, new BigDecimal("2.5")),
-                new ProductDTO(2L, new BigDecimal("9.99"), 5, new BigDecimal("1.0"))
-        );
-
-        client.put()
-                .uri("/carts/updateStock/")
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .bodyValue(products)
-                .exchange()
+    @Order(5)
+    @DisplayName("GIVEN the ID of an existing cart WHEN submitCart is executed")
+    void submitCart() {
+        client.put().uri("/carts/" + cartId).exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType(APPLICATION_JSON);
-        assertNotNull(products);
+                .expectHeader().contentType(APPLICATION_JSON)
+                .expectBody(Cart.class)
+                .consumeWith(response -> {
+                    Cart cart = response.getResponseBody();
+                    assertThat(cart.getStatus()).isEqualTo(Status.SUBMITTED);
+                    assertThat(cart.getFinalPrice()).isNotZero();
+                    assertThat(cart.getFinalWeight()).isNotZero();
+                });
 
     }
+    
 
 }
