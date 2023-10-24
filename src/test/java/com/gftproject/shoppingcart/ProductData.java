@@ -1,6 +1,9 @@
 package com.gftproject.shoppingcart;
 
+import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.CartProduct;
 import com.gftproject.shoppingcart.model.ProductDTO;
+import com.gftproject.shoppingcart.model.Status;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -8,25 +11,7 @@ import java.util.List;
 
 public class ProductData {
 
-    public static Product createProduct001() {
-        return new Product(1L, 3);
-    }
-
-    public static Product createProduct002() {
-        return new Product(2L, 4);
-    }
-
-    public static Product createProduct003() {
-        return new Product(3L, 5);
-    }
-
-    public static Product createProduct004() {
-        return new Product(4L, 6);
-    }
-
-    public static Product createProduct005() {
-        return new Product(5L, 1);
-    }
+    static Cart cart = new Cart(1L, 1L, Status.DRAFT, BigDecimal.ZERO, BigDecimal.ZERO);
 
     public static ProductDTO createProductDTO001() {
         return new ProductDTO(1L, new BigDecimal("25.99"), 3, new BigDecimal("55"));
@@ -48,17 +33,10 @@ public class ProductData {
         return new ProductDTO(5L, new BigDecimal("14.99"), 1, new BigDecimal("0.3"));
     }
 
-    public static List<Product> getMockProductMap() {
-        List<Product> products = new ArrayList<>();
-
-        products.add(createProduct001());
-        products.add(createProduct002());
-        products.add(createProduct003());
-        products.add(createProduct004());
-        products.add(createProduct005());
-
-        return products;
+    public static CartProduct createCartProduct001() {
+        return new CartProduct(cart, 1L, true, 5);
     }
+
 
     public static List<ProductDTO> getWarehouseStock() {
 
@@ -72,4 +50,9 @@ public class ProductData {
 
         return products;
     }
+
+    public static CartProduct createCartProductFalse() {
+        return new CartProduct(cart, 1L, false, 500);
+    }
+
 }

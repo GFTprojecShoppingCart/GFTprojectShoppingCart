@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Service
 public class CartComputationsService {
 
-    public Pair<BigDecimal, BigDecimal> computeFinalValues(List<CartProduct> cartProducts, List<ProductDTO> warehouseStock) {
+    public Pair<BigDecimal, BigDecimal> computeFinalWeightAndPrice(List<CartProduct> cartProducts, List<ProductDTO> warehouseStock) {
 
         BigDecimal totalWeight = new BigDecimal(0);
         BigDecimal totalPrice = new BigDecimal(0);

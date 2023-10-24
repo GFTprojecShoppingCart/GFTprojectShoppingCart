@@ -97,6 +97,13 @@
             <version>3.12.4</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>3.2.0</version>
+        </dependency>
+        
     </dependencies>
 
     <build>
@@ -106,9 +113,9 @@
              <artifactId>spring-boot-maven-plugin</artifactId>
              <configuration>
                 <excludes>
-                    <exclude>com/gftproject/shoppingcart/model/**</exclude>
+                   <!-- <exclude>com/gftproject/shoppingcart/model/**</exclude>
                     <exclude>com/gftproject/shoppingcart/exceptions/**</exclude>
-                   <exclude>
+-->                   <exclude>
                       <groupId>org.projectlombok</groupId>
                       <artifactId>lombok</artifactId>
                    </exclude>

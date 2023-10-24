@@ -22,8 +22,6 @@ public class Cart {
     @NotNull(message = "The user ID must be provided")
     private long userId;
 
-    @OneToMany(mappedBy = "cart")
-    private List<CartProduct> cartProducts;
 
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -33,11 +31,4 @@ public class Cart {
 
     @Min(value = 0, message = "Final weight should be zero or greater")
     private BigDecimal finalWeight;
-
-    public Cart(long userId, Status status, BigDecimal finalPrice, BigDecimal finalWeight) {
-        this.userId = userId;
-        this.status = status;
-        this.finalPrice = finalPrice;
-        this.finalWeight = finalWeight;
-    }
 }

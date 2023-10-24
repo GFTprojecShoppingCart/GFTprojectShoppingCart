@@ -15,10 +15,10 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Status;
 
 @DataJpaTest
-class ShoppingCartRepositoryTest {
+class CartRepositoryTest {
 
     @Autowired
-    ShoppingCartRepository shoppingCartRepository;
+    CartRepository shoppingCartRepository;
 
 
     @Test

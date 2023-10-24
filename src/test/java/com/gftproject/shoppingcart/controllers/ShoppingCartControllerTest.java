@@ -4,7 +4,10 @@ import com.gftproject.shoppingcart.CartsData;
 import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
+import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.CartProduct;
+import com.gftproject.shoppingcart.model.ProductDTO;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -69,7 +72,7 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN the userID WHEN method called THEN returns the created cart")
-    void createCart() {
+    void createCart() throws UserNotFoundException {
         given(service.createCart(any())).willReturn(CartsData.createCart001());
 
         ResponseEntity<Cart> cart = controller.createCart("1");
@@ -81,7 +84,7 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN the userID WHEN method called THEN returns the created cart")
-    void createCartBadRequest() {
+    void createCartBadRequest() throws UserNotFoundException {
         given(service.createCart(any())).willReturn(CartsData.createCart001());
 
         ResponseEntity<Cart> cart = controller.createCart("Oof");
@@ -92,7 +95,7 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN a cartId WHEN the controller is called THEN the cart status will change to submitted")
-    void submitCart() throws NotEnoughStockException, ProductNotFoundException {
+    void submitCart() throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException {
         given(service.submitCart(any())).willReturn(CartsData.createCart001());
 
         ResponseEntity<Cart> cart = controller.submitCart("1");
@@ -105,7 +108,7 @@ class ShoppingCartControllerTest {
     @Test
     @DisplayName("GIVEN a list of products WHEN the method is called THEN the list of products without enough stock will be updated")
     void updateProductsFromCarts() {
-        given(service.updateProductsFromCarts(any())).willReturn(CartsData.getMockCarts());
+        List<ProductDTO> productDataList = ProductData.getWarehouseStock();
 
         ResponseEntity<Void> response = controller.updateProductsFromCarts(ProductData.getWarehouseStock());
 

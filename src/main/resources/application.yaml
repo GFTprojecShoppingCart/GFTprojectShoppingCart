@@ -10,7 +10,7 @@ spring:
       on-profile: dev
   app-properties:
     userEndpoint: "https://your-api.com/"
-    productEndpoint: "https://your-api.com/"
+    productEndpoint: "http://localhost:8887"
   datasource:
     url: jdbc:h2:mem:devdb
     driver-class-name: org.h2.Driver
@@ -27,7 +27,7 @@ spring:
       on-profile: test
   app-properties:
     userEndpoint: "https://your-api.com/"
-    productEndpoint: "https://your-api.com/"
+    productEndpoint: "http://localhost:8887"
   datasource:
     url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
@@ -41,9 +41,12 @@ spring:
       on-profile: default
   app-properties:
     userEndpoint: "https://your-api.com/"
-    productEndpoint: "https://your-api.com/"
+    productEndpoint: "http://localhost:8887"
   datasource:
     url: jdbc:h2:mem:defaultdb
     driver-class-name: org.h2.Driver
     username: defaultuser
     password: defaultpassword
+server:
+  port: 8085
+
