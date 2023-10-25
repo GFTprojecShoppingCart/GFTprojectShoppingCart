@@ -1,10 +1,8 @@
 package com.gftproject.shoppingcart.integration;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.ProductDTO;
-
 import com.gftproject.shoppingcart.model.Status;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +13,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -75,7 +74,7 @@ class ShoppingCartControllerIT {
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBodyList(Cart.class)
                 .consumeWith(response -> {
-                    carts.addAll(response.getResponseBody()); // Agregar elementos a la lista
+                    carts.addAll(Objects.requireNonNull(response.getResponseBody())); // Add the elements to the list
                 });
 
         assertNotNull(carts);
@@ -153,6 +152,7 @@ class ShoppingCartControllerIT {
                 .expectBody(Cart.class)
                 .consumeWith(response -> {
                     Cart cart = response.getResponseBody();
+                    assertThat(cart).isNotNull();
                     assertThat(cart.getStatus()).isEqualTo(Status.SUBMITTED);
                     assertThat(cart.getFinalPrice()).isNotZero();
                     assertThat(cart.getFinalWeight()).isNotZero();

@@ -56,7 +56,7 @@ public class ShoppingCartController {
     @PostMapping("/carts/{userId}")
     public ResponseEntity<Cart> createCart(@PathVariable String userId) throws UserNotFoundException {
         HttpHeaders headers = new HttpHeaders();
-        if(!StringUtils.isNumeric(userId)){
+        if (!StringUtils.isNumeric(userId)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
@@ -64,20 +64,13 @@ public class ShoppingCartController {
     }
 
     @PutMapping("/carts/{cartId}")
-    public ResponseEntity<Cart> submitCart(@PathVariable String cartId) throws NotEnoughStockException, ProductNotFoundException {
+    public ResponseEntity<Cart> submitCart(@PathVariable String cartId) throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException {
 
-        try {
-            if(!StringUtils.isNumeric(cartId)){
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-            return new ResponseEntity<>(service.submitCart(Long.parseLong(cartId)), new HttpHeaders(), HttpStatus.OK);
-        } catch (NotEnoughStockException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (ProductNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (UserNotFoundException e) {
-            throw new RuntimeException(e);
+        if (!StringUtils.isNumeric(cartId)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        return new ResponseEntity<>(service.submitCart(Long.parseLong(cartId)), new HttpHeaders(), HttpStatus.OK);
+
     }
 
     @PutMapping("/{userId}/carts/{cartId}/addProduct/{productId}")
