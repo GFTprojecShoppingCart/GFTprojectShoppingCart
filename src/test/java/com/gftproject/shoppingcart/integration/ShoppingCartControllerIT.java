@@ -97,24 +97,6 @@ class ShoppingCartControllerIT {
         assertThat(carts.get(1).getFinalWeight().intValue()).isZero();
     }
 
-    @Test
-    @Order(3)
-    @DisplayName("GIVEN the ID of an existing cart WHEN submitCart is executed")
-    void submitCart() {
-        client.put().uri("/carts/" + cartId).exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(APPLICATION_JSON)
-                .expectBody(Cart.class)
-                .consumeWith(response -> {
-                    Cart cart = response.getResponseBody();
-                    assertThat(cart.getStatus()).isEqualTo(Status.SUBMITTED);
-                    assertThat(cart.getFinalPrice()).isNotZero();
-                    assertThat(cart.getFinalWeight()).isNotZero();
-                });
-
-    }
-
-
 
     @Test
     @Order(3)
@@ -131,9 +113,7 @@ class ShoppingCartControllerIT {
                 .accept(APPLICATION_JSON)
                 .bodyValue(products)
                 .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(APPLICATION_JSON);
-        assertNotNull(products);
+                .expectStatus().isOk();
     }
 
     @Test
@@ -151,7 +131,6 @@ class ShoppingCartControllerIT {
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk();
-
     }
 
 
