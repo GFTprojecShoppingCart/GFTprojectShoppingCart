@@ -1,6 +1,7 @@
 package com.gftproject.shoppingcart.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.User;
 import org.apache.http.HttpResponse;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.util.Map;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -24,7 +27,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long userId) throws UserNotFoundException {
-        String fullEndpoint = endpoint + "/validateUser/" + userId;
+        String fullEndpoint = endpoint + "/users/" + userId;
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpGet request = new HttpGet(fullEndpoint);
@@ -34,7 +37,22 @@ public class UserServiceImpl implements UserService {
 
             if (statusCode == 200) {
                 String responseBody = EntityUtils.toString(response.getEntity());
-                return new ObjectMapper().readValue(responseBody, User.class);
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectReader objectReader = objectMapper.readerFor(new TypeReference<Map<String, Object>>() {});
+                Map<String, Object> jsonMap = objectReader.readValue(responseBody);
+
+                User user = new User();
+                user.setUserID(Long.parseLong(jsonMap.get("id").toString()));
+
+                Map<String, Object> address = (Map<String, Object>) jsonMap.get("address");
+                Map<String, Object> country = (Map<String, Object>) address.get("country");
+                user.setCountry(country.get("name").toString());
+
+                Map<String, Object> paymentMethod = (Map<String, Object>) jsonMap.get("paymentMethod");
+                user.setPaymentMethod(paymentMethod.get("name").toString());
+
+                return user;
+
             } else if (statusCode == 404) {
                 throw new UserNotFoundException(String.valueOf(userId));
             } else {

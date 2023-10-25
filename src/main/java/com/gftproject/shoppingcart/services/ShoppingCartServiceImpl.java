@@ -58,14 +58,10 @@ import com.gftproject.shoppingcart.model.*;
         public Cart createCart(Long userId) throws UserNotFoundException {
             Cart cart = new Cart();
 
-            System.out.println(cart);
-
             cart.setUserId(userId);
             cart.setFinalPrice(new BigDecimal(0));
             cart.setFinalWeight(new BigDecimal(0));
             cart.setStatus(Status.DRAFT);
-
-            System.out.println(cart);
 
             return cartRepository.save(cart);
         }
@@ -91,7 +87,7 @@ import com.gftproject.shoppingcart.model.*;
             if (quantity <= product.getStock()) {
 
                 // Check if the product is already in the cart
-                CartProduct cartProduct = cartProductRepository.findByCartAndProduct(cart, 1L);
+                CartProduct cartProduct = cartProductRepository.findByCartAndProduct(cart, productId);
 
                 if (cartProduct != null) {
                     // Product is in the cart, update the quantity
@@ -138,7 +134,7 @@ import com.gftproject.shoppingcart.model.*;
             // Communicate the purchase to the warehouse service
         List<ProductDTO> submittedProducts = productService.submitPurchase(cartProductList);
 
-            Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalWeightAndPrice(cartProductList, submittedProducts);
+        Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalWeightAndPrice(cartProductList, submittedProducts);
         double cardPercentage = paymentRepository.findById(user.getPaymentMethod()).orElseThrow().getChargePercentage();
         double countryPercentage = countryRepository.findById(user.getCountry()).orElseThrow().getTaxPercentage();
 

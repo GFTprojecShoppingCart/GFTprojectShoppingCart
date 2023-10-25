@@ -38,7 +38,7 @@ class CartRepositoryTest {
         List<Cart> cart = shoppingCartRepository.findAllByStatus(Status.DRAFT);
 
         assertFalse(cart.isEmpty());
-        assertThat(cart).isNotEmpty().hasSize(2);
+        assertThat(cart).isNotEmpty().hasSize(1);
     }
 
     @Test

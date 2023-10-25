@@ -1,6 +1,5 @@
 package com.gftproject.shoppingcart.exceptions;
 
-        import java.util.List;
 
 public class UserNotFoundException extends Exception{
     public UserNotFoundException(Long userId){
