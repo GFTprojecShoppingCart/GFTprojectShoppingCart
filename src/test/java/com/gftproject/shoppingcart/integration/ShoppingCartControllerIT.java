@@ -1,10 +1,8 @@
 package com.gftproject.shoppingcart.integration;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.ProductDTO;
-
 import com.gftproject.shoppingcart.model.Status;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +13,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -26,13 +25,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class ShoppingCartControllerIT {
 
-    @Autowired
-    private WebTestClient client;
-
     String userId = "1"; //  Creamos una variable de un userID que existe en nuestra db
     String cartId = "1";
+    @Autowired
+    private WebTestClient client;
     //int nonExistentUserId = 999; //  Creamos una variable de un userID que NO existe en nuestra db
-
 
     @Test
     @Order(1)
@@ -77,7 +74,7 @@ class ShoppingCartControllerIT {
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBodyList(Cart.class)
                 .consumeWith(response -> {
-                    carts.addAll(response.getResponseBody()); // Agregar elementos a la lista
+                    carts.addAll(Objects.requireNonNull(response.getResponseBody())); // Add the elements to the list
                 });
 
         assertNotNull(carts);
@@ -95,6 +92,7 @@ class ShoppingCartControllerIT {
         assertThat(carts.get(1).getFinalPrice()).isEqualTo(new BigDecimal("4.50"));
         assertThat(carts.get(1).getFinalWeight().intValue()).isZero();
     }
+
     @Test
     @Order(3)
     @DisplayName("GIVEN cartId WHEN updateCart is executed THEN update the cart")
@@ -114,7 +112,7 @@ class ShoppingCartControllerIT {
 
     }
 
-    
+
     @Test
     @Order(4)
     @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
@@ -154,12 +152,13 @@ class ShoppingCartControllerIT {
                 .expectBody(Cart.class)
                 .consumeWith(response -> {
                     Cart cart = response.getResponseBody();
+                    assertThat(cart).isNotNull();
                     assertThat(cart.getStatus()).isEqualTo(Status.SUBMITTED);
                     assertThat(cart.getFinalPrice()).isNotZero();
                     assertThat(cart.getFinalWeight()).isNotZero();
                 });
 
     }
-    
+
 
 }
