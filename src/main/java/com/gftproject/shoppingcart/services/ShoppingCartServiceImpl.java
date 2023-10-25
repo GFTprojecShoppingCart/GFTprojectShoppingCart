@@ -85,7 +85,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         if (quantity <= product.getStock()) {
 
             // Check if the product is already in the cart
-            CartProduct cartProduct = cartProductRepository.findByCartAndProduct(cart, 1L);
+            CartProduct cartProduct = cartProductRepository.findByCartAndProduct(cart, productId);
 
             if (cartProduct != null) {
                 // Product is in the cart, update the quantity
