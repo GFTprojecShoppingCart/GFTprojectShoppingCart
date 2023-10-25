@@ -56,8 +56,6 @@ import com.gftproject.shoppingcart.model.*;
 
         @Override
         public Cart createCart(Long userId) throws UserNotFoundException {
-        //User user = userService.getUserById(userId);
-        User user = new User();
             Cart cart = new Cart();
 
             cart.setUserId(userId);
@@ -78,7 +76,7 @@ import com.gftproject.shoppingcart.model.*;
 
             // Check if the product exists
             ProductDTO product = productService.getProductById(productId);
-            if (quantity > product.getStock()) {
+            if (quantity <= product.getStock()) {
 
                 // Check if the product is already in the cart
                 CartProduct cartProduct = cartProductRepository.findByCartAndProduct(cart, 1L);
@@ -128,7 +126,7 @@ import com.gftproject.shoppingcart.model.*;
             // Communicate the purchase to the warehouse service
         List<ProductDTO> submittedProducts = productService.submitPurchase(cartProductList);
 
-            Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalValues(cartProductList, submittedProducts);
+            Pair<BigDecimal, BigDecimal> pair = computationsService.computeFinalWeightAndPrice(cartProductList, submittedProducts);
         double cardPercentage = paymentRepository.findById(user.getPaymentMethod()).orElseThrow().getChargePercentage();
         double countryPercentage = countryRepository.findById(user.getCountry()).orElseThrow().getTaxPercentage();
 
@@ -142,7 +140,8 @@ import com.gftproject.shoppingcart.model.*;
     }
 
 
-        public void updateProductsFromCarts(List<ProductDTO> updatedProducts) {
+        @Override
+    public void updateProductsFromCarts(List<ProductDTO> updatedProducts) {
 
             // Transform the list into a map of Ids
             Map<Long, ProductDTO> productMap = updatedProducts.stream()
@@ -159,7 +158,6 @@ import com.gftproject.shoppingcart.model.*;
                 product.setValid(product.getQuantity() <= productDTO.getStock());
                 cartProductRepository.save(product);
             }
-
         }
 
         @Override
@@ -170,26 +168,4 @@ import com.gftproject.shoppingcart.model.*;
             }
             cartRepository.deleteById(cartId);
         }
-
-
-        public BigDecimal applyTaxes(BigDecimal originalPrice, BigDecimal weight, User user) {
-
-            BigDecimal priceWithTaxes = new BigDecimal(0);
-            priceWithTaxes = priceWithTaxes.add(originalPrice);
-
-            double weightPercentage = computationsService.computeByWeight(weight.doubleValue());
-            double cardPercentage = paymentRepository.findById(user.getPaymentMethod()).orElseThrow().getChargePercentage();
-            double countryPercentage = countryRepository.findById(user.getCountry()).orElseThrow().getTaxPercentage();
-
-            BigDecimal finalWeightPrice = priceWithTaxes.multiply(BigDecimal.valueOf(weightPercentage));
-            BigDecimal finalCardPrice = priceWithTaxes.multiply(BigDecimal.valueOf(cardPercentage));
-            BigDecimal finalCountryPrice = priceWithTaxes.multiply(BigDecimal.valueOf(countryPercentage));
-
-            priceWithTaxes = priceWithTaxes.add(finalCardPrice);
-            priceWithTaxes = priceWithTaxes.add(finalWeightPrice);
-            priceWithTaxes = priceWithTaxes.add(finalCountryPrice);
-
-            return priceWithTaxes;
-        }
-
 }

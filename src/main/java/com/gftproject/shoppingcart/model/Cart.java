@@ -22,8 +22,8 @@ public class Cart {
     @NotNull(message = "The user ID must be provided")
     private long userId;
 
-    @OneToMany(mappedBy = "cart")
-    private List<CartProduct> cartProducts;
+/*    @OneToMany(mappedBy = "cart")
+    private List<CartProduct> cartProducts;*/
 
     @Enumerated(EnumType.STRING)
     private Status status;
