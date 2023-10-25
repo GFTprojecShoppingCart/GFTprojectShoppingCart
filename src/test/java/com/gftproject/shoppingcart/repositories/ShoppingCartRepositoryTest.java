@@ -15,7 +15,7 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Status;
 
 @DataJpaTest
-class ShoppingCartRepositoryTest {
+class CartRepositoryTest {
 
     @Autowired
     CartRepository shoppingCartRepository;

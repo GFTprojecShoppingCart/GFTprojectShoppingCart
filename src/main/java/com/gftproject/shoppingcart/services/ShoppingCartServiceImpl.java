@@ -58,21 +58,33 @@ import com.gftproject.shoppingcart.model.*;
         public Cart createCart(Long userId) throws UserNotFoundException {
             Cart cart = new Cart();
 
+            System.out.println(cart);
+
             cart.setUserId(userId);
             cart.setFinalPrice(new BigDecimal(0));
             cart.setFinalWeight(new BigDecimal(0));
             cart.setStatus(Status.DRAFT);
+
+            System.out.println(cart);
 
             return cartRepository.save(cart);
         }
 
         @Override
         public Cart addProductToCartWithQuantity(long userId, long cartId, long productId, int quantity) throws ProductNotFoundException, NotEnoughStockException {
-            // Check if the cart exists or create a new one if it doesn't
+           // Check if the cart exists or create a new one if it doesn't
             Cart cart = cartRepository.findById(cartId).orElseGet(() -> {
-                Cart newCart = new Cart(userId, Status.DRAFT, BigDecimal.ZERO, BigDecimal.ZERO);
+                Cart newCart = new Cart();
+                newCart.setUserId(userId);
+                newCart.setFinalPrice(new BigDecimal(0));
+                newCart.setFinalWeight(new BigDecimal(0));
+                newCart.setStatus(Status.DRAFT);
+                
                 return cartRepository.save(newCart);
             });
+
+
+
 
             // Check if the product exists
             ProductDTO product = productService.getProductById(productId);
