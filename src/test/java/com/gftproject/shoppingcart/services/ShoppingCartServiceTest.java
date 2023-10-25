@@ -10,6 +10,7 @@ import com.gftproject.shoppingcart.repositories.CartProductsRepository;
 import com.gftproject.shoppingcart.repositories.CartRepository;
 import com.gftproject.shoppingcart.repositories.CountryRepository;
 import com.gftproject.shoppingcart.repositories.PaymentRepository;
+import com.gftproject.shoppingcart.repositories.CartRepository;
 import org.antlr.v4.runtime.misc.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -53,7 +54,7 @@ class ShoppingCartServiceTest {
     ProductServiceImpl productService;
 
     @Mock
-    UserServiceImpl userService;
+    UserService userService;
 
     @Mock
     CartProductsRepository cartProductsRepository;
@@ -119,7 +120,7 @@ class ShoppingCartServiceTest {
     void submitCartStock() throws ProductNotFoundException, NotEnoughStockException, UserNotFoundException {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
         when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(4), new BigDecimal(5)));
-        when(computationsService.applyTaxes(any(), any(), anyDouble(), anyDouble())).thenReturn(new BigDecimal(6));
+        when(computationsService.applyTaxes(any(), anyDouble(), anyDouble(), anyDouble())).thenReturn(new BigDecimal(6));
         when(userService.getUserById(any())).thenReturn(new User(1L, "SPAIN", "VISA")); // Need to talk with user microservice
         when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(3), new BigDecimal(25)));
         when(countryRepository.findById(any())).thenReturn(Optional.of(new Country("Stony", 1.5)));
@@ -180,6 +181,40 @@ class ShoppingCartServiceTest {
         assertThat(updatedCart.getId()).isEqualTo(1L);
 //        assertThat(updatedCart.getProductList()).containsKey(5L);
         verify(cartRepository).save(cart);
+    }
+
+    @Test
+    @DisplayName("GIVEN a cart Id and products with quantity WHEN addProductToCartWithQuantity THEN add product to cart and check stock")
+    void addProductToCartWithQuantityNoCart() throws ProductNotFoundException, NotEnoughStockException {
+        Cart cart = new Cart(4L, 1L, Status.DRAFT, new BigDecimal(14), BigDecimal.ZERO);
+        ProductDTO product = new ProductDTO(1L, new BigDecimal(3), 5, new BigDecimal(4));
+
+        when(cartRepository.findById(any())).thenReturn(Optional.empty());
+        when(cartRepository.save(any())).thenReturn(cart);
+        when(productService.getProductById(any())).thenReturn(product);
+
+        Cart newCart = service.addProductToCartWithQuantity(1L, 4L, 5L, 5);
+
+        assertThat(newCart).isNotNull();
+        assertThat(newCart.getId()).isEqualTo(4L);
+
+        verify(cartRepository).save(cart);
+    }
+
+    @Test
+    @DisplayName("GIVEN a cart Id and products with quantity WHEN addProductToCartWithQuantity THEN add product to cart and check stock")
+    void addProductToCartWithQuantityNoStock() throws ProductNotFoundException, NotEnoughStockException {
+        Cart cart = new Cart(4L, 1L, Status.DRAFT, new BigDecimal(14), BigDecimal.ZERO);
+        ProductDTO product = new ProductDTO(1L, new BigDecimal(3), 5, new BigDecimal(4));
+
+        when(cartRepository.findById(any())).thenReturn(Optional.of(cart));
+        when(cartRepository.save(any())).thenReturn(cart);
+        when(productService.getProductById(any())).thenReturn(product);
+
+        assertThrows(NotEnoughStockException.class, () -> {
+            service.addProductToCartWithQuantity(1L, 5L, 5L, 10); // Submit the cart
+        });
+
     }
 
     @Test

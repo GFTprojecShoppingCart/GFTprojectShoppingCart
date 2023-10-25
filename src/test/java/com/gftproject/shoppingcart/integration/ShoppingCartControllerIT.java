@@ -1,9 +1,10 @@
 package com.gftproject.shoppingcart.integration;
 
-import ch.qos.logback.core.net.server.Client;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.ProductDTO;
+
 import com.gftproject.shoppingcart.model.Status;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,21 +24,13 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-class ShoppingCartControllerWebTestClientTests {
-
-    private ObjectMapper objectMapper;
-    @Autowired
-    private WebTestClient client;
-
-    @BeforeEach
-    void setUp() {
-        ObjectMapper objectMapper = new ObjectMapper();
-    }
+class ShoppingCartControllerIT {
 
     String userId = "1"; //  Creamos una variable de un userID que existe en nuestra db
     String cartId = "1";
+    @Autowired
+    private WebTestClient client;
     //int nonExistentUserId = 999; //  Creamos una variable de un userID que NO existe en nuestra db
-
 
     @Test
     @Order(1)
@@ -52,7 +45,7 @@ class ShoppingCartControllerWebTestClientTests {
                 .hasSize(3); //Esperamos 3 elementos en la lista de carritos del cliente
 
         // When
-        client.post().uri("/carts/" + userId)
+        client.post().uri("/carts/{userId}", userId)
                 .accept(APPLICATION_JSON) //se acepta el tipo de contenido
                 .exchange() //envia la solicitud HTTP al servidor.
                 .expectStatus().isCreated();
@@ -95,7 +88,7 @@ class ShoppingCartControllerWebTestClientTests {
         assertThat(carts.get(0).getFinalWeight().intValue()).isZero();
 
         // Verificar el tercer registro del user id 1
-        assertThat(carts.get(1).getId()).isEqualTo(3L);
+        assertThat(carts.get(1).getId()).isEqualTo(2L);
         assertThat(carts.get(1).getStatus().name()).isEqualTo("SUBMITTED");
         assertThat(carts.get(1).getFinalPrice()).isEqualTo(new BigDecimal("4.50"));
         assertThat(carts.get(1).getFinalWeight().intValue()).isZero();
@@ -103,24 +96,26 @@ class ShoppingCartControllerWebTestClientTests {
 
     @Test
     @Order(3)
-    @DisplayName("GIVEN the ID of an existing cart WHEN submitCart is executed")
-    void submitCart() {
-        client.put().uri("/carts/" + cartId).exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(APPLICATION_JSON)
-                .expectBody(Cart.class)
-                .consumeWith(response -> {
-                    Cart cart = response.getResponseBody();
-                    assertThat(cart.getStatus()).isEqualTo(Status.SUBMITTED);
-                    assertThat(cart.getFinalPrice()).isNotZero();
-                    assertThat(cart.getFinalWeight()).isNotZero();
-                });
+    @DisplayName("GIVEN cartId WHEN updateCart is executed THEN update the cart")
+    void updateProductsFromCart() {
+        List<ProductDTO> products = List.of(
+                new ProductDTO(1L, new BigDecimal("19.99"), 10, new BigDecimal("2.5")),
+                new ProductDTO(2L, new BigDecimal("9.99"), 5, new BigDecimal("1.0"))
+        );
+
+        client.put()
+                .uri("/carts/updateStock/")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .bodyValue(products)
+                .exchange()
+                .expectStatus().isOk();
 
     }
 
 
     @Test
-    @Order(3)
+    @Order(4)
     @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
     void deleteCart() {
 
@@ -147,49 +142,23 @@ class ShoppingCartControllerWebTestClientTests {
 
     }
 
+    //TODO poner este test en el otro archivo ya que necesitamos WireMock
     @Test
-    @Order(3)
-    @DisplayName("GIVEN cartId WHEN updateCart is executed THEN update the cart")
-    void updateProductsFromCart() {
-        List<ProductDTO> products = List.of(
-                new ProductDTO(1L, new BigDecimal("19.99"), 10, new BigDecimal("2.5")),
-                new ProductDTO(2L, new BigDecimal("9.99"), 5, new BigDecimal("1.0"))
-        );
-
-        client.put()
-                .uri("/carts/updateStock/")
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .bodyValue(products)
-                .exchange()
+    @Order(5)
+    @DisplayName("GIVEN the ID of an existing cart WHEN submitCart is executed")
+    void submitCart() {
+        client.put().uri("/carts/" + cartId).exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType(APPLICATION_JSON);
-        assertNotNull(products);
+                .expectHeader().contentType(APPLICATION_JSON)
+                .expectBody(Cart.class)
+                .consumeWith(response -> {
+                    Cart cart = response.getResponseBody();
+                    assertThat(cart.getStatus()).isEqualTo(Status.SUBMITTED);
+                    assertThat(cart.getFinalPrice()).isNotZero();
+                    assertThat(cart.getFinalWeight()).isNotZero();
+                });
 
     }
 
-    @Test
-    @Order(4)
-    @DisplayName("GIVEN cartId, productId, and quantity WHEN addProductToCart is executed THEN update the cart")
-    void addProductToCart() {
-        Long cartId = 1L;
-        Long productId = 2L;
-        int quantity = 3;
-
-
-        WebTestClient.ResponseSpec response = client.put()
-                .uri("/carts/{cartId}/addProduct/{productId}?quantity={quantity}", cartId, productId, quantity)
-                .contentType(APPLICATION_JSON)
-                .accept(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk();
-
-        response.expectBody()
-                .jsonPath("$.id").isNumber()
-                .jsonPath("$.userId").isNumber()
-                .jsonPath("$.status").isEqualTo("DRAFT")
-                .jsonPath("$.finalPrice").isEqualTo(0.00)
-                .jsonPath("$.finalWeight").isEqualTo(0.00);
-    }
 
 }

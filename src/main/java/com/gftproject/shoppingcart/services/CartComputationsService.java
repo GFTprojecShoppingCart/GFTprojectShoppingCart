@@ -41,7 +41,7 @@ public class CartComputationsService {
         return new Pair<>(totalWeight, totalPrice);
     }
 
-    public double computeByWeight(double cartWeight) {
+    public double computeTaxByWeight(double cartWeight) {
 
         for (double threshold : weightCostMap.keySet()) {
             if (cartWeight <= threshold) {
@@ -52,16 +52,14 @@ public class CartComputationsService {
         return 50.0;
     }
 
-    public BigDecimal applyTaxes(BigDecimal originalPrice, BigDecimal weight, double cardPercentage, double countryPercentage) {
+    public BigDecimal applyTaxes(BigDecimal originalPrice, double weightPercentage, double cardPercentage, double countryPercentage) {
 
         BigDecimal priceWithTaxes = new BigDecimal(0);
         priceWithTaxes = priceWithTaxes.add(originalPrice);
 
-        double weightPercentage = computeByWeight(weight.doubleValue());
-
-        BigDecimal finalWeightPrice = priceWithTaxes.multiply(BigDecimal.valueOf(weightPercentage));
-        BigDecimal finalCardPrice = priceWithTaxes.multiply(BigDecimal.valueOf(cardPercentage));
-        BigDecimal finalCountryPrice = priceWithTaxes.multiply(BigDecimal.valueOf(countryPercentage));
+        BigDecimal finalWeightPrice = priceWithTaxes.multiply(BigDecimal.valueOf(weightPercentage / 100.0));
+        BigDecimal finalCardPrice = priceWithTaxes.multiply(BigDecimal.valueOf(cardPercentage / 100.0));
+        BigDecimal finalCountryPrice = priceWithTaxes.multiply(BigDecimal.valueOf(countryPercentage / 100.0));
 
         priceWithTaxes = priceWithTaxes.add(finalCardPrice);
         priceWithTaxes = priceWithTaxes.add(finalWeightPrice);

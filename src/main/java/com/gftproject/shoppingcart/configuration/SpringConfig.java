@@ -6,9 +6,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-
 @EnableScheduling
-
 public class SpringConfig {
     @Bean
     public RestTemplate restTemplate() {
