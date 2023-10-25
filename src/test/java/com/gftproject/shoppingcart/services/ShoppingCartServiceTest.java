@@ -1,6 +1,5 @@
 package com.gftproject.shoppingcart.services;
 
-import com.gftproject.shoppingcart.CartsData;
 import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
@@ -10,14 +9,13 @@ import com.gftproject.shoppingcart.repositories.CartProductsRepository;
 import com.gftproject.shoppingcart.repositories.CartRepository;
 import com.gftproject.shoppingcart.repositories.CountryRepository;
 import com.gftproject.shoppingcart.repositories.PaymentRepository;
-import com.gftproject.shoppingcart.repositories.CartRepository;
 import org.antlr.v4.runtime.misc.Pair;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
@@ -134,7 +132,6 @@ class ShoppingCartServiceTest {
 
         // Verify that the service method correctly calls the repository
         verify(cartRepository).findById(1L);
-        //verify(cartRepository).save(any());
         verify(userService).getUserById(submittedCart.getUserId());
         verify(computationsService).computeFinalWeightAndPrice(anyList(), anyList());
 
@@ -158,11 +155,21 @@ class ShoppingCartServiceTest {
         assertThrows(NotEnoughStockException.class, () -> {
             service.submitCart(1L); // Submit the cart
         });
+    }
 
-        // Verify that the service method correctly calls the repository and other services
+    @Test
+    @DisplayName("GIVEN a cart Id with products without stock  WHEN cart is submitted  THEN error is shown")
+    void submitCartIncompleteUser() throws UserNotFoundException {
+        when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
+        when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(4), new BigDecimal(5)));
+        when(userService.getUserById(any())).thenReturn(new User(1L, "SPAIN", "VISA")); // Need to talk with user microservice
+        when(cartProductsRepository.findAllByCartId(anyLong())).thenReturn(List.of(ProductData.createCartProductFalse()));
+        when(countryRepository.findById(any())).thenReturn(Optional.empty());
+        when(paymentRepository.findById(any())).thenReturn(Optional.empty());
 
-        // Verify that the cart remains in "DRAFT" status
-        //assertEquals(Status.DRAFT, cart.getStatus());
+        assertThrows(UserNotFoundException.class, () -> {
+            service.submitCart(1L); // Submit the cart
+        });
     }
 
     @Test
@@ -179,7 +186,6 @@ class ShoppingCartServiceTest {
 
         assertThat(updatedCart).isNotNull();
         assertThat(updatedCart.getId()).isEqualTo(1L);
-//        assertThat(updatedCart.getProductList()).containsKey(5L);
         verify(cartRepository).save(cart);
     }
 
@@ -215,6 +221,21 @@ class ShoppingCartServiceTest {
             service.addProductToCartWithQuantity(1L, 5L, 5L, 10); // Submit the cart
         });
 
+    }
+
+    @Test
+    @DisplayName("GIVEN userId, cartId, and productId WHEN product is deleted from cart THEN response is OK")
+    void deleteProductFromCart() {
+        Long cartId = 1L;
+        Long productId = 1L;
+        Cart cart = new Cart();
+        CartProduct product = new CartProduct(cart, productId, true, 1);
+        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+        when(cartProductsRepository.findByCartAndProduct(cart, productId)).thenReturn(product);
+
+        service.deleteProductFromCart(cartId, productId);
+
+        verify(cartProductsRepository).delete(product);
     }
 
     @Test

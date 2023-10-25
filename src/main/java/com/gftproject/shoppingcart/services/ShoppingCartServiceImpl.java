@@ -117,7 +117,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         Optional<Payment> payment = paymentRepository.findById(user.getPaymentMethod());
 
         if (country.isEmpty() || payment.isEmpty()) {
-            throw new ProductNotFoundException("User data incomplete");
+            throw new UserNotFoundException("User data incomplete");
         }
 
         // Check that all elements of the cart have stock = true
@@ -167,6 +167,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
             cartProductRepository.save(product);
         }
 
+    }
+
+    @Override
+    public void deleteProductFromCart(Long cartId, Long productId) {
+        Cart cart = cartRepository.findById(cartId).orElseThrow();
+        CartProduct product = cartProductRepository.findByCartAndProduct(cart, productId);
+        cartProductRepository.delete(product);
     }
 
     @Override

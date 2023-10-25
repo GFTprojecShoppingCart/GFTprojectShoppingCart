@@ -31,11 +31,8 @@ public class ShoppingCartController {
 
         List<Cart> cartList = service.findAllByUserId(userId);
 
-        if (cartList.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(cartList, HttpStatus.OK);
-        }
+        return new ResponseEntity<>(cartList, HttpStatus.OK);
+
     }
 
 
@@ -84,10 +81,17 @@ public class ShoppingCartController {
 
         Cart updatedCart = service.addProductToCartWithQuantity(userId, cartId, productId, quantity);
 
-        if (updatedCart == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
         return new ResponseEntity<>(updatedCart, headers, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/carts/{cartId}/product/{productId}")
+    public ResponseEntity<Void> deleteProductFromCart(
+            @PathVariable Long cartId,
+            @PathVariable Long productId) {
+
+        service.deleteProductFromCart(cartId, productId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PutMapping("/carts/updateStock/")
