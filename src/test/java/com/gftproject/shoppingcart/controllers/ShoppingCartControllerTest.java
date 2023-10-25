@@ -9,6 +9,7 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.CartProduct;
 import com.gftproject.shoppingcart.model.ProductDTO;
 import com.gftproject.shoppingcart.model.Status;
+import com.gftproject.shoppingcart.services.ShoppingCartService;
 import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -106,6 +108,18 @@ class ShoppingCartControllerTest {
     }
 
     @Test
+    @DisplayName("GIVEN a cartId WHEN the controller is called THEN a BadRequest httpStatus will be returned")
+    void submitCartBadRequest() throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException {
+        given(service.submitCart(any())).willReturn(CartsData.createCart001());
+
+        ResponseEntity<Cart> cart = controller.submitCart("A");
+
+        assertThat(cart.getBody()).isNull();
+        assertThat(cart.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        verify(service, times(0)).submitCart(any());
+    }
+
+    @Test
     @DisplayName("GIVEN a list of products WHEN the method is called THEN the list of products without enough stock will be updated")
     void updateProductsFromCarts() {
         List<ProductDTO> productDataList = ProductData.getWarehouseStock();
@@ -139,5 +153,15 @@ class ShoppingCartControllerTest {
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 
+    }
+
+    @Test
+    @DisplayName("GIVEN userId, cartId, and productId WHEN product is deleted from cart THEN response is OK")
+    void deleteProductFromCart() {
+
+        ResponseEntity<Void> response = controller.deleteProductFromCart(1L, 1L);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        verify(service).deleteProductFromCart(anyLong(), anyLong());
     }
 }

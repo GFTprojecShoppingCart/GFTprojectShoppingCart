@@ -4,15 +4,12 @@ import com.gftproject.shoppingcart.CartsData;
 import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.CartProduct;
-import com.gftproject.shoppingcart.model.ProductDTO;
-import com.gftproject.shoppingcart.model.Status;
 import org.antlr.v4.runtime.misc.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,5 +38,31 @@ class CartComputationsServiceTest {
 
         assertThat(new BigDecimal("280.2")).isEqualTo(pairWeightValue.a);
         assertThat(new BigDecimal("219.93")).isEqualTo(pairWeightValue.b);
+    }
+
+    @Test
+    @DisplayName("GIVEN the total weight of a cart WHEN computeByWeight is called THEN returns the corresponding tax")
+    void computeTaxByWeight() {
+
+        double weightTax01 = computationsService.computeTaxByWeight(3.0);
+        double weightTax02 = computationsService.computeTaxByWeight(8.0);
+        double weightTax03 = computationsService.computeTaxByWeight(15.0);
+        double weightTax04 = computationsService.computeTaxByWeight(30.0);
+
+        assertThat(weightTax01).isEqualTo(5.0);
+        assertThat(weightTax02).isEqualTo(10.0);
+        assertThat(weightTax03).isEqualTo(20.0);
+        assertThat(weightTax04).isEqualTo(50.0);
+
+    }
+
+    @Test
+    void applyTaxes() {
+
+        BigDecimal finalPrice = computationsService.applyTaxes(new BigDecimal(100), 15, 10, 50);
+
+        assertThat(finalPrice)
+                .usingComparator(BigDecimal::compareTo)
+                .isEqualTo(new BigDecimal(175));
     }
 }
