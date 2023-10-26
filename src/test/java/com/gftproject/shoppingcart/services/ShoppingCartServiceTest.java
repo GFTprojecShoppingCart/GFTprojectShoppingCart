@@ -205,6 +205,8 @@ class ShoppingCartServiceTest {
 
         ProductDTO product = new ProductDTO();
         product.setId(productId);
+        product.setPrice(BigDecimal.valueOf(10));
+        product.setWeight(BigDecimal.valueOf(20));
         product.setStock(quantity + 1); // Set stock to be greater than quantity
 
         CartProduct cartProduct = new CartProduct(cart, productId, true, quantity);
@@ -218,6 +220,7 @@ class ShoppingCartServiceTest {
 
         // Assert
         assertThat(result).isEqualTo(cart);
+        assertThat(result.getFinalPrice()).usingComparator(BigDecimal::compareTo).isEqualTo(BigDecimal.valueOf(10));
         assertThat(cartProduct.getQuantity()).isEqualTo(quantity);
 
         verify(cartRepository, times(1)).findById(cartId);

@@ -114,8 +114,8 @@ public class ShoppingCartMicroServicesTest {
                 .jsonPath("$.id").isNumber()
                 .jsonPath("$.userId").isNumber()
                 .jsonPath("$.status").isEqualTo("DRAFT")
-                .jsonPath("$.finalPrice").isEqualTo(0.00)
-                .jsonPath("$.finalWeight").isEqualTo(0.00);
+                .jsonPath("$.finalPrice").isEqualTo(10.00)
+                .jsonPath("$.finalWeight").isEqualTo(0.50);
 
         
     }
@@ -241,8 +241,8 @@ public class ShoppingCartMicroServicesTest {
                 .jsonPath("$.id").isNumber()
                 .jsonPath("$.userId").isEqualTo(userId)
                 .jsonPath("$.status").isEqualTo("DRAFT")
-                .jsonPath("$.finalPrice").isEqualTo(0.00)
-                .jsonPath("$.finalWeight").isEqualTo(0.00);
+                .jsonPath("$.finalPrice").isEqualTo(10.00)
+                .jsonPath("$.finalWeight").isEqualTo(0.50);
 
         List<CartProduct> cartProducts = cartProductsRepository.findAllByCartId(createdCart.getId());
 
