@@ -34,7 +34,16 @@ class CartRepositoryTest {
 
     @Test
     @DisplayName("GIVEN a status WHEN testFindAllByStatus THEN find all carts by status")
-    void testFindAllByStatus() {
+    void testFindAllByStatusDRAFT() {
+        List<Cart> cart = shoppingCartRepository.findAllByStatus(Status.DRAFT);
+
+        assertFalse(cart.isEmpty());
+        assertThat(cart).isNotEmpty().hasSize(1);
+    }
+
+    @Test
+    @DisplayName("GIVEN a status WHEN testFindAllByStatus THEN find all carts by status")
+    void testFindAllByStatusSUBMITTED() {
         List<Cart> cart = shoppingCartRepository.findAllByStatus(Status.DRAFT);
 
         assertFalse(cart.isEmpty());
