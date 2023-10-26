@@ -2,6 +2,7 @@ package com.gftproject.shoppingcart.services;
 
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
+import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.CartProduct;
 import com.gftproject.shoppingcart.model.ProductDTO;
 import org.json.JSONArray;
@@ -30,6 +31,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDTO getProductById(Long productId) throws ProductNotFoundException {
 
+
         String fullUrl = apiUrl + "/products/getBasicInfo";
 
         List<Long> lista = Collections.singletonList(productId);
@@ -38,8 +40,7 @@ public class ProductServiceImpl implements ProductService {
         headers.set("Content-Type", "application/json");
 
         HttpEntity<List<Long>> requestEntity = new HttpEntity<>(lista, headers);
-        ResponseEntity<ProductDTO> responseEntity = restTemplate.exchange(fullUrl, HttpMethod.POST, requestEntity, ProductDTO.class);
-
+        ResponseEntity<List<ProductDTO>> responseEntity = restTemplate.exchange(fullUrl, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<List<ProductDTO>>() {});
         HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
 
         if (httpStatusCode == HttpStatus.NOT_FOUND) {
@@ -47,8 +48,13 @@ public class ProductServiceImpl implements ProductService {
             throw new ProductNotFoundException(String.valueOf(productId));
         }
 
-        return responseEntity.getBody();
+        return responseEntity.getBody().get(0);
 
+    
+
+        
+        
+        
 
     }
 
@@ -77,11 +83,11 @@ public class ProductServiceImpl implements ProductService {
         HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
 
         if (httpStatusCode == HttpStatus.NOT_FOUND) {
-            throw new ProductNotFoundException(responseEntity.getBody().toString());
+            throw new ProductNotFoundException(String.valueOf(productList));
         }
 
         if (httpStatusCode == HttpStatus.INTERNAL_SERVER_ERROR) {
-            throw new NotEnoughStockException(responseEntity.getBody().toString());
+            throw new NotEnoughStockException(String.valueOf(productList));
         }
 
         return responseEntity.getBody();

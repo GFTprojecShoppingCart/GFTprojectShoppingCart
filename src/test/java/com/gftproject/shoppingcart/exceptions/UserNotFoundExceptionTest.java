@@ -1,4 +1,5 @@
 package com.gftproject.shoppingcart.exceptions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -6,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class UserNotFoundExceptionTest {
 
     @Test
+    @DisplayName("GIVEN an userId WHEN the exception is thrown THEN the exception displays a specific error message")
     void testConstructorWithUserId() {
         Long userId = 12L;
         UserNotFoundException exception = new UserNotFoundException(userId);
@@ -15,6 +17,7 @@ class UserNotFoundExceptionTest {
     }
 
     @Test
+    @DisplayName("GIVEN an userId WHEN the exception is thrown THEN the exception displays a specific error message")
     void testConstructorWithCustomMessage() {
         String customMessage = "User not found with ID:";
         long customNumber = 42L;
