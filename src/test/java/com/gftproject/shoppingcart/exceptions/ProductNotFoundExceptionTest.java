@@ -23,13 +23,14 @@ class ProductNotFoundExceptionTest {
 
     @Test
     void testConstructorWithCustomMessage() {
-        String customMessage = "Custom error message";
+        String customMessage = "Product not found with ID:";
         long customNumber = 42L;
-        customMessage += " " + customNumber; // Sumar el número al mensaje
+        customMessage += " " + customNumber;
         ProductNotFoundException exception = new ProductNotFoundException(customMessage);
         assertThat(exception)
-                .isNotNull()
-                .hasMessage(customMessage);
+            .isNotNull()
+            .hasMessage(customMessage);
     }
+
 
 }
