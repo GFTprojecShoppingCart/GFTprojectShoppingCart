@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.exceptions.CartNotFoundException;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
@@ -56,6 +57,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public Cart createCart(Long userId) throws UserNotFoundException {
+        userService.getUserById(userId);
+
         Cart cart = new Cart();
 
         cart.setUserId(userId);
@@ -67,17 +70,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public Cart addProductToCartWithQuantity(long userId, long cartId, long productId, int quantity) throws ProductNotFoundException, NotEnoughStockException {
+    public Cart addProductToCartWithQuantity(long cartId, long productId, int quantity) throws ProductNotFoundException, NotEnoughStockException, CartNotFoundException {
         // Check if the cart exists or create a new one if it doesn't
-        Cart cart = cartRepository.findById(cartId).orElseGet(() -> {
-            Cart newCart = new Cart();
-            newCart.setUserId(userId);
-            newCart.setFinalPrice(new BigDecimal(0));
-            newCart.setFinalWeight(new BigDecimal(0));
-            newCart.setStatus(Status.DRAFT);
-
-            return cartRepository.save(newCart);
-        });
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new CartNotFoundException("Cart not found"));
 
 
         // Check if the product exists

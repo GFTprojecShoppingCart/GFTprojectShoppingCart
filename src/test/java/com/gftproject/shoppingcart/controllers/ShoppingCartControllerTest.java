@@ -2,6 +2,7 @@ package com.gftproject.shoppingcart.controllers;
 
 import com.gftproject.shoppingcart.CartsData;
 import com.gftproject.shoppingcart.ProductData;
+import com.gftproject.shoppingcart.exceptions.CartNotFoundException;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
@@ -139,11 +140,11 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN cartId, product and quantity WHEN product is added THEN response is OK")
-    void testAddProductToCartWithQuantity() throws ProductNotFoundException, NotEnoughStockException {
+    void testAddProductToCartWithQuantity() throws ProductNotFoundException, NotEnoughStockException, CartNotFoundException {
 
-        when(service.addProductToCartWithQuantity(anyLong(), anyLong(), anyLong(), anyInt())).thenReturn(CartsData.createCart001());
+        when(service.addProductToCartWithQuantity(anyLong(), anyLong(), anyInt())).thenReturn(CartsData.createCart001());
 
-        ResponseEntity<Cart> responseEntity = controller.addProductToCart(1L, 1L, 3L, 4);
+        ResponseEntity<Cart> responseEntity = controller.addProductToCart(1L, 3L, 4);
 
         assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
 

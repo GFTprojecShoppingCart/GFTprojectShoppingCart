@@ -1,6 +1,7 @@
 package com.gftproject.shoppingcart.services;
 
 import com.gftproject.shoppingcart.ProductData;
+import com.gftproject.shoppingcart.exceptions.CartNotFoundException;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
@@ -77,12 +78,26 @@ class ShoppingCartServiceTest {
         Cart expectedCart = new Cart();
         expectedCart.setUserId(userId);
 
+        when(userService.getUserById(userId)).thenReturn(null);
         when(cartRepository.save(any(Cart.class))).thenReturn(expectedCart);
 
         Cart createdCart = service.createCart(userId);
 
         verify(cartRepository, times(1)).save(any(Cart.class));
+        verify(userService, times(1)).getUserById(userId);
         assertThat(createdCart.getUserId()).isEqualTo(userId);
+    }
+    @Test
+    @DisplayName("GIVEN an invalid userID WHEN a cart is going to be created THEN it throws exception")
+    void createCartFailedTest() throws UserNotFoundException {
+        Long userId = 1L;
+        Cart expectedCart = new Cart();
+        expectedCart.setUserId(userId);
+
+        when(userService.getUserById(userId)).thenThrow(UserNotFoundException.class);
+        when(cartRepository.save(any(Cart.class))).thenReturn(expectedCart);
+
+       assertThrows(UserNotFoundException.class, () -> service.createCart(userId));
     }
 
     @Test
@@ -190,7 +205,7 @@ class ShoppingCartServiceTest {
 
     @Test
     @DisplayName("GIVEN a cart Id and products with quantity WHEN addProductToCartWithQuantity THEN add product to cart and check stock")
-    void addProductToCartWithQuantity_productWithStock() throws ProductNotFoundException, NotEnoughStockException {
+    void addProductToCartWithQuantity_productWithStock() throws ProductNotFoundException, NotEnoughStockException, CartNotFoundException {
         // Arrange
         long userId = 1L;
         long cartId = 2L;
@@ -216,7 +231,7 @@ class ShoppingCartServiceTest {
         when(cartProductsRepository.findByCartAndProduct(cart, productId)).thenReturn(cartProduct);
 
         // Act
-        Cart result = service.addProductToCartWithQuantity(userId, cartId, productId, quantity);
+        Cart result = service.addProductToCartWithQuantity(cartId, productId, quantity);
 
         // Assert
         assertThat(result).isEqualTo(cart);
@@ -232,7 +247,7 @@ class ShoppingCartServiceTest {
 
     @Test
     @DisplayName("GIVEN a cart Id and products with quantity WHEN addProductToCartWithQuantity THEN add product to cart and check stock")
-    void addProductToCartWithQuantity_NoCart() throws ProductNotFoundException, NotEnoughStockException {
+    void addProductToCartWithQuantity_NoCart() throws ProductNotFoundException, NotEnoughStockException, CartNotFoundException {
         Cart cart = new Cart(5L, 1L, Status.DRAFT,  BigDecimal.ZERO, BigDecimal.ZERO);
         ProductDTO product = new ProductDTO(1L, new BigDecimal(3), 5, new BigDecimal(4));
 
@@ -240,14 +255,12 @@ class ShoppingCartServiceTest {
         when(cartRepository.save(any(Cart.class))).thenReturn(cart);
         when(productService.getProductById(any())).thenReturn(product);
 
-        Cart newCart = service.addProductToCartWithQuantity(1L, 5L, 5L, 5);
+       assertThrows(CartNotFoundException.class , () -> service.addProductToCartWithQuantity( 5L, 5L, 5));
 
         verify(cartRepository, times(1)).findById(5L);
-        verify(productService, times(1)).getProductById(5L);
-        verify(cartRepository, times(2)).save(any(Cart.class));
-        verify(cartProductsRepository, times(1)).save(any(CartProduct.class));
 
-        assertThat(newCart).isEqualTo(cart);
+
+
 
     }
 
@@ -262,7 +275,7 @@ class ShoppingCartServiceTest {
         when(productService.getProductById(any())).thenReturn(product);
 
         assertThrows(NotEnoughStockException.class, () -> {
-            service.addProductToCartWithQuantity(1L, 5L, 5L, 10); // Submit the cart
+            service.addProductToCartWithQuantity( 5L, 5L, 10); // Submit the cart
         });
     }
 

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -96,7 +97,7 @@ class ProductServiceTest {
         productList.add(new CartProduct(new Cart(), 1L, true, 5));
 
         ResponseEntity<List<ProductDTO>> mockResponseEntity = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(mockResponseEntity);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 
         assertThrows(NotEnoughStockException.class, () -> productService.submitPurchase(productList));
     }
@@ -108,7 +109,7 @@ class ProductServiceTest {
         productList.add(new CartProduct(new Cart(), 1L, true, 5));
 
         ResponseEntity<List<ProductDTO>> mockResponseEntity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(mockResponseEntity);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
 
         assertThrows(ProductNotFoundException.class, () -> productService.submitPurchase(productList));
     }
@@ -118,8 +119,7 @@ class ProductServiceTest {
     void getProductByIdNotFound() {
         // Arrange
         Long productId = 123L;
-        ResponseEntity<ProductDTO> mockResponseEntity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(mockResponseEntity);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
 
         // Act and Assert
         assertThrows(ProductNotFoundException.class, () -> {
