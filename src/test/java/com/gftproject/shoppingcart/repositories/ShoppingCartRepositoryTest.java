@@ -22,7 +22,7 @@ class CartRepositoryTest {
 
 
     @Test
-    @DisplayName("Find all by Carts by Status")
+    @DisplayName("GIVEN an userId WHEN the repository is called THEN returns all carts of a user")
     void testFindAllByUserId() {
         List<Cart> cart = shoppingCartRepository.findAllByUserId(1L);
 

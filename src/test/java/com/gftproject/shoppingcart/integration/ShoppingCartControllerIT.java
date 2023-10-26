@@ -7,6 +7,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.math.BigDecimal;
@@ -22,6 +23,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class ShoppingCartControllerIT {
 
     String userId = "1"; //  Creamos una variable de un userID que existe en nuestra db
@@ -29,6 +31,7 @@ class ShoppingCartControllerIT {
     @Autowired
     private WebTestClient client;
     //int nonExistentUserId = 999; //  Creamos una variable de un userID que NO existe en nuestra db
+
 
     @Test
     @Order(1)

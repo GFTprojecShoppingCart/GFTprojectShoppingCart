@@ -160,12 +160,27 @@ class ShoppingCartServiceTest {
 
     @Test
     @DisplayName("GIVEN a cart Id with products without stock  WHEN cart is submitted  THEN error is shown")
-    void submitCartIncompleteUser() throws UserNotFoundException {
+    void submitCartIncompleteCountry() throws UserNotFoundException {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
         when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(4), new BigDecimal(5)));
         when(userService.getUserById(any())).thenReturn(new User(1L, "SPAIN", "VISA")); // Need to talk with user microservice
         when(cartProductsRepository.findAllByCartId(anyLong())).thenReturn(List.of(ProductData.createCartProductFalse()));
         when(countryRepository.findById(any())).thenReturn(Optional.empty());
+        when(paymentRepository.findById(any())).thenReturn(Optional.of(new Payment("VISA", 1.5)));
+
+        assertThrows(UserNotFoundException.class, () -> {
+            service.submitCart(1L); // Submit the cart
+        });
+    }
+
+    @Test
+    @DisplayName("GIVEN a cart Id with products without stock  WHEN cart is submitted  THEN error is shown")
+    void submitCartIncompletePayment() throws UserNotFoundException {
+        when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
+        when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(4), new BigDecimal(5)));
+        when(userService.getUserById(any())).thenReturn(new User(1L, "SPAIN", "VISA")); // Need to talk with user microservice
+        when(cartProductsRepository.findAllByCartId(anyLong())).thenReturn(List.of(ProductData.createCartProductFalse()));
+        when(countryRepository.findById(any())).thenReturn(Optional.of(new Country("Stony", 1.5)));
         when(paymentRepository.findById(any())).thenReturn(Optional.empty());
 
         assertThrows(UserNotFoundException.class, () -> {
@@ -190,6 +205,8 @@ class ShoppingCartServiceTest {
 
         ProductDTO product = new ProductDTO();
         product.setId(productId);
+        product.setPrice(BigDecimal.valueOf(10));
+        product.setWeight(BigDecimal.valueOf(20));
         product.setStock(quantity + 1); // Set stock to be greater than quantity
 
         CartProduct cartProduct = new CartProduct(cart, productId, true, quantity);
@@ -203,6 +220,7 @@ class ShoppingCartServiceTest {
 
         // Assert
         assertThat(result).isEqualTo(cart);
+        assertThat(result.getFinalPrice()).usingComparator(BigDecimal::compareTo).isEqualTo(BigDecimal.valueOf(10));
         assertThat(cartProduct.getQuantity()).isEqualTo(quantity);
 
         verify(cartRepository, times(1)).findById(cartId);
