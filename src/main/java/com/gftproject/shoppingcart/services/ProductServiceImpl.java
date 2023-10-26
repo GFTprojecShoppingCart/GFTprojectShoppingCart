@@ -50,7 +50,6 @@ public class ProductServiceImpl implements ProductService {
 
         return responseEntity.getBody().get(0);
 
-
     }
 
     public List<ProductDTO> submitPurchase(List<CartProduct> productList) throws ProductNotFoundException, NotEnoughStockException {
@@ -78,11 +77,11 @@ public class ProductServiceImpl implements ProductService {
         HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
 
         if (httpStatusCode == HttpStatus.NOT_FOUND) {
-            throw new ProductNotFoundException(responseEntity.getBody().toString());
+            throw new ProductNotFoundException(String.valueOf(productList));
         }
 
         if (httpStatusCode == HttpStatus.INTERNAL_SERVER_ERROR) {
-            throw new NotEnoughStockException(responseEntity.getBody().toString());
+            throw new NotEnoughStockException(String.valueOf(productList));
         }
 
         return responseEntity.getBody();

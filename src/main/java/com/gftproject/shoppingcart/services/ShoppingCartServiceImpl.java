@@ -95,6 +95,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 cartProduct = new CartProduct(cart, productId, true, quantity);
             }
 
+            cart.setFinalPrice(cart.getFinalPrice().add(product.getPrice()));
+            cart.setFinalWeight(cart.getFinalWeight().add(product.getWeight()));
             // Save the changes to the cart and cartProduct
             cartRepository.save(cart);
             cartProductRepository.save(cartProduct);

@@ -1,5 +1,7 @@
 package com.gftproject.shoppingcart.integration;
 
+import com.gftproject.shoppingcart.model.CartProduct;
+import com.gftproject.shoppingcart.repositories.CartProductsRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -8,6 +10,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
@@ -21,7 +24,10 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 
 import jakarta.annotation.PostConstruct;
 
+import java.util.List;
+
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -40,10 +46,14 @@ public class ShoppingCartMicroServicesTest {
     private int port;
     private WebTestClient client;
 
+    @Autowired
+    CartProductsRepository cartProductsRepository;
+
 
     @BeforeAll
     static void setUp() {
         wireMockServer.start();
+
     }
 
     @AfterAll
@@ -104,8 +114,8 @@ public class ShoppingCartMicroServicesTest {
                 .jsonPath("$.id").isNumber()
                 .jsonPath("$.userId").isNumber()
                 .jsonPath("$.status").isEqualTo("DRAFT")
-                .jsonPath("$.finalPrice").isEqualTo(0.00)
-                .jsonPath("$.finalWeight").isEqualTo(0.00);
+                .jsonPath("$.finalPrice").isEqualTo(10.00)
+                .jsonPath("$.finalWeight").isEqualTo(0.50);
 
         
     }
@@ -195,6 +205,71 @@ public class ShoppingCartMicroServicesTest {
                         assertThat(cart.getFinalPrice()).isNotZero();
                         assertThat(cart.getFinalWeight()).isNotZero();
                     });
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("GIVEN cart with products WHEN update stock THEN product not enough stock")
+    void testCreateCartAddProductAndUpdateStock() {
+        wireMockServer.stubFor(WireMock.post(WireMock.urlMatching("/products/getBasicInfo")).withRequestBody(WireMock.equalToJson("[2]"))
+                .willReturn(aResponse().withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"id\": 2, \"price\": 10.0, \"stock\": 100, \"weight\": 0.5}")));
+
+        long userId = 1L;
+        long cartId = 1L;
+        long productId = 2L;
+        int quantity = 5;
+
+        Cart createdCart = client.post()
+                .uri("/carts/{userId}", userId)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isCreated()
+                .expectBody(Cart.class)
+                .returnResult()
+                .getResponseBody();
+
+        client.put()
+                .uri("/{userId}/carts/{cartId}/addProduct/{productId}?quantity={quantity}", userId, cartId, productId, quantity)
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.id").isNumber()
+                .jsonPath("$.userId").isEqualTo(userId)
+                .jsonPath("$.status").isEqualTo("DRAFT")
+                .jsonPath("$.finalPrice").isEqualTo(10.00)
+                .jsonPath("$.finalWeight").isEqualTo(0.50);
+
+        List<CartProduct> cartProducts = cartProductsRepository.findAllByCartId(createdCart.getId());
+
+        client.put()
+                .uri("/carts/updateStock/")
+                .contentType(APPLICATION_JSON)
+                .accept(APPLICATION_JSON)
+                .bodyValue(cartProducts)
+                .exchange()
+                .expectStatus().isOk();
+
+        wireMockServer.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/products/getBasicInfo")));
+
+
+
+        for (CartProduct cartProduct : cartProducts) {
+            assertFalse(cartProduct.isValid());
+
+            client.put()
+                    .uri("/{userId}/carts/{cartId}/submitCart", userId, cartId)
+                    .contentType(APPLICATION_JSON)
+                    .accept(APPLICATION_JSON)
+                    .exchange()
+                    .expectStatus().isOk()
+                    .expectBody()
+                    .jsonPath("$.status").isEqualTo("DRAFT");
+        }
     }
     
     
