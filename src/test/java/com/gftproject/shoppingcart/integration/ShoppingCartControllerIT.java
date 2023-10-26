@@ -3,7 +3,6 @@ package com.gftproject.shoppingcart.integration;
 
 import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.ProductDTO;
-import com.gftproject.shoppingcart.model.Status;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -140,25 +139,5 @@ class ShoppingCartControllerIT {
 //                    .expectStatus().isNotFound();
 
     }
-
-    //TODO poner este test en el otro archivo ya que necesitamos WireMock
-    @Test
-    @Order(5)
-    @DisplayName("GIVEN the ID of an existing cart WHEN submitCart is executed")
-    void submitCart() {
-        client.put().uri("/carts/" + cartId).exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(APPLICATION_JSON)
-                .expectBody(Cart.class)
-                .consumeWith(response -> {
-                    Cart cart = response.getResponseBody();
-                    assertThat(cart).isNotNull();
-                    assertThat(cart.getStatus()).isEqualTo(Status.SUBMITTED);
-                    assertThat(cart.getFinalPrice()).isNotZero();
-                    assertThat(cart.getFinalWeight()).isNotZero();
-                });
-
-    }
-
 
 }

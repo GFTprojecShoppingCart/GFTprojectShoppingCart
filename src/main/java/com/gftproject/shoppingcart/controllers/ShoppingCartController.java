@@ -102,7 +102,6 @@ public class ShoppingCartController {
 
     @DeleteMapping("/carts/{idCart}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-//    public void deleteShoppingCart(@PathVariable Long idCart) { //eliminar return
     public ResponseEntity<Void> deleteShoppingCart(@PathVariable Long idCart) {
         service.deleteCart(idCart);
 

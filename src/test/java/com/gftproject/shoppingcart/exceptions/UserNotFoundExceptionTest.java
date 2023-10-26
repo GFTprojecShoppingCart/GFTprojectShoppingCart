@@ -10,8 +10,8 @@ class UserNotFoundExceptionTest {
         Long userId = 12L;
         UserNotFoundException exception = new UserNotFoundException(userId);
         assertThat(exception)
-                .isNotNull()
-                .hasMessage("User not found in warehouse: " + userId);
+            .isNotNull()
+            .hasMessage("User not found in warehouse: " + userId);
     }
 
     @Test
@@ -21,7 +21,7 @@ class UserNotFoundExceptionTest {
         customMessage += " " + customNumber;
         UserNotFoundException exception = new UserNotFoundException(customMessage);
         assertThat(exception)
-                .isNotNull()
-                .hasMessage(customMessage);
+            .isNotNull()
+            .hasMessage(customMessage);
     }
 }

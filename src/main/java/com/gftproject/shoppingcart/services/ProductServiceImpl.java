@@ -4,25 +4,20 @@ import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.model.CartProduct;
 import com.gftproject.shoppingcart.model.ProductDTO;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    private static final Logger logger = Logger.getLogger(ProductServiceImpl.class);
     private final RestTemplate restTemplate;
     @Value("${spring.app-properties.productEndpoint}")
     private String apiUrl;
@@ -58,15 +53,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     public List<ProductDTO> submitPurchase(List<CartProduct> productList) throws ProductNotFoundException, NotEnoughStockException {
-        String url = apiUrl + "/getProductsToSubmit";
+
+        String url = apiUrl + "/products/reduceStock";
 
         JSONArray productArray = new JSONArray();
 
         for (CartProduct product : productList) {
             JSONObject productObject = new JSONObject();
 
-            productObject.put("quantity", product.getQuantity());
-            productObject.put("productId", product.getProduct());
+                productObject.put("id", product.getProduct());
+                productObject.put("stock", product.getQuantity());
 
             productArray.put(productObject);
         }
@@ -94,3 +90,4 @@ public class ProductServiceImpl implements ProductService {
 
 
 }
+

@@ -6,10 +6,7 @@ import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
-import com.gftproject.shoppingcart.model.CartProduct;
-import com.gftproject.shoppingcart.model.ProductDTO;
 import com.gftproject.shoppingcart.model.Status;
-import com.gftproject.shoppingcart.services.ShoppingCartService;
 import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -122,8 +118,6 @@ class ShoppingCartControllerTest {
     @Test
     @DisplayName("GIVEN a list of products WHEN the method is called THEN the list of products without enough stock will be updated")
     void updateProductsFromCarts() {
-        List<ProductDTO> productDataList = ProductData.getWarehouseStock();
-
         ResponseEntity<Void> response = controller.updateProductsFromCarts(ProductData.getWarehouseStock());
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatusCode.valueOf(200));
