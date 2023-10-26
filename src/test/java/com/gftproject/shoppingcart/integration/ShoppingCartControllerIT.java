@@ -23,6 +23,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class ShoppingCartControllerIT {
 
     String userId = "1"; //  Creamos una variable de un userID que existe en nuestra db
@@ -31,7 +32,6 @@ class ShoppingCartControllerIT {
     private WebTestClient client;
     //int nonExistentUserId = 999; //  Creamos una variable de un userID que NO existe en nuestra db
 
-    @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 
     @Test
     @Order(1)
@@ -43,7 +43,7 @@ class ShoppingCartControllerIT {
                 .expectHeader().contentType(MediaType.APPLICATION_JSON) //para validar la cabecera con contenido
                 // json
                 .expectBodyList(Cart.class)
-                .hasSize(5); //Esperamos 3 elementos en la lista de carritos del cliente
+                .hasSize(3); //Esperamos 3 elementos en la lista de carritos del cliente
 
         // When
         client.post().uri("/carts/{userId}", userId)
@@ -55,7 +55,7 @@ class ShoppingCartControllerIT {
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBodyList(Cart.class)
-                .hasSize(6);//Una vez añadido el carrito, esperamos que haya 1 más en la lista
+                .hasSize(4);//Una vez añadido el carrito, esperamos que haya 1 más en la lista
 
 //        // Se simula la creación de un carrito para un usuario que no existe
 //        client.post().uri("/carts/" + nonExistentUserId)
@@ -80,7 +80,7 @@ class ShoppingCartControllerIT {
                 });
 
         assertNotNull(carts);
-        assertEquals(2, carts.size()); // Verificar que haya 2 registros en la lista import.sql del usuario 1
+        assertEquals(3, carts.size()); // Verificar que haya 2 registros en la lista import.sql del usuario 1
 
         // Verificar el primer registro del user id 1
         assertThat(carts.get(0).getId()).isEqualTo(1L);
@@ -125,7 +125,7 @@ class ShoppingCartControllerIT {
                 .expectHeader().contentType(MediaType.APPLICATION_JSON) //para validar la cabecera con contenido
                 // json
                 .expectBodyList(Cart.class)
-                .hasSize(3); //Esperamos 4 elementos en la lista de carritos del cliente
+                .hasSize(4); //Esperamos 4 elementos en la lista de carritos del cliente
 
         client.delete().uri("/carts/" + userId)
                 .exchange()
@@ -136,7 +136,7 @@ class ShoppingCartControllerIT {
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBodyList(Cart.class)
-                .hasSize(2);//Una vez eliminado el carrito, esperamos que haya 1 menos en la lista
+                .hasSize(3);//Una vez eliminado el carrito, esperamos que haya 1 menos en la lista
 
 //                    client.get().uri("/carts/1").exchange()
 //                    .expectStatus().isNotFound();

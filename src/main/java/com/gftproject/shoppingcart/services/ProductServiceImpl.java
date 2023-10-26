@@ -31,6 +31,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductDTO getProductById(Long productId) throws ProductNotFoundException {
 
+
         String fullUrl = apiUrl + "/products/getBasicInfo";
 
         List<Long> lista = Collections.singletonList(productId);
@@ -40,7 +41,6 @@ public class ProductServiceImpl implements ProductService {
 
         HttpEntity<List<Long>> requestEntity = new HttpEntity<>(lista, headers);
         ResponseEntity<List<ProductDTO>> responseEntity = restTemplate.exchange(fullUrl, HttpMethod.POST, requestEntity, new ParameterizedTypeReference<List<ProductDTO>>() {});
-
         HttpStatusCode httpStatusCode = responseEntity.getStatusCode();
 
         if (httpStatusCode == HttpStatus.NOT_FOUND) {
@@ -49,6 +49,12 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return responseEntity.getBody().get(0);
+
+    
+
+        
+        
+        
 
     }
 

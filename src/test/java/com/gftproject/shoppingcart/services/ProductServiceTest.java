@@ -52,8 +52,8 @@ class ProductServiceTest {
         Long productId = 123L;
 
         // Configurar el comportamiento del restTemplate mock
-        ResponseEntity<ProductDTO> mockResponseEntity = new ResponseEntity<>(productDTO, HttpStatus.OK);
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(ProductDTO.class))).thenReturn(mockResponseEntity);
+        ResponseEntity<List<ProductDTO>> mockResponseEntity = new ResponseEntity<>(List.of(productDTO), HttpStatus.OK);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(new ParameterizedTypeReference<List<ProductDTO>>() {}))).thenReturn(mockResponseEntity);
 
         // Llamar al método de servicio
         ProductDTO result = productService.getProductById(productId);
@@ -119,7 +119,7 @@ class ProductServiceTest {
         // Arrange
         Long productId = 123L;
         ResponseEntity<ProductDTO> mockResponseEntity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(ProductDTO.class))).thenReturn(mockResponseEntity);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(mockResponseEntity);
 
         // Act and Assert
         assertThrows(ProductNotFoundException.class, () -> {
