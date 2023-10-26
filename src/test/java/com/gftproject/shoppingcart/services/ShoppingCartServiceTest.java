@@ -291,7 +291,7 @@ class ShoppingCartServiceTest {
         when(productService.getProductById(any())).thenReturn(product);
 
         assertThrows(CartIsAlreadySubmittedException.class, () -> {
-            service.addProductToCartWithQuantity(1L, 5L, 5L, 10); // Submit the cart
+            service.addProductToCartWithQuantity(5L, 5L, 10); // Submit the cart
         });
     }
 

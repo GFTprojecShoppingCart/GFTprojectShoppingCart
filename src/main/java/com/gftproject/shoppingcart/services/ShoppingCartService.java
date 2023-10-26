@@ -22,7 +22,7 @@ public interface ShoppingCartService {
 
     Cart createCart(Long userId) throws UserNotFoundException;
 
-    Cart addProductToCartWithQuantity(long userId, long cartId, long productId, int quantity) throws ProductNotFoundException, NotEnoughStockException, CartIsAlreadySubmittedException, CartNotFoundException;
+    Cart addProductToCartWithQuantity( long cartId, long productId, int quantity) throws ProductNotFoundException, NotEnoughStockException, CartIsAlreadySubmittedException, CartNotFoundException;
 
     void deleteCart(Long idCart);
 
