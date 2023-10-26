@@ -195,7 +195,46 @@ public class ShoppingCartMicroServicesTest {
                         assertThat(cart.getFinalPrice()).isNotZero();
                         assertThat(cart.getFinalWeight()).isNotZero();
                     });
+        }
+    @Test
+    @Order(4)
+    @DisplayName("GIVEN a user WHEN a cart is created")
+    void testAddProductToCartWithQuantityAndDeleteCart() {
+        // Configura el comportamiento de WireMock para simular la respuesta del servicio externo
+        wireMockServer.stubFor(WireMock.post(WireMock.urlMatching("/products/getBasicInfo")).withRequestBody(WireMock.equalToJson("[2]"))
+                .willReturn(aResponse().withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\"id\": 2, \"price\": 10.0, \"stock\": 100, \"weight\": 0.5}")));
+
+        // Parámetros de solicitud
+        long userId = 1L;
+        long cartId = 4L;
+
+        // Verificar que no existen carritos dentro del usuario
+        client.get()
+                .uri("/carts/{userId}", userId)
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBodyList(Cart.class)
+                .hasSize(2); // Esperamos que no haya carritos en el usuario
+
+        // Crear un carrito
+        client.post()
+                .uri("/{userId}/addCart/{cartId}/", userId, cartId)
+                .contentType(APPLICATION_JSON)
+                .exchange()
+                .expectStatus().isOk();
+
+        // Verificar que el carrito se ha creado
+        client.get()
+                .exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBodyList(Cart.class)
+                .hasSize(3); // Esperamos que no haya carritos en el usuario
+
     }
-    
-    
+
+
 }

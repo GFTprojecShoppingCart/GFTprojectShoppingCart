@@ -17,7 +17,7 @@ public interface ShoppingCartService {
 
     List<Cart> findAllByUserId(Long userId);
 
-    Cart createCart(Long userId) throws UserNotFoundException;
+    Cart createCart(Long userId, Long cartId) throws UserNotFoundException;
 
     Cart addProductToCartWithQuantity(long userId, long cartId, long productId, int quantity) throws ProductNotFoundException, NotEnoughStockException;
 

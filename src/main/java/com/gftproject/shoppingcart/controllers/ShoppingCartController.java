@@ -70,6 +70,18 @@ public class ShoppingCartController {
 
     }
 
+    @PutMapping("/{userId}/addCart/{cartId}/")
+    public ResponseEntity<Cart> addCart(
+            @PathVariable Long userId,
+            @PathVariable Long cartId) {
+
+        HttpHeaders headers = new HttpHeaders();
+
+        Cart updatedCart = service.createCart(userId, cartId);
+
+        return new ResponseEntity<>(updatedCart, headers, HttpStatus.OK);
+    }
+
     @PutMapping("/{userId}/carts/{cartId}/addProduct/{productId}")
     public ResponseEntity<Cart> addProductToCart(
             @PathVariable Long userId,
