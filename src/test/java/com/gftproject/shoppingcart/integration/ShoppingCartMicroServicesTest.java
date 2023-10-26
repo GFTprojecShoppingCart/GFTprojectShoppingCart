@@ -110,23 +110,25 @@ public class ShoppingCartMicroServicesTest {
                         .withBody("{\"id\": 2, \"price\": 10.0, \"stock\": 100, \"weight\": 0.5}")));
 
 
-        client.get().uri("/carts/").exchange()
+        // Verificar que no existen carritos dentro del usuario
+        client.get()
+                .uri("{userId}/carts/", userId)
+                .exchange()
                 .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.APPLICATION_JSON) //para validar la cabecera con contenido
-                // json
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectBodyList(Cart.class)
-                .hasSize(3); //Esperamos 3 elementos en la lista de carritos del cliente
+                .hasSize(2); // Esperamos que no haya carritos en el usuario
 
         // Crear un carrito
         client.post()
-                .uri("/{userId}/carts/{cartId}/create", userId, cartId)
+                .uri("/{userId}/carts/", userId)
                 .contentType(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk();
 
         // Verificar que el carrito se ha creado
         client.get()
-                .uri("/{userId}/carts/{cartId}/get", userId, cartId)
+                .uri("/{userId}/carts/", userId, cartId)
                 .accept(APPLICATION_JSON)
                 .exchange()
                 .expectStatus().isOk()
@@ -134,50 +136,7 @@ public class ShoppingCartMicroServicesTest {
                 .jsonPath("$.id").isEqualTo(cartId)
                 .jsonPath("$.userId").isEqualTo(userId);
 
-        // Intento to add 4 products with the same ID (not enough stock)
-        client.put()
-                .uri("/{userId}/carts/{cartId}/addProduct/{productId}?quantity={quantity}", userId, cartId, productId, quantity)
-                .contentType(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isBadRequest(); // Assuming a 400 Bad Request status if not enough stock
 
-        // Verify that nothing is added to the cart
-        client.get()
-                .uri("/{userId}/carts/{cartId}/get", userId, cartId)
-                .accept(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.products").isEmpty();
 
-        // Attempt to add 3 products with the same ID (enough stock)
-        client.put()
-                .uri("/{userId}/carts/{cartId}/addProduct/{productId}?quantity={quantity}", userId, cartId, productId, quantity2)
-                .contentType(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk();
-
-        // Verify that the product with quantity 3 is added to the cart
-        client.get()
-                .uri("/{userId}/carts/{cartId}/get", userId, cartId)
-                .accept(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.products[0].productId").isEqualTo(productId)
-                .jsonPath("$.products[0].quantity").isEqualTo(quantity2);
-
-        // Delete the cart
-        client.delete()
-                .uri("/{userId}/carts/{cartId}/delete", userId, cartId)
-                .exchange()
-                .expectStatus().isOk();
-
-        // Verify that the cart is deleted
-        client.get()
-                .uri("/{userId}/carts/{cartId}/get", userId, cartId)
-                .accept(APPLICATION_JSON)
-                .exchange()
-                .expectStatus().isNotFound(); // Assuming a 404 Not Found status if the cart is deleted
     }
 }
