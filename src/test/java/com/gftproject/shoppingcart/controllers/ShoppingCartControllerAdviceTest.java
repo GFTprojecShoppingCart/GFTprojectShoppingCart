@@ -1,6 +1,7 @@
 package com.gftproject.shoppingcart.controllers;
 
 
+import com.gftproject.shoppingcart.exceptions.CartIsAlreadySubmittedException;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
@@ -54,6 +55,26 @@ class ShoppingCartControllerAdviceTest {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getError()).isEqualTo("NOT ENOUGH STOCK ERROR");
         assertThat(errorResponse.getMessage()).isEqualTo("Not enough stock of products with Id: [1, 2, 3]");
+    }
+
+    @Test
+    @DisplayName("GIVEN a NotEnoughStockException WHEN handling the exception in ShoppingCartControllerAdvice THEN it should return a ResponseEntity with the correct error message and status code")
+    void testCartIsAlreadySubmittedException() {
+
+        Long cartIds = 1L;
+
+        CartIsAlreadySubmittedException exception = new CartIsAlreadySubmittedException(cartIds);
+
+        ResponseEntity<ErrorResponse> responseEntity = controllerAdvice.handleCartIsAlreadySubmittedException(exception);
+
+        assertThat(responseEntity).isNotNull();
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+
+        ErrorResponse errorResponse = responseEntity.getBody();
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getError()).isEqualTo("CART ALREADY SUBMITTED");
+        assertThat(errorResponse.getMessage()).isEqualTo("The selected cart is already closed and cannot be modified: 1");
     }
 
     @Test
