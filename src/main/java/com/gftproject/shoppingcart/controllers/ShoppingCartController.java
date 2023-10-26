@@ -1,6 +1,7 @@
 package com.gftproject.shoppingcart.controllers;
 
 import com.gftproject.shoppingcart.exceptions.CartNotFoundException;
+import com.gftproject.shoppingcart.exceptions.CartIsAlreadySubmittedException;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
@@ -62,7 +63,7 @@ public class ShoppingCartController {
     }
 
     @PutMapping("/carts/{cartId}")
-    public ResponseEntity<Cart> submitCart(@PathVariable String cartId) throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException {
+    public ResponseEntity<Cart> submitCart(@PathVariable String cartId) throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException, CartIsAlreadySubmittedException {
 
         if (!StringUtils.isNumeric(cartId)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -75,7 +76,7 @@ public class ShoppingCartController {
     public ResponseEntity<Cart> addProductToCart(
             @PathVariable Long cartId,
             @PathVariable Long productId,
-            @RequestParam int quantity) throws ProductNotFoundException, NotEnoughStockException, CartNotFoundException {
+            @RequestParam int quantity) throws ProductNotFoundException, NotEnoughStockException,CartNotFoundException, CartIsAlreadySubmittedException {
 
         HttpHeaders headers = new HttpHeaders();
 

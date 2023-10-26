@@ -26,6 +26,17 @@ public class ShoppingCartControllerAdvice {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
+    @ExceptionHandler(CartIsAlreadySubmittedException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handleCartIsAlreadySubmittedException(CartIsAlreadySubmittedException ex) {
+
+        String errorMessage = ex.getMessage();
+        ErrorResponse errorResponse = new ErrorResponse("CART ALREADY SUBMITTED", errorMessage);
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
     @ExceptionHandler(ProductNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody

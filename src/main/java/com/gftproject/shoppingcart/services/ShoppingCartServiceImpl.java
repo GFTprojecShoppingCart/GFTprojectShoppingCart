@@ -1,6 +1,7 @@
 package com.gftproject.shoppingcart.services;
 
 import com.gftproject.shoppingcart.exceptions.CartNotFoundException;
+import com.gftproject.shoppingcart.exceptions.CartIsAlreadySubmittedException;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
@@ -70,10 +71,13 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public Cart addProductToCartWithQuantity(long cartId, long productId, int quantity) throws ProductNotFoundException, NotEnoughStockException, CartNotFoundException {
+    public Cart addProductToCartWithQuantity(long cartId, long productId, int quantity) throws ProductNotFoundException, NotEnoughStockException, CartNotFoundException, CartIsAlreadySubmittedException {
         // Check if the cart exists or create a new one if it doesn't
         Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new CartNotFoundException("Cart not found"));
 
+        if (cart.getStatus().equals(Status.SUBMITTED)){
+            throw new CartIsAlreadySubmittedException(cartId);
+        }
 
         // Check if the product exists
         ProductDTO product = productService.getProductById(productId);
@@ -103,10 +107,15 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public Cart submitCart(Long idCart) throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException {
+    public Cart submitCart(Long idCart) throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException, CartIsAlreadySubmittedException {
 
         // Obtain the cart
         Cart cart = cartRepository.findById(idCart).orElseThrow();
+
+        if (cart.getStatus().equals(Status.SUBMITTED)){
+            throw new CartIsAlreadySubmittedException(idCart);
+        }
+
         List<CartProduct> cartProductList = cartProductRepository.findAllByCartId(idCart);
 
         User user = userService.getUserById(cart.getUserId());

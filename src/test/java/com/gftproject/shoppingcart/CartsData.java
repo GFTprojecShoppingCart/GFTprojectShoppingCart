@@ -21,7 +21,7 @@ public class CartsData {
         return new Cart(3L, 3L, Status.DRAFT, new BigDecimal("80"), BigDecimal.ZERO);
     }
 
-    public static Cart createCart004() {
+    public static Cart createCart004_S() {
         return new Cart(4L, 4L, Status.SUBMITTED, new BigDecimal("80"),  BigDecimal.ZERO);
     }
 
@@ -29,7 +29,7 @@ public class CartsData {
         Cart mock01 = createCart001();
         Cart mock02 = createCart002();
         Cart mock03 = createCart003();
-        Cart mock04 = createCart004();
+        Cart mock04 = createCart004_S();
         return List.of(mock01, mock02, mock03, mock04);
     }
 }

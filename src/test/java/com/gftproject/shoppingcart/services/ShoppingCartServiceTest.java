@@ -2,6 +2,7 @@ package com.gftproject.shoppingcart.services;
 
 import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.exceptions.CartNotFoundException;
+import com.gftproject.shoppingcart.exceptions.CartIsAlreadySubmittedException;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
@@ -131,7 +132,7 @@ class ShoppingCartServiceTest {
 
     @Test
     @DisplayName("GIVEN a cart Id  WHEN cart is submitted  THEN status is submitted")
-    void submitCartStock() throws ProductNotFoundException, NotEnoughStockException, UserNotFoundException {
+    void submitCartStock() throws ProductNotFoundException, NotEnoughStockException, UserNotFoundException, CartIsAlreadySubmittedException {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
         when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(4), new BigDecimal(5)));
         when(computationsService.applyTaxes(any(), anyDouble(), anyDouble(), anyDouble())).thenReturn(new BigDecimal(6));
@@ -174,6 +175,21 @@ class ShoppingCartServiceTest {
     }
 
     @Test
+    @DisplayName("GIVEN a cart Id WHEN cart is submitted THEN thow cart already submitted exception")
+    void submitCartAlreadySubmitted() throws UserNotFoundException {
+        when(cartRepository.findById(any())).thenReturn(Optional.of(createCart004_S()));
+        when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(4), new BigDecimal(5)));
+        when(userService.getUserById(any())).thenReturn(new User(1L, "SPAIN", "VISA")); // Need to talk with user microservice
+        when(cartProductsRepository.findAllByCartId(anyLong())).thenReturn(List.of(ProductData.createCartProductFalse()));
+        when(countryRepository.findById(any())).thenReturn(Optional.of(new Country("Stony", 1.5)));
+        when(paymentRepository.findById(any())).thenReturn(Optional.of(new Payment("VISA", 2.5)));
+
+        assertThrows(CartIsAlreadySubmittedException.class, () -> {
+            service.submitCart(1L); // Submit the cart
+        });
+    }
+
+    @Test
     @DisplayName("GIVEN a cart Id with products without stock  WHEN cart is submitted  THEN error is shown")
     void submitCartIncompleteCountry() throws UserNotFoundException {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
@@ -205,7 +221,7 @@ class ShoppingCartServiceTest {
 
     @Test
     @DisplayName("GIVEN a cart Id and products with quantity WHEN addProductToCartWithQuantity THEN add product to cart and check stock")
-    void addProductToCartWithQuantity_productWithStock() throws ProductNotFoundException, NotEnoughStockException, CartNotFoundException {
+    void addProductToCartWithQuantity_productWithStock() throws ProductNotFoundException, NotEnoughStockException,  CartNotFoundException, CartIsAlreadySubmittedException {
         // Arrange
         long userId = 1L;
         long cartId = 2L;
@@ -247,7 +263,7 @@ class ShoppingCartServiceTest {
 
     @Test
     @DisplayName("GIVEN a cart Id and products with quantity WHEN addProductToCartWithQuantity THEN add product to cart and check stock")
-    void addProductToCartWithQuantity_NoCart() throws ProductNotFoundException, NotEnoughStockException, CartNotFoundException {
+    void addProductToCartWithQuantity_NoCart() throws ProductNotFoundException, NotEnoughStockException, CartNotFoundException ,CartIsAlreadySubmittedException{
         Cart cart = new Cart(5L, 1L, Status.DRAFT,  BigDecimal.ZERO, BigDecimal.ZERO);
         ProductDTO product = new ProductDTO(1L, new BigDecimal(3), 5, new BigDecimal(4));
 
@@ -265,8 +281,23 @@ class ShoppingCartServiceTest {
     }
 
     @Test
+    @DisplayName("GIVEN a cart Id of a submitted cart WHEN addProductToCartWithQuantity THEN throw already submitted exception")
+    void addProductToCartAlreadySubmitted() throws ProductNotFoundException {
+        Cart cart = new Cart(4L, 1L, Status.SUBMITTED, new BigDecimal(14), BigDecimal.ZERO);
+        ProductDTO product = new ProductDTO(1L, new BigDecimal(3), 5, new BigDecimal(4));
+
+        when(cartRepository.findById(any())).thenReturn(Optional.of(cart));
+        when(cartRepository.save(any())).thenReturn(cart);
+        when(productService.getProductById(any())).thenReturn(product);
+
+        assertThrows(CartIsAlreadySubmittedException.class, () -> {
+            service.addProductToCartWithQuantity(1L, 5L, 5L, 10); // Submit the cart
+        });
+    }
+
+    @Test
     @DisplayName("GIVEN a cart Id and products with quantity WHEN addProductToCartWithQuantity THEN add product to cart and check stock")
-    void addProductToCartWithQuantity_NoStock() throws ProductNotFoundException, NotEnoughStockException {
+    void addProductToCartWithQuantity_NoStock() throws ProductNotFoundException {
         Cart cart = new Cart(4L, 1L, Status.DRAFT, new BigDecimal(14), BigDecimal.ZERO);
         ProductDTO product = new ProductDTO(1L, new BigDecimal(3), 5, new BigDecimal(4));
 

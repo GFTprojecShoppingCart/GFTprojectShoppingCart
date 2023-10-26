@@ -3,6 +3,7 @@ package com.gftproject.shoppingcart.controllers;
 import com.gftproject.shoppingcart.CartsData;
 import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.exceptions.CartNotFoundException;
+import com.gftproject.shoppingcart.exceptions.CartIsAlreadySubmittedException;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
@@ -58,7 +59,7 @@ class ShoppingCartControllerTest {
     @DisplayName("GIVEN a status as parameter WHEN the controller is called THEN returns a filtered list of carts")
     void findAllByStatus() {
 
-        given(service.findAllByStatus(any())).willReturn(List.of(CartsData.createCart004()));
+        given(service.findAllByStatus(any())).willReturn(List.of(CartsData.createCart004_S()));
         given(service.findAll()).willReturn(CartsData.getMockCarts());
 
         ResponseEntity<List<Cart>> response = controller.findAllByStatus(Status.SUBMITTED);
@@ -94,7 +95,7 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN a cartId WHEN the controller is called THEN the cart status will change to submitted")
-    void submitCart() throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException {
+    void submitCart() throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException, CartIsAlreadySubmittedException {
         given(service.submitCart(any())).willReturn(CartsData.createCart001());
 
         ResponseEntity<Cart> cart = controller.submitCart("1");
@@ -106,7 +107,7 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN a cartId WHEN the controller is called THEN a BadRequest httpStatus will be returned")
-    void submitCartBadRequest() throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException {
+    void submitCartBadRequest() throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException, CartIsAlreadySubmittedException {
         given(service.submitCart(any())).willReturn(CartsData.createCart001());
 
         ResponseEntity<Cart> cart = controller.submitCart("A");
@@ -140,7 +141,7 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN cartId, product and quantity WHEN product is added THEN response is OK")
-    void testAddProductToCartWithQuantity() throws ProductNotFoundException, NotEnoughStockException, CartNotFoundException {
+    void testAddProductToCartWithQuantity() throws ProductNotFoundException, NotEnoughStockException, CartNotFoundException , CartIsAlreadySubmittedException{
 
         when(service.addProductToCartWithQuantity(anyLong(), anyLong(), anyInt())).thenReturn(CartsData.createCart001());
 
