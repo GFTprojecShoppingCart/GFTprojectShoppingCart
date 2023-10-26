@@ -9,8 +9,8 @@ spring:
     activate:
       on-profile: dev
   app-properties:
-    userEndpoint: "http://localhost:8887"
-    productEndpoint: "http://localhost:8887"
+    userEndpoint: "http://localhost:8086"
+    productEndpoint: "http://localhost:8084"
   datasource:
     url: jdbc:h2:mem:devdb
     driver-class-name: org.h2.Driver
@@ -26,8 +26,8 @@ spring:
     activate:
       on-profile: test
   app-properties:
-    userEndpoint: "http://localhost:8887"
-    productEndpoint: "http://localhost:8887"
+    userEndpoint: "http://localhost:8086"
+    productEndpoint: "http://localhost:8084"
   datasource:
     url: jdbc:h2:mem:testdb
     driver-class-name: org.h2.Driver
@@ -40,8 +40,8 @@ spring:
     activate:
       on-profile: default
   app-properties:
-    userEndpoint: "http://localhost:8887"
-    productEndpoint: "http://localhost:8887"
+    userEndpoint: "http://localhost:8086"
+    productEndpoint: "http://localhost:8084"
   datasource:
     url: jdbc:h2:mem:defaultdb
     driver-class-name: org.h2.Driver
