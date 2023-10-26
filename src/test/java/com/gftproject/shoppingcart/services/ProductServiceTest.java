@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -86,5 +87,43 @@ class ProductServiceTest {
         assertThat(result).isNotNull().isEqualTo(mockResponse);
         // Verificar que el ID del resultado coincida con los ID de los productos en productList
         assertThat(result).extracting(ProductDTO::getId).containsExactlyElementsOf(productList.stream().map(CartProduct::getProduct).collect(Collectors.toList()));
+    }
+
+    @Test
+    @DisplayName("GIVEN a list of products WHEN is sent to the microservice THEN throws error if there's not enough stock")
+    void test_submit_purchase_not_enough_stock() {
+        List<CartProduct> productList = new ArrayList<>();
+        productList.add(new CartProduct(new Cart(), 1L, true, 5));
+
+        ResponseEntity<List<ProductDTO>> mockResponseEntity = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(mockResponseEntity);
+
+        assertThrows(NotEnoughStockException.class, () -> productService.submitPurchase(productList));
+    }
+
+    @Test
+    @DisplayName("GIVEN a list of products WHEN is sent to the microservice THEN throws error if there's not enough stock")
+    void submitPurchaseProductNotFound() {
+        List<CartProduct> productList = new ArrayList<>();
+        productList.add(new CartProduct(new Cart(), 1L, true, 5));
+
+        ResponseEntity<List<ProductDTO>> mockResponseEntity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(mockResponseEntity);
+
+        assertThrows(ProductNotFoundException.class, () -> productService.submitPurchase(productList));
+    }
+
+    @Test
+    @DisplayName("GIVEN a non existing productId WHEN is sent to the microservice THEN throws error")
+    void getProductByIdNotFound() {
+        // Arrange
+        Long productId = 123L;
+        ResponseEntity<ProductDTO> mockResponseEntity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(), eq(ProductDTO.class))).thenReturn(mockResponseEntity);
+
+        // Act and Assert
+        assertThrows(ProductNotFoundException.class, () -> {
+            productService.getProductById(productId);
+        });
     }
 }
