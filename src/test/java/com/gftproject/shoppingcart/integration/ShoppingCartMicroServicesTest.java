@@ -1,6 +1,7 @@
 package com.gftproject.shoppingcart.integration;
 
 import com.gftproject.shoppingcart.model.CartProduct;
+import com.gftproject.shoppingcart.model.ProductDTO;
 import com.gftproject.shoppingcart.repositories.CartProductsRepository;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -25,6 +26,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 
 import jakarta.annotation.PostConstruct;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -93,8 +95,7 @@ public class ShoppingCartMicroServicesTest {
                             .withBody("[{\"id\": 2, \"price\": 10.0, \"stock\": 100, \"weight\": 0.5}]")));
 
         // Parámetros de solicitud
-        long userId = 1L;
-        long cartId = 4L;
+        long cartId = 1L;
         long productId = 2L;
         int quantity = 5;
 
@@ -106,15 +107,10 @@ public class ShoppingCartMicroServicesTest {
                 .expectBodyList(Cart.class)
                 .hasSize(3); //Esperamos 3 elementos en la lista de carritos del cliente
 
-        // Create one cart
-        client.post().uri("/carts/{userId}", userId)
-                .accept(APPLICATION_JSON) //se acepta el tipo de contenido
-                .exchange() //envia la solicitud HTTP al servidor.
-                .expectStatus().isCreated();
 
 
         client.put()
-            .uri("/{userId}/carts/{cartId}/addProduct/{productId}?quantity={quantity}",userId, cartId, productId,quantity)
+            .uri("/carts/{cartId}/addProduct/{productId}?quantity={quantity}", cartId, productId,quantity)
             .contentType(APPLICATION_JSON)
             .accept(APPLICATION_JSON)
             .exchange()
@@ -123,8 +119,8 @@ public class ShoppingCartMicroServicesTest {
                 .jsonPath("$.id").isNumber()
                 .jsonPath("$.userId").isNumber()
                 .jsonPath("$.status").isEqualTo("DRAFT")
-                .jsonPath("$.finalPrice").isEqualTo(10.00)
-                .jsonPath("$.finalWeight").isEqualTo(0.50);
+                .jsonPath("$.finalPrice").isEqualTo(50.00)
+                .jsonPath("$.finalWeight").isEqualTo(2.50);
 
         
     }
@@ -142,13 +138,12 @@ public class ShoppingCartMicroServicesTest {
                         .withBody("[{\"id\": 2, \"price\": 10.0, \"stock\": 4, \"weight\": 0.5}]"))); // Stock insuficiente (4)
     
         // Parámetros de solicitud
-        long userId = 1L;
-        long cartId = 4L;
+        long cartId = 1L;
         long productId = 2L;
         int quantity = 5;
 
         client.put()
-                .uri("/{userId}/carts/{cartId}/addProduct/{productId}?quantity={quantity}", userId, cartId, productId, quantity)
+                .uri("/carts/{cartId}/addProduct/{productId}?quantity={quantity}", cartId, productId, quantity)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .exchange()
@@ -199,7 +194,7 @@ public class ShoppingCartMicroServicesTest {
                                 "}"
                             )));
 
-        long cartId = 4L;
+        long cartId = 1L;
 
         client.put()
                 .uri("/carts/{cartId}",cartId)
@@ -220,13 +215,41 @@ public class ShoppingCartMicroServicesTest {
     @Order(4)
     @DisplayName("GIVEN cart with products WHEN update stock THEN product not enough stock")
     void testCreateCartAddProductAndUpdateStock() {
+        wireMockServerUser.stubFor(WireMock.get(WireMock.urlMatching("/users/1"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "    \"id\": 1,\n" +
+                                "    \"name\": \"John\",\n" +
+                                "    \"lastName\": \"Doe\",\n" +
+                                "    \"address\": {\n" +
+                                "        \"id\": 1,\n" +
+                                "        \"street\": \"Sunset Blvd\",\n" +
+                                "        \"city\": \"Barcelona\",\n" +
+                                "        \"province\": \"Catalonia\",\n" +
+                                "        \"postalCode\": 12345,\n" +
+                                "        \"country\": {\n" +
+                                "            \"id\": 1,\n" +
+                                "            \"name\": \"Spain\"\n" +
+                                "        }\n" +
+                                "    },\n" +
+                                "    \"paymentMethod\": {\n" +
+                                "        \"id\": 1,\n" +
+                                "        \"name\": \"Credit Card\"\n" +
+                                "    },\n" +
+                                "    \"fidelityPoints\": 100,\n" +
+                                "    \"averagePurchase\": 75.5\n" +
+                                "}"
+                        )));
+
         wireMockServerProduct.stubFor(WireMock.post(WireMock.urlMatching("/products/getBasicInfo")).withRequestBody(WireMock.equalToJson("[2]"))
                 .willReturn(aResponse().withStatus(200)
                         .withHeader("Content-Type", "application/json")
                         .withBody("[{\"id\": 2, \"price\": 10.0, \"stock\": 100, \"weight\": 0.5}]")));
 
         long userId = 1L;
-        long cartId = 1L;
+        long cartId = 4L;
         long productId = 2L;
         int quantity = 5;
 
@@ -240,8 +263,10 @@ public class ShoppingCartMicroServicesTest {
                 .returnResult()
                 .getResponseBody();
 
+        System.out.println(createdCart);
+
         client.put()
-                .uri("/{userId}/carts/{cartId}/addProduct/{productId}?quantity={quantity}", userId, cartId, productId, quantity)
+                .uri("/carts/{cartId}/addProduct/{productId}?quantity={quantity}", cartId, productId, quantity)
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
                 .exchange()
@@ -250,36 +275,97 @@ public class ShoppingCartMicroServicesTest {
                 .jsonPath("$.id").isNumber()
                 .jsonPath("$.userId").isEqualTo(userId)
                 .jsonPath("$.status").isEqualTo("DRAFT")
-                .jsonPath("$.finalPrice").isEqualTo(10.00)
-                .jsonPath("$.finalWeight").isEqualTo(0.50);
+                .jsonPath("$.finalPrice").isEqualTo(50.00)
+                .jsonPath("$.finalWeight").isEqualTo(2.50);
 
-        List<CartProduct> cartProducts = cartProductsRepository.findAllByCartId(createdCart.getId());
+
+
+        List<ProductDTO> productUpdated = List.of(new ProductDTO(2L, new BigDecimal(10), 3, new BigDecimal("0.5")));
 
         client.put()
                 .uri("/carts/updateStock/")
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .bodyValue(cartProducts)
+                .bodyValue(productUpdated)
                 .exchange()
                 .expectStatus().isOk();
 
         wireMockServerProduct.verify(WireMock.postRequestedFor(WireMock.urlEqualTo("/products/getBasicInfo")));
 
+        List<CartProduct> cartProducts = cartProductsRepository.findAllByCartId(createdCart.getId());
+
+        System.out.println(cartProducts);
 
 
         for (CartProduct cartProduct : cartProducts) {
             assertFalse(cartProduct.isValid());
-
+        }
             client.put()
-                    .uri("/{userId}/carts/{cartId}/submitCart", userId, cartId)
+                    .uri("/carts/{cartId}" ,cartId)
                     .contentType(APPLICATION_JSON)
                     .accept(APPLICATION_JSON)
                     .exchange()
-                    .expectStatus().isOk()
-                    .expectBody()
-                    .jsonPath("$.status").isEqualTo("DRAFT");
-        }
+                    .expectStatus().isEqualTo(HttpStatus.CONFLICT);
+
     }
-    
-    
+
+    @Test
+    @Order(5)
+    @DisplayName("GIVEN an user id WHEN a cart is created")
+    void createCartTest() {
+        Long userID = 1L;
+
+        wireMockServerUser.stubFor(WireMock.get(WireMock.urlMatching("/users/1"))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withHeader("Content-Type", "application/json")
+                        .withBody("{\n" +
+                                "    \"id\": 1,\n" +
+                                "    \"name\": \"John\",\n" +
+                                "    \"lastName\": \"Doe\",\n" +
+                                "    \"address\": {\n" +
+                                "        \"id\": 1,\n" +
+                                "        \"street\": \"Sunset Blvd\",\n" +
+                                "        \"city\": \"Barcelona\",\n" +
+                                "        \"province\": \"Catalonia\",\n" +
+                                "        \"postalCode\": 12345,\n" +
+                                "        \"country\": {\n" +
+                                "            \"id\": 1,\n" +
+                                "            \"name\": \"Spain\"\n" +
+                                "        }\n" +
+                                "    },\n" +
+                                "    \"paymentMethod\": {\n" +
+                                "        \"id\": 1,\n" +
+                                "        \"name\": \"Credit Card\"\n" +
+                                "    },\n" +
+                                "    \"fidelityPoints\": 100,\n" +
+                                "    \"averagePurchase\": 75.5\n" +
+                                "}"
+                        )));
+
+        client.get().uri("/carts/").exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON) //para validar la cabecera con contenido
+                // json
+                .expectBodyList(Cart.class)
+                .hasSize(4); //Esperamos 3 elementos en la lista de carritos del cliente
+
+        // When
+        client.post().uri("/carts/{userId}", userID)
+                .accept(APPLICATION_JSON) //se acepta el tipo de contenido
+                .exchange() //envia la solicitud HTTP al servidor.
+                .expectStatus().isCreated();
+
+        client.get().uri("/carts/").exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBodyList(Cart.class)
+                .hasSize(5);//Una vez añadido el carrito, esperamos que haya 1 más en la lista
+
+//        // Se simula la creación de un carrito para un usuario que no existe
+//        client.post().uri("/carts/" + nonExistentUserId)
+//                .accept(APPLICATION_JSON)
+//                .exchange()
+//                .expectStatus().isNotFound(); // Esperamos que la respuesta sea 404 (Not Found)
+    }
 }

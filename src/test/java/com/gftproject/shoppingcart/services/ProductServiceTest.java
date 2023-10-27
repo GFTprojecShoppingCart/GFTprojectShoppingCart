@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
@@ -96,7 +97,7 @@ class ProductServiceTest {
         productList.add(new CartProduct(new Cart(), 1L, true, 5));
 
         ResponseEntity<List<ProductDTO>> mockResponseEntity = new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(mockResponseEntity);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 
         assertThrows(NotEnoughStockException.class, () -> productService.submitPurchase(productList));
     }
@@ -107,10 +108,20 @@ class ProductServiceTest {
         List<CartProduct> productList = new ArrayList<>();
         productList.add(new CartProduct(new Cart(), 1L, true, 5));
 
-        ResponseEntity<List<ProductDTO>> mockResponseEntity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(mockResponseEntity);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
 
         assertThrows(ProductNotFoundException.class, () -> productService.submitPurchase(productList));
+    }
+
+    @Test
+    @DisplayName("GIVEN a list of products WHEN is sent to the microservice THEN throws error if there's not enough stock")
+    void submitPurchaseProductElse() {
+        List<CartProduct> productList = new ArrayList<>();
+        productList.add(new CartProduct(new Cart(), 1L, true, 5));
+
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenThrow(new HttpClientErrorException(HttpStatus.I_AM_A_TEAPOT));
+
+        assertThrows(HttpClientErrorException.class, () -> productService.submitPurchase(productList));
     }
 
     @Test
@@ -118,11 +129,23 @@ class ProductServiceTest {
     void getProductByIdNotFound() {
         // Arrange
         Long productId = 123L;
-        ResponseEntity<ProductDTO> mockResponseEntity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenReturn(mockResponseEntity);
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
 
         // Act and Assert
         assertThrows(ProductNotFoundException.class, () -> {
+            productService.getProductById(productId);
+        });
+    }
+
+    @Test
+    @DisplayName("GIVEN a non existing productId WHEN is sent to the microservice THEN throws error")
+    void getProductByIdNotFoundElse() {
+        // Arrange
+        Long productId = 123L;
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenThrow(new HttpClientErrorException(HttpStatus.I_AM_A_TEAPOT));
+
+        // Act and Assert
+        assertThrows(HttpClientErrorException.class, () -> {
             productService.getProductById(productId);
         });
     }

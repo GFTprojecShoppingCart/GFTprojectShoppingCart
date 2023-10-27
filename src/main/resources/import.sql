@@ -2,7 +2,7 @@ INSERT INTO cart (user_id, status, final_price, final_weight) VALUES (1, 'DRAFT'
 INSERT INTO cart (user_id, status, final_price, final_weight) VALUES (1, 'SUBMITTED', 4.5, 0);
 INSERT INTO cart (user_id, status, final_price, final_weight) VALUES (2, 'SUBMITTED', 30, 40);
 
-INSERT INTO cart_product(cart_id, product, quantity, valid) VALUES (1, 1, 20, 0);
+INSERT INTO cart_product(cart_id, product, quantity, valid) VALUES (2, 1, 20, 0);
 INSERT INTO cart_product(cart_id, product, quantity, valid) VALUES (2, 2, 10, 0);
 
 INSERT INTO country (name, tax_percentage) VALUES ('Spain'      , 21);

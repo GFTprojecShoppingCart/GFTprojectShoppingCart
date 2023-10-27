@@ -1,9 +1,13 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.exceptions.CartIsAlreadySubmittedException;
+import com.gftproject.shoppingcart.exceptions.CartNotFoundException;
+import com.gftproject.shoppingcart.exceptions.CartNotFoundException;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.CartProduct;
 import com.gftproject.shoppingcart.model.ProductDTO;
 import com.gftproject.shoppingcart.model.Status;
 
@@ -19,13 +23,15 @@ public interface ShoppingCartService {
 
     Cart createCart(Long userId) throws UserNotFoundException;
 
-    Cart addProductToCartWithQuantity(long userId, long cartId, long productId, int quantity) throws ProductNotFoundException, NotEnoughStockException;
+    Cart addProductToCartWithQuantity( long cartId, long productId, int quantity) throws ProductNotFoundException, NotEnoughStockException, CartIsAlreadySubmittedException, CartNotFoundException;
 
     void deleteCart(Long idCart);
 
-    Cart submitCart(Long idCart) throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException;
+    Cart submitCart(Long idCart) throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException, CartIsAlreadySubmittedException;
 
     void updateProductsFromCarts(List<ProductDTO> products);
 
-    void deleteProductFromCart(Long cartId, Long productId);
+    void deleteProductFromCart(Long cartId, Long productId) throws CartNotFoundException, ProductNotFoundException;
+
+    List<CartProduct> findAllByCartId(Long cartId);
 }
