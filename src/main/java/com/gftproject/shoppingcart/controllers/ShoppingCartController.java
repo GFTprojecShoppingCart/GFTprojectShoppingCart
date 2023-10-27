@@ -1,12 +1,16 @@
 package com.gftproject.shoppingcart.controllers;
 
+import com.gftproject.shoppingcart.exceptions.CartNotFoundException;
+import com.gftproject.shoppingcart.exceptions.CartIsAlreadySubmittedException;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
+import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
-import com.gftproject.shoppingcart.model.Product;
+import com.gftproject.shoppingcart.model.CartProduct;
+import com.gftproject.shoppingcart.model.ProductDTO;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartService;
-import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
+import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -30,11 +34,8 @@ public class ShoppingCartController {
 
         List<Cart> cartList = service.findAllByUserId(userId);
 
-        if (cartList.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(cartList, HttpStatus.OK);
-        }
+        return new ResponseEntity<>(cartList, HttpStatus.OK);
+
     }
 
 
@@ -51,11 +52,17 @@ public class ShoppingCartController {
         return new ResponseEntity<>(cartList, headers, HttpStatus.OK);
     }
 
+    @GetMapping("/cartsProducts/{cartId}")
+    public ResponseEntity<List<CartProduct>> findAllByCartId(@PathVariable Long cartId) {
+
+        return new ResponseEntity<>(service.findAllByCartId(cartId), new HttpHeaders(), HttpStatus.OK);
+    }
+
 
     @PostMapping("/carts/{userId}")
-    public ResponseEntity<Cart> createCart(@PathVariable String userId) {
+    public ResponseEntity<Cart> createCart(@PathVariable String userId) throws UserNotFoundException {
         HttpHeaders headers = new HttpHeaders();
-        if(!StringUtils.isNumeric(userId)){
+        if (!StringUtils.isNumeric(userId)) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
@@ -63,45 +70,45 @@ public class ShoppingCartController {
     }
 
     @PutMapping("/carts/{cartId}")
-    public ResponseEntity<Cart> submitCart(@PathVariable String cartId) throws NotEnoughStockException, ProductNotFoundException {
+    public ResponseEntity<Cart> submitCart(@PathVariable String cartId) throws NotEnoughStockException, ProductNotFoundException, UserNotFoundException, CartIsAlreadySubmittedException {
 
-        try {
-            if(!StringUtils.isNumeric(cartId)){
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-            return new ResponseEntity<>(service.submitCart(Long.parseLong(cartId)), new HttpHeaders(), HttpStatus.OK);
-        } catch (NotEnoughStockException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        } catch (ProductNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (!StringUtils.isNumeric(cartId)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+        return new ResponseEntity<>(service.submitCart(Long.parseLong(cartId)), new HttpHeaders(), HttpStatus.OK);
+
     }
 
     @PutMapping("/carts/{cartId}/addProduct/{productId}")
     public ResponseEntity<Cart> addProductToCart(
             @PathVariable Long cartId,
             @PathVariable Long productId,
-            @RequestParam int quantity) throws ProductNotFoundException {
+            @RequestParam int quantity) throws ProductNotFoundException, NotEnoughStockException,CartNotFoundException, CartIsAlreadySubmittedException {
 
         HttpHeaders headers = new HttpHeaders();
 
         Cart updatedCart = service.addProductToCartWithQuantity(cartId, productId, quantity);
 
-        if (updatedCart == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
         return new ResponseEntity<>(updatedCart, headers, HttpStatus.OK);
     }
 
+    @DeleteMapping("/carts/{cartId}/product/{productId}")
+    public ResponseEntity<Void> deleteProductFromCart(
+            @PathVariable Long cartId,
+            @PathVariable Long productId) throws CartNotFoundException, ProductNotFoundException {
+
+        service.deleteProductFromCart(cartId, productId);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @PutMapping("/carts/updateStock/")
-    public ResponseEntity<List<Cart>> updateProductsFromCarts(@RequestBody List<Product> products) {
-        List<Cart> updatedCarts = service.updateProductsFromCarts(products);
-        return new ResponseEntity<>(updatedCarts, new HttpHeaders(), HttpStatus.OK);
+    public ResponseEntity<Void> updateProductsFromCarts(@Valid @RequestBody List<ProductDTO> products) {
+        service.updateProductsFromCarts(products);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/carts/{idCart}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-//    public void deleteShoppingCart(@PathVariable Long idCart) { //eliminar return
     public ResponseEntity<Void> deleteShoppingCart(@PathVariable Long idCart) {
         service.deleteCart(idCart);
 

@@ -5,9 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
-import com.gftproject.shoppingcart.model.Product;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +15,14 @@ import com.gftproject.shoppingcart.model.Cart;
 import com.gftproject.shoppingcart.model.Status;
 
 @DataJpaTest
-class ShoppingCartRepositoryTest {
+class CartRepositoryTest {
 
     @Autowired
-    ShoppingCartRepository shoppingCartRepository;
+    CartRepository shoppingCartRepository;
 
 
     @Test
-    @DisplayName("Find all by Carts by Status")
+    @DisplayName("GIVEN an userId WHEN the repository is called THEN returns all carts of a user")
     void testFindAllByUserId() {
         List<Cart> cart = shoppingCartRepository.findAllByUserId(1L);
 
@@ -36,11 +34,20 @@ class ShoppingCartRepositoryTest {
 
     @Test
     @DisplayName("GIVEN a status WHEN testFindAllByStatus THEN find all carts by status")
-    void testFindAllByStatus() {
+    void testFindAllByStatusDRAFT() {
         List<Cart> cart = shoppingCartRepository.findAllByStatus(Status.DRAFT);
 
         assertFalse(cart.isEmpty());
-        assertThat(cart).isNotEmpty().hasSize(2);
+        assertThat(cart).isNotEmpty().hasSize(1);
+    }
+
+    @Test
+    @DisplayName("GIVEN a status WHEN testFindAllByStatus THEN find all carts by status")
+    void testFindAllByStatusSUBMITTED() {
+        List<Cart> cart = shoppingCartRepository.findAllByStatus(Status.DRAFT);
+
+        assertFalse(cart.isEmpty());
+        assertThat(cart).isNotEmpty().hasSize(1);
     }
 
     @Test

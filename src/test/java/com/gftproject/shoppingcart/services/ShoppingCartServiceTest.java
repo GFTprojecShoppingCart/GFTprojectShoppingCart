@@ -1,34 +1,39 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.CartsData;
+import com.gftproject.shoppingcart.ProductData;
+import com.gftproject.shoppingcart.exceptions.CartNotFoundException;
+import com.gftproject.shoppingcart.exceptions.CartIsAlreadySubmittedException;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
-import com.gftproject.shoppingcart.model.Cart;
-import com.gftproject.shoppingcart.model.Product;
-import com.gftproject.shoppingcart.model.Status;
-import com.gftproject.shoppingcart.model.User;
+import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
+import com.gftproject.shoppingcart.model.*;
+import com.gftproject.shoppingcart.repositories.CartProductsRepository;
+import com.gftproject.shoppingcart.repositories.CartRepository;
 import com.gftproject.shoppingcart.repositories.CountryRepository;
 import com.gftproject.shoppingcart.repositories.PaymentRepository;
-import com.gftproject.shoppingcart.repositories.ShoppingCartRepository;
-
 import org.antlr.v4.runtime.misc.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import javax.swing.text.html.Option;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static com.gftproject.shoppingcart.CartsData.*;
-import static com.gftproject.shoppingcart.ProductData.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyMap;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 
@@ -37,7 +42,7 @@ class ShoppingCartServiceTest {
     ShoppingCartServiceImpl service;
 
     @Mock
-    ShoppingCartRepository cartRepository;
+    CartRepository cartRepository;
 
     @Mock
     CountryRepository countryRepository;
@@ -52,7 +57,10 @@ class ShoppingCartServiceTest {
     ProductServiceImpl productService;
 
     @Mock
-    UserServiceImpl userService;
+    UserService userService;
+
+    @Mock
+    CartProductsRepository cartProductsRepository;
 
 
     private List<Cart> carts;
@@ -61,23 +69,38 @@ class ShoppingCartServiceTest {
     void setUp() {
         // Instantiate Shopping cart Service and instantiate con new mock de repository
         MockitoAnnotations.openMocks(this);
-        service = new ShoppingCartServiceImpl(cartRepository, computationsService, productService, userService, countryRepository, paymentRepository);
+
+        service = new ShoppingCartServiceImpl(cartRepository, computationsService, productService, userService, countryRepository, paymentRepository, cartProductsRepository);
         carts = Arrays.asList(Optional.of(createCart001()).orElseThrow(), createCart002(), createCart003());
     }
 
     @Test
     @DisplayName("GIVEN an userId WHEN a cart is created THEN returns the created cart associated to the user")
-    void createCart() {
+    void createCart() throws UserNotFoundException {
         Long userId = 1L;
         Cart expectedCart = new Cart();
         expectedCart.setUserId(userId);
 
+        when(userService.getUserById(userId)).thenReturn(null);
         when(cartRepository.save(any(Cart.class))).thenReturn(expectedCart);
 
         Cart createdCart = service.createCart(userId);
 
         verify(cartRepository, times(1)).save(any(Cart.class));
+        verify(userService, times(1)).getUserById(userId);
         assertThat(createdCart.getUserId()).isEqualTo(userId);
+    }
+    @Test
+    @DisplayName("GIVEN an invalid userID WHEN a cart is going to be created THEN it throws exception")
+    void createCartFailedTest() throws UserNotFoundException {
+        Long userId = 1L;
+        Cart expectedCart = new Cart();
+        expectedCart.setUserId(userId);
+
+        when(userService.getUserById(userId)).thenThrow(UserNotFoundException.class);
+        when(cartRepository.save(any(Cart.class))).thenReturn(expectedCart);
+
+       assertThrows(UserNotFoundException.class, () -> service.createCart(userId));
     }
 
     @Test
@@ -92,6 +115,20 @@ class ShoppingCartServiceTest {
         //then
         assertThat(allCarts).isNotNull().hasSize(3);
         verify(cartRepository).findAll();
+    }
+
+    @Test
+    @DisplayName("GIVEN the method is called WHEN findAll THEN provide a list of all carts")
+    void findAllByCartId() {
+        //Given
+        when(cartProductsRepository.findAllByCartId(anyLong())).thenReturn(List.of(ProductData.createCartProduct001()));
+
+        //when
+        List<CartProduct> allCarts = service.findAllByCartId(1L);
+
+        //then
+        assertThat(allCarts).isNotNull().hasSize(1);
+        verify(cartProductsRepository).findAllByCartId(anyLong());
     }
 
     @Test
@@ -111,121 +148,248 @@ class ShoppingCartServiceTest {
 
     @Test
     @DisplayName("GIVEN a cart Id  WHEN cart is submitted  THEN status is submitted")
-    void submitCartStock() throws ProductNotFoundException, NotEnoughStockException {
+    void submitCartStock() throws ProductNotFoundException, NotEnoughStockException, UserNotFoundException, CartIsAlreadySubmittedException {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
-        when(productService.getProductsByIds(any())).thenReturn(getWarehouseStock());
-        when(computationsService.checkStock(anyMap(), anyList())).thenReturn(Collections.emptyList()); //Empty list to check the correct stock pat
+        when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(4), new BigDecimal(5)));
+        when(computationsService.applyTaxes(any(), anyDouble(), anyDouble(), anyDouble())).thenReturn(new BigDecimal(6));
         when(userService.getUserById(any())).thenReturn(new User(1L, "SPAIN", "VISA")); // Need to talk with user microservice
-        when(computationsService.computeFinalValues(anyMap(), anyList())).thenReturn(new Pair<>(new BigDecimal(3), new BigDecimal(25)));
+        when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(3), new BigDecimal(25)));
+        when(countryRepository.findById(any())).thenReturn(Optional.of(new Country("Stony", 1.5)));
+        when(paymentRepository.findById(any())).thenReturn(Optional.of(new Payment("VISA", 2.5)));
         // Return the cart (the argument of the function) instead of execute the save in the repository.
         // As we change status, price and weight in the cart (the argument of the function) we can check the method works because the cart is changing. 
         //Now we can see if the cart change the STATUS and get the created pair
         when(cartRepository.save(any(Cart.class))).thenAnswer(invocation -> invocation.getArgument(0)); // Return submitted cart
-        
-        //TODO mock the country and payment repository to avoid NotFoundError
+
         Cart submittedCart = service.submitCart(1L);
 
         // Verify that the service method correctly calls the repository
         verify(cartRepository).findById(1L);
-        //verify(cartRepository).save(any());
         verify(userService).getUserById(submittedCart.getUserId());
-        verify(computationsService).computeFinalValues(anyMap(), anyList());
+        verify(computationsService).computeFinalWeightAndPrice(anyList(), anyList());
 
         assertThat(submittedCart).isNotNull();
-        assertThat(submittedCart.getFinalPrice()).isNotZero().isEqualTo(new BigDecimal(25));
+        assertThat(submittedCart.getFinalWeight()).isNotZero().isEqualTo(new BigDecimal(3));
+        assertThat(submittedCart.getFinalPrice()).isNotZero().isEqualTo(new BigDecimal(6));
         assertThat(submittedCart.getStatus()).isEqualTo(Status.SUBMITTED);
         assertThat(submittedCart.getId()).isEqualTo(1L);
     }
 
     @Test
     @DisplayName("GIVEN a cart Id with products without stock  WHEN cart is submitted  THEN error is shown")
-    void submitCartNoStock() throws ProductNotFoundException {
+    void submitCartNoStock() throws UserNotFoundException {
         when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
-        when(productService.getProductsByIds(any())).thenReturn(getWarehouseStock());
-        when(computationsService.checkStock(anyMap(), anyList())).thenReturn(List.of(1L, 2L)); // Simulate not enough stock for products with IDs 1 and 2
+        when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(4), new BigDecimal(5)));
+        when(userService.getUserById(any())).thenReturn(new User(1L, "SPAIN", "VISA")); // Need to talk with user microservice
+        when(cartProductsRepository.findAllByCartId(anyLong())).thenReturn(List.of(ProductData.createCartProductFalse()));
+        when(countryRepository.findById(any())).thenReturn(Optional.of(new Country("Stony", 1.5)));
+        when(paymentRepository.findById(any())).thenReturn(Optional.of(new Payment("VISA", 2.5)));
 
-    
-        //TODO mock all the repositories to test only testSumbit
-        // Act and Assert
         assertThrows(NotEnoughStockException.class, () -> {
             service.submitCart(1L); // Submit the cart
         });
+    }
 
-        // Verify that the service method correctly calls the repository and other services
-        verify(cartRepository).findById(1L);
-        verify(productService).getProductsByIds(anyList());
-        verify(computationsService).checkStock(anyMap(), anyList());
-        verify(userService).getUserById(any());
+    @Test
+    @DisplayName("GIVEN a cart Id WHEN cart is submitted THEN thow cart already submitted exception")
+    void submitCartAlreadySubmitted() throws UserNotFoundException {
+        when(cartRepository.findById(any())).thenReturn(Optional.of(createCart004_S()));
+        when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(4), new BigDecimal(5)));
+        when(userService.getUserById(any())).thenReturn(new User(1L, "SPAIN", "VISA")); // Need to talk with user microservice
+        when(cartProductsRepository.findAllByCartId(anyLong())).thenReturn(List.of(ProductData.createCartProductFalse()));
+        when(countryRepository.findById(any())).thenReturn(Optional.of(new Country("Stony", 1.5)));
+        when(paymentRepository.findById(any())).thenReturn(Optional.of(new Payment("VISA", 2.5)));
 
-        // Verify that the cart remains in "DRAFT" status
-        //assertEquals(Status.DRAFT, cart.getStatus());
+        assertThrows(CartIsAlreadySubmittedException.class, () -> {
+            service.submitCart(1L); // Submit the cart
+        });
+    }
+
+    @Test
+    @DisplayName("GIVEN a cart Id with products without stock  WHEN cart is submitted  THEN error is shown")
+    void submitCartIncompleteCountry() throws UserNotFoundException {
+        when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
+        when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(4), new BigDecimal(5)));
+        when(userService.getUserById(any())).thenReturn(new User(1L, "SPAIN", "VISA")); // Need to talk with user microservice
+        when(cartProductsRepository.findAllByCartId(anyLong())).thenReturn(List.of(ProductData.createCartProductFalse()));
+        when(countryRepository.findById(any())).thenReturn(Optional.empty());
+        when(paymentRepository.findById(any())).thenReturn(Optional.of(new Payment("VISA", 1.5)));
+
+        assertThrows(UserNotFoundException.class, () -> {
+            service.submitCart(1L); // Submit the cart
+        });
+    }
+
+    @Test
+    @DisplayName("GIVEN a cart Id with products without stock  WHEN cart is submitted  THEN error is shown")
+    void submitCartIncompletePayment() throws UserNotFoundException {
+        when(cartRepository.findById(any())).thenReturn(Optional.of(createCart001()));
+        when(computationsService.computeFinalWeightAndPrice(anyList(), anyList())).thenReturn(new Pair<>(new BigDecimal(4), new BigDecimal(5)));
+        when(userService.getUserById(any())).thenReturn(new User(1L, "SPAIN", "VISA")); // Need to talk with user microservice
+        when(cartProductsRepository.findAllByCartId(anyLong())).thenReturn(List.of(ProductData.createCartProductFalse()));
+        when(countryRepository.findById(any())).thenReturn(Optional.of(new Country("Stony", 1.5)));
+        when(paymentRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> {
+            service.submitCart(1L); // Submit the cart
+        });
     }
 
     @Test
     @DisplayName("GIVEN a cart Id and products with quantity WHEN addProductToCartWithQuantity THEN add product to cart and check stock")
-    void addProductToCartWithQuantity() throws ProductNotFoundException {
-        Cart cart = new Cart(1L, new ArrayList<>(), new HashMap<>(), 1L, Status.DRAFT, new BigDecimal(14), BigDecimal.ZERO);
-        Product product = new Product(1L, new BigDecimal(3), new BigDecimal("0.5"), 5);
+    void addProductToCartWithQuantity_productWithStock() throws ProductNotFoundException, NotEnoughStockException,  CartNotFoundException, CartIsAlreadySubmittedException {
+        // Arrange
+        long userId = 1L;
+        long cartId = 2L;
+        long productId = 3L;
+        int quantity = 5;
+
+        Cart cart = new Cart();
+        cart.setUserId(userId);
+        cart.setFinalPrice(BigDecimal.ZERO);
+        cart.setFinalWeight(BigDecimal.ZERO);
+        cart.setStatus(Status.DRAFT);
+
+        ProductDTO product = new ProductDTO();
+        product.setId(productId);
+        product.setPrice(BigDecimal.valueOf(10));
+        product.setWeight(BigDecimal.valueOf(20));
+        product.setStock(quantity + 1); // Set stock to be greater than quantity
+
+        CartProduct cartProduct = new CartProduct(cart, productId, true, quantity);
+
+        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+        when(productService.getProductById(productId)).thenReturn(product);
+        when(cartProductsRepository.findByCartAndProduct(cart, productId)).thenReturn(cartProduct);
+
+        // Act
+        Cart result = service.addProductToCartWithQuantity(cartId, productId, quantity);
+
+        // Assert
+        assertThat(result).isEqualTo(cart);
+        assertThat(result.getFinalPrice()).usingComparator(BigDecimal::compareTo).isEqualTo(BigDecimal.valueOf(50));
+        assertThat(cartProduct.getQuantity()).isEqualTo(quantity);
+
+        verify(cartRepository, times(1)).findById(cartId);
+        verify(productService, times(1)).getProductById(productId);
+        verify(cartProductsRepository, times(1)).findByCartAndProduct(cart, productId);
+        verify(cartRepository, times(1)).save(cart);
+        verify(cartProductsRepository, times(1)).save(cartProduct);
+    }
+
+    @Test
+    @DisplayName("GIVEN a cart Id and products with quantity WHEN addProductToCartWithQuantity THEN add product to cart and check stock")
+    void addProductToCartWithQuantity_NoCart() throws ProductNotFoundException, NotEnoughStockException, CartNotFoundException ,CartIsAlreadySubmittedException{
+        Cart cart = new Cart(5L, 1L, Status.DRAFT,  BigDecimal.ZERO, BigDecimal.ZERO);
+        ProductDTO product = new ProductDTO(1L, new BigDecimal(3), 5, new BigDecimal(4));
+
+        when(cartRepository.findById(any())).thenReturn(Optional.empty());
+        when(cartRepository.save(any(Cart.class))).thenReturn(cart);
+        when(productService.getProductById(any())).thenReturn(product);
+
+       assertThrows(CartNotFoundException.class , () -> service.addProductToCartWithQuantity( 5L, 5L, 5));
+
+        verify(cartRepository, times(1)).findById(5L);
+
+
+
+
+    }
+
+    @Test
+    @DisplayName("GIVEN a cart Id of a submitted cart WHEN addProductToCartWithQuantity THEN throw already submitted exception")
+    void addProductToCartAlreadySubmitted() throws ProductNotFoundException {
+        Cart cart = new Cart(4L, 1L, Status.SUBMITTED, new BigDecimal(14), BigDecimal.ZERO);
+        ProductDTO product = new ProductDTO(1L, new BigDecimal(3), 5, new BigDecimal(4));
 
         when(cartRepository.findById(any())).thenReturn(Optional.of(cart));
         when(cartRepository.save(any())).thenReturn(cart);
         when(productService.getProductById(any())).thenReturn(product);
 
-        Cart updatedCart = service.addProductToCartWithQuantity(1L, 5L, 5);
-
-        assertThat(updatedCart).isNotNull();
-        assertThat(updatedCart.getId()).isEqualTo(1L);
-        assertThat(updatedCart.getProducts()).containsKey(5L);
-        verify(cartRepository).save(cart);
+        assertThrows(CartIsAlreadySubmittedException.class, () -> {
+            service.addProductToCartWithQuantity(5L, 5L, 10); // Submit the cart
+        });
     }
 
     @Test
-    @DisplayName("GIVEN a list of updated products WHEN we receive updated products THEN upda")
+    @DisplayName("GIVEN a cart Id and products with quantity WHEN addProductToCartWithQuantity THEN add product to cart and check stock")
+    void addProductToCartWithQuantity_NoStock() throws ProductNotFoundException {
+        Cart cart = new Cart(4L, 1L, Status.DRAFT, new BigDecimal(14), BigDecimal.ZERO);
+        ProductDTO product = new ProductDTO(1L, new BigDecimal(3), 5, new BigDecimal(4));
+
+        when(cartRepository.findById(any())).thenReturn(Optional.of(cart));
+        when(cartRepository.save(any())).thenReturn(cart);
+        when(productService.getProductById(any())).thenReturn(product);
+
+        assertThrows(NotEnoughStockException.class, () -> {
+            service.addProductToCartWithQuantity( 5L, 5L, 10); // Submit the cart
+        });
+    }
+
+    @Test
+    @DisplayName("GIVEN userId, cartId, and productId WHEN product is deleted from cart THEN response is OK")
+    void deleteProductFromCart() throws CartNotFoundException, ProductNotFoundException {
+        Long cartId = 1L;
+        Long productId = 1L;
+        Cart cart = new Cart();
+        CartProduct product = new CartProduct(cart, productId, true, 1);
+        when(cartRepository.findById(cartId)).thenReturn(Optional.of(cart));
+        when(cartProductsRepository.findByCartAndProduct(cart, productId)).thenReturn(product);
+
+        service.deleteProductFromCart(cartId, productId);
+
+        verify(cartProductsRepository).delete(product);
+    }
+
+    @Test
+    @DisplayName("GIVEN cartId and non existing productId WHEN product is deleted from cart THEN throws an exception")
+    void deleteProductFromCartThrows() {
+        Long productId = 1L;
+        when(cartRepository.findById(any())).thenReturn(Optional.of(CartsData.createCart001()));
+        when(cartProductsRepository.findByCartAndProduct(CartsData.createCart001(), productId)).thenReturn(null);
+
+        assertThrows(ProductNotFoundException.class, () -> {
+            service.deleteProductFromCart( 5L, 5L); // Submit the cart
+        });
+
+        verify(cartProductsRepository, times(0)).delete(any());
+    }
+
+    @Test
+    @DisplayName("GIVEN a wrong cartId and a productId WHEN product is deleted from cart THEN throws an exception")
+    void deleteProductFromCartThrowsCartNotFound() {
+        when(cartRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(CartNotFoundException.class, () -> {
+            service.deleteProductFromCart( 5L, 5L); // Submit the cart
+        });
+
+        verify(cartProductsRepository, times(0)).delete(any());
+    }
+
+    @Test
+    @DisplayName("GIVEN a list of updated products WHEN we submit the data to the service THEN the products in carts will be updated in database")
     void updateProductsFromCarts() {
         // Create sample data for testing
-        Product product1 = new Product(1L, new BigDecimal("10.0"), new BigDecimal("0.5"), 10);
-        Product product2 = new Product(2L, new BigDecimal("20.0"), new BigDecimal("0.8"), 15);
-
-        Product product1_updated = new Product(2L, new BigDecimal("20.0"), new BigDecimal("0.8"), 15);
-        Product product2_updated = new Product(2L, new BigDecimal("25.0"), new BigDecimal("0.8"), 5);
-
-        Cart cart1 = new Cart(1L, new ArrayList<>(), new HashMap<>(), 1L, Status.DRAFT, new BigDecimal("0.0"), new BigDecimal("0.0"));
-        Cart cart2 = new Cart(2L, new ArrayList<>(), new HashMap<>(), 2L, Status.DRAFT, new BigDecimal("0.0"), new BigDecimal("0.0"));
-
-        cart1.getProducts().put(product1.getId(), 3);
-        cart1.getProducts().put(product2.getId(), 2);
-        cart2.getProducts().put(product1.getId(), 1);
-
-        List<Product> updatedProducts = new ArrayList<>();
-        updatedProducts.add(product1_updated);
-        updatedProducts.add(product2_updated);
+        List<ProductDTO> updatedProducts = new ArrayList<>();
+        updatedProducts.add(new ProductDTO(1L, new BigDecimal("12.99"), 20, new BigDecimal("3")));
+        updatedProducts.add(new ProductDTO(2L, new BigDecimal("19.99"), 2, new BigDecimal("5")));
+        updatedProducts.add(new ProductDTO(3L, new BigDecimal("10.0"), 5, new BigDecimal("1.0")));
 
         // Mock repository behavior
-        when(cartRepository.findCartsByProductIds(anyList())).thenReturn(List.of(cart1, cart2));
-        when(cartRepository.save(any(Cart.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(cartProductsRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        when(cartProductsRepository.findByProductIn(any())).thenReturn(List.of(ProductData.createCartProduct001()));
 
-        // Test the service method
-        List<Cart> updatedCarts = service.updateProductsFromCarts(updatedProducts);
-
+        service.updateProductsFromCarts(updatedProducts);
         // Assertions
-        assertThat(updatedCarts).hasSize(2);
-        assertThat(updatedCarts.get(0).getId()).isEqualTo(1L);
-        assertThat(updatedCarts.get(1).getId()).isEqualTo(2L);
-
-        verify(cartRepository, Mockito.times(2)).save(any(Cart.class));
-        verify(cartRepository, times(2)).save(any());
+        verify(cartProductsRepository, times(1)).save(any(CartProduct.class));
     }
-
-    @Test
-    void applyTaxes() {
-
-    }
-
 
     @Test
     @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
     void deleteCart() {
         // Given
+        when(cartProductsRepository.findAllByCartId(anyLong())).thenReturn(List.of(ProductData.createCartProduct001()));
         doNothing().when(cartRepository).deleteById(1L);
 
         // When
@@ -233,6 +397,7 @@ class ShoppingCartServiceTest {
 
         // Then
         verify(cartRepository).deleteById(1L);
+        verify(cartProductsRepository).delete(any());
     }
 }
 

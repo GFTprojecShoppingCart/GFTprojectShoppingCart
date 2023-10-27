@@ -21,4 +21,16 @@ class ProductNotFoundExceptionTest {
         assertThat(exception.getMessage()).isEqualTo("Products not found in warehouse: [5]");
     }
 
+    @Test
+    void testConstructorWithCustomMessage() {
+        String customMessage = "Product not found with ID:";
+        long customNumber = 42L;
+        customMessage += " " + customNumber;
+        ProductNotFoundException exception = new ProductNotFoundException(customMessage);
+        assertThat(exception)
+            .isNotNull()
+            .hasMessage(customMessage);
+    }
+
+
 }

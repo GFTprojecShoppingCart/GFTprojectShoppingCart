@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.traingft</groupId>
     <artifactId>shoppingcart</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>shoppingcart</name>
     <description>Workshop project for shopping cart management</description>
     <properties>
@@ -97,6 +97,13 @@
             <version>3.12.4</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>3.2.0</version>
+        </dependency>
+        
     </dependencies>
 
     <build>
@@ -106,7 +113,9 @@
              <artifactId>spring-boot-maven-plugin</artifactId>
              <configuration>
                 <excludes>
-                   <exclude>
+                   <!-- <exclude>com/gftproject/shoppingcart/model/**</exclude>
+                    <exclude>com/gftproject/shoppingcart/exceptions/**</exclude>
+-->                   <exclude>
                       <groupId>org.projectlombok</groupId>
                       <artifactId>lombok</artifactId>
                    </exclude>
@@ -116,7 +125,14 @@
            <plugin>
                <groupId>org.jacoco</groupId>
                <artifactId>jacoco-maven-plugin</artifactId>
-               <version>0.7.7.201606060606</version>
+               <version>0.8.10</version>
+
+               <configuration>
+                   <excludes>
+                       <exclude>com/gftproject/shoppingcart/model/**</exclude>
+                   </excludes>
+               </configuration>
+
                <executions>
                    <execution>
                        <goals>

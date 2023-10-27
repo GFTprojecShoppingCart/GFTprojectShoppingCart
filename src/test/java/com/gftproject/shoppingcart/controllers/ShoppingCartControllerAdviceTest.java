@@ -1,8 +1,10 @@
 package com.gftproject.shoppingcart.controllers;
 
 
+import com.gftproject.shoppingcart.exceptions.CartIsAlreadySubmittedException;
 import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
+import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.ErrorResponse;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +33,8 @@ class ShoppingCartControllerAdviceTest {
     @Test
     @DisplayName("GIVEN a NotEnoughStockException WHEN handling the exception in ShoppingCartControllerAdvice THEN it should return a ResponseEntity with the correct error message and status code")
     void testHandleNotEnoughStockException() {
+
+
         // Crear una lista de IDs de productos de ejemplo
         List<Long> productIds = Arrays.asList(1L, 2L, 3L);
 
@@ -55,6 +59,26 @@ class ShoppingCartControllerAdviceTest {
 
     @Test
     @DisplayName("GIVEN a NotEnoughStockException WHEN handling the exception in ShoppingCartControllerAdvice THEN it should return a ResponseEntity with the correct error message and status code")
+    void testCartIsAlreadySubmittedException() {
+
+        Long cartIds = 1L;
+
+        CartIsAlreadySubmittedException exception = new CartIsAlreadySubmittedException(cartIds);
+
+        ResponseEntity<ErrorResponse> responseEntity = controllerAdvice.handleCartIsAlreadySubmittedException(exception);
+
+        assertThat(responseEntity).isNotNull();
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+
+        ErrorResponse errorResponse = responseEntity.getBody();
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getError()).isEqualTo("CART ALREADY SUBMITTED");
+        assertThat(errorResponse.getMessage()).isEqualTo("The selected cart is already closed and cannot be modified: 1");
+    }
+
+    @Test
+    @DisplayName("GIVEN a ProductNotFoundException WHEN handling the exception in ShoppingCartControllerAdvice THEN it should return a ResponseEntity with the correct error message and status code")
     void testHandleProductNotFoundException() {
         ProductNotFoundException exception = new ProductNotFoundException(List.of(1L));
 
@@ -66,6 +90,21 @@ class ShoppingCartControllerAdviceTest {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getError()).isEqualTo("PRODUCT NOT FOUND ERROR");
         assertThat(errorResponse.getMessage()).isEqualTo("Products not found in warehouse: [1]");
+    }
+
+    @Test
+    @DisplayName("GIVEN a UserNotFoundException WHEN handling the exception in ShoppingCartControllerAdvice THEN it should return a ResponseEntity with the correct error message and status code")
+    void testHandleUserNotFoundException() {
+        UserNotFoundException exception = new UserNotFoundException(1L);
+
+        ResponseEntity<ErrorResponse> responseEntity = controllerAdvice.handleUserNotFoundException(exception);
+
+        assertThat(responseEntity).isNotNull();
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        ErrorResponse errorResponse = responseEntity.getBody();
+        assertThat(errorResponse).isNotNull();
+        assertThat(errorResponse.getError()).isEqualTo("USER NOT FOUND ERROR");
+        assertThat(errorResponse.getMessage()).isEqualTo("User not found in warehouse: 1");
     }
 
 }
