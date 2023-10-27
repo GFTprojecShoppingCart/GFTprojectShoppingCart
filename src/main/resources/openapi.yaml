@@ -2,21 +2,18 @@ openapi: 3.0.0
 info:
   title: Shopping Cart
   description: Shopping cart microservice
-  license: 
+  license:
     name: Apache 2.0
     url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
   version: 1.0.1
-  
 tags:
-- name: "Carts"
-  description: "Everything about your carts"
-
+  - name: Carts
+    description: Everything about your carts
 paths:
-
-  /carts/{status}:
+  '/carts/{status}':
     get:
       tags:
-         - Carts
+        - Carts
       summary: carts by status
       description: returns list of carts by status
       operationId: getCartsStatus
@@ -27,112 +24,100 @@ paths:
           schema:
             type: string
       responses:
-        200: 
+        '200':
           description: Ok
           content:
             application/json:
-             schema:
+              schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Cart'
-                  
-        404: 
+        '404':
           description: not found error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-                  
-        500: 
+        '500':
           description: error response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse' 
-  /carts/{id_user}:
-  
+                $ref: '#/components/schemas/ErrorResponse'
+  '/carts/{userId}':
     get:
       tags:
-         - Carts
+        - Carts
       summary: carts by user id
       description: returns list of carts by user id
       operationId: getCartsUserId
       parameters:
-        - name: id_user
+        - name: userId
           in: path
           required: true
           schema:
             type: string
       responses:
-        200: 
+        '200':
           description: Ok
           content:
             application/json:
-             schema:
+              schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Cart'
-                  
-        404: 
+        '404':
           description: not found error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse' 
-                  
-                  
-        500: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
           description: error response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse' 
-          
+                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
-         - Carts
+        - Carts
       summary: add a new  shopping cart
       description: new shopping cart is created
       operationId: createCart
       parameters:
-        - name: id_user
+        - name: userId
           in: path
           required: true
           schema:
             type: integer
             format: long
-
       responses:
-        201: 
+        '201':
           description: New cart is created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Cart'  
-                
-        500: 
+                $ref: '#/components/schemas/Cart'
+        '500':
           description: error response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse' 
-                
-                
-  /submitCart/{id_cart}:         
+                $ref: '#/components/schemas/ErrorResponse'
+  '/submitCart/{cartId}':
     put:
       tags:
-         - Carts
+        - Carts
       summary: Submits a cart
       description: a cart is submitted for purchase
       operationId: submitCart
       parameters:
-        - name: id_cart
+        - name: cartId
           in: path
           required: true
           schema:
             type: integer
             format: long
-            
       requestBody:
         description: show data required to create a show
         required: true
@@ -141,26 +126,23 @@ paths:
             schema:
               $ref: '#/components/schemas/Cart'
       responses:
-        200: 
+        '200':
           description: Cart is updated
-          
-        404: 
+        '404':
           description: Not found error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse' 
+                $ref: '#/components/schemas/ErrorResponse'
               example:
-                msg: "Not found ID"
+                msg: Not found ID
                 error_code: 404
-
-        500: 
+        '500':
           description: error response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-                
   /carts/updateStock:
     put:
       tags:
@@ -178,7 +160,7 @@ paths:
               items:
                 $ref: '#/components/schemas/Product'
       responses:
-        200:
+        '200':
           description: Products updated in multiple carts
           content:
             application/json:
@@ -186,10 +168,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Cart'
-  
-   
-
-  /carts/{id_cart}/addProduct/{id_product}:
+  '/carts/{cartId}/addProduct/{productId}':
     put:
       tags:
         - Carts
@@ -197,14 +176,14 @@ paths:
       description: Create a new product in a cart
       operationId: addProductToCart
       parameters:
-        - name: id_cart
+        - name: cartId
           in: path
           required: true
           schema:
             type: integer
             format: int64
           description: ID of the cart
-        - name: id_product
+        - name: productId
           in: path
           required: true
           schema:
@@ -218,60 +197,95 @@ paths:
             type: integer
           description: Quantity of the product to add
       responses:
-        200:
+        '200':
           description: New product is added to the cart
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Cart'
-        400:
+        '400':
           description: Bad Request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-                
-  /carts/{id_cart}:
+  '/carts/{idCart}':
     delete:
       tags:
-         - Carts
+        - Carts
       summary: deletes a cart
       description: deletes a specific cart
       operationId: deleteCarts
       parameters:
-        - name: id_cart
+        - name: idCart
           in: path
           required: true
           schema:
             type: string
       responses:
-        200: 
+        '200':
           description: Ok
           content:
             application/json:
-             schema:
+              schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Cart'
-                  
-        404: 
+        '404':
           description: not found error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse' 
-                  
-                  
-        500: 
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
           description: error response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-          
+  '/carts/{cartId}/product/{productId}':
+    delete:
+      tags:
+        - Carts
+      summary: deletes a product
+      description: deletes a specific product
+      operationId: deleteProduct
+      parameters:
+        - name: cartId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: long
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: long
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Cart'
+        '404':
+          description: not found error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: error response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 components:
   schemas:
-  
     Cart:
       type: object
       properties:
@@ -315,7 +329,6 @@ components:
         - status
         - finalPrice
         - finalWeight
-            
     Product:
       type: object
       properties:
@@ -347,4 +360,4 @@ components:
         msg:
           type: string
         error_code:
-          type: integer  
+          type: integer
