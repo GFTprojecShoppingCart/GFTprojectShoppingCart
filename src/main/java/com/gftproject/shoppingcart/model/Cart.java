@@ -21,7 +21,6 @@ public class Cart {
     @NotNull(message = "The user ID must be provided")
     private long userId;
 
-
     @Enumerated(EnumType.STRING)
     private Status status;
 

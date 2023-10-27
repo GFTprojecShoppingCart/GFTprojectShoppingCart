@@ -16,11 +16,14 @@ import java.util.stream.Collectors;
 public class CartComputationsService {
 
     private final Map<Double, Double> weightCostMap = new HashMap<>();
+    double defaultValue;
 
     public CartComputationsService(){
         weightCostMap.put(5.0, 5.0);
         weightCostMap.put(10.0, 10.0);
         weightCostMap.put(20.0, 20.0);
+        defaultValue = 50.0;
+
     }
 
     public Pair<BigDecimal, BigDecimal> computeFinalWeightAndPrice(List<CartProduct> cartProducts, List<ProductDTO> warehouseStock) {
@@ -48,8 +51,7 @@ public class CartComputationsService {
                 return weightCostMap.get(threshold);
             }
         }
-        // If no match is found, return a default cost (50.0 in this case)
-        return 50.0;
+        return defaultValue;
     }
 
     public BigDecimal applyTaxes(BigDecimal originalPrice, double weightPercentage, double cardPercentage, double countryPercentage) {
