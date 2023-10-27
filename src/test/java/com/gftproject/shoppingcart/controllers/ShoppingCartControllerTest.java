@@ -8,6 +8,7 @@ import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.CartProduct;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,6 +54,18 @@ class ShoppingCartControllerTest {
         assertThat(response.getBody()).isNotNull().hasSize(4);
         verify(service, never()).findAllByStatus(any());
 
+    }
+
+    @Test
+    @DisplayName("GIVEN a call of controller WHEN findAllByEmptyStatus THEN returns all carts")
+    void findAllByCartId() {
+
+        given(service.findAllByCartId(any())).willReturn(List.of(ProductData.createCartProduct001()));
+
+        ResponseEntity<List<CartProduct>> response = controller.findAllByCartId(1L);
+
+        assertThat(response.getBody()).isNotNull().hasSize(1);
+        verify(service, never()).findAllByStatus(any());
     }
 
     @Test
@@ -153,7 +166,7 @@ class ShoppingCartControllerTest {
 
     @Test
     @DisplayName("GIVEN userId, cartId, and productId WHEN product is deleted from cart THEN response is OK")
-    void deleteProductFromCart() {
+    void deleteProductFromCart() throws CartNotFoundException, ProductNotFoundException {
 
         ResponseEntity<Void> response = controller.deleteProductFromCart(1L, 1L);
 

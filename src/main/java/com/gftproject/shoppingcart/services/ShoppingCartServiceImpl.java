@@ -73,7 +73,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public Cart addProductToCartWithQuantity(long cartId, long productId, int quantity) throws ProductNotFoundException, NotEnoughStockException, CartNotFoundException, CartIsAlreadySubmittedException {
         // Check if the cart exists or create a new one if it doesn't
-        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new CartNotFoundException("Cart not found"));
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new CartNotFoundException("Cart not found" + cartId));
 
         if (cart.getStatus().equals(Status.SUBMITTED)){
             throw new CartIsAlreadySubmittedException(cartId);
@@ -94,8 +94,8 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 cartProduct = new CartProduct(cart, productId, true, quantity);
             }
 
-            cart.setFinalPrice(cart.getFinalPrice().add(product.getPrice()));
-            cart.setFinalWeight(cart.getFinalWeight().add(product.getWeight()));
+            cart.setFinalPrice(product.getPrice().multiply(BigDecimal.valueOf(quantity)).add(cart.getFinalPrice()));
+            cart.setFinalWeight(product.getWeight().multiply(BigDecimal.valueOf(quantity).add(cart.getFinalWeight())));
             // Save the changes to the cart and cartProduct
             cartRepository.save(cart);
             cartProductRepository.save(cartProduct);
@@ -176,10 +176,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     }
 
     @Override
-    public void deleteProductFromCart(Long cartId, Long productId) {
-        Cart cart = cartRepository.findById(cartId).orElseThrow();
+    public void deleteProductFromCart(Long cartId, Long productId) throws CartNotFoundException, ProductNotFoundException {
+        Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new CartNotFoundException("CART NOT FOUND " + cartId));
+
         CartProduct product = cartProductRepository.findByCartAndProduct(cart, productId);
+        if (product == null){
+            throw new ProductNotFoundException("Product not found in cart: " + productId);
+        }
         cartProductRepository.delete(product);
+    }
+
+    @Override
+    public List<CartProduct> findAllByCartId(Long cartId) {
+        return cartProductRepository.findAllByCartId(cartId);
     }
 
     @Override

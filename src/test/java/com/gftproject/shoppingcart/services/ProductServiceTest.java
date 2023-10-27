@@ -108,10 +108,20 @@ class ProductServiceTest {
         List<CartProduct> productList = new ArrayList<>();
         productList.add(new CartProduct(new Cart(), 1L, true, 5));
 
-        ResponseEntity<List<ProductDTO>> mockResponseEntity = new ResponseEntity<>(HttpStatus.NOT_FOUND);
         when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenThrow(new HttpClientErrorException(HttpStatus.NOT_FOUND));
 
         assertThrows(ProductNotFoundException.class, () -> productService.submitPurchase(productList));
+    }
+
+    @Test
+    @DisplayName("GIVEN a list of products WHEN is sent to the microservice THEN throws error if there's not enough stock")
+    void submitPurchaseProductElse() {
+        List<CartProduct> productList = new ArrayList<>();
+        productList.add(new CartProduct(new Cart(), 1L, true, 5));
+
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenThrow(new HttpClientErrorException(HttpStatus.I_AM_A_TEAPOT));
+
+        assertThrows(HttpClientErrorException.class, () -> productService.submitPurchase(productList));
     }
 
     @Test
@@ -123,6 +133,19 @@ class ProductServiceTest {
 
         // Act and Assert
         assertThrows(ProductNotFoundException.class, () -> {
+            productService.getProductById(productId);
+        });
+    }
+
+    @Test
+    @DisplayName("GIVEN a non existing productId WHEN is sent to the microservice THEN throws error")
+    void getProductByIdNotFoundElse() {
+        // Arrange
+        Long productId = 123L;
+        when(restTemplate.exchange(anyString(), eq(HttpMethod.POST), any(HttpEntity.class), any(ParameterizedTypeReference.class))).thenThrow(new HttpClientErrorException(HttpStatus.I_AM_A_TEAPOT));
+
+        // Act and Assert
+        assertThrows(HttpClientErrorException.class, () -> {
             productService.getProductById(productId);
         });
     }

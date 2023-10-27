@@ -119,8 +119,8 @@ public class ShoppingCartMicroServicesTest {
                 .jsonPath("$.id").isNumber()
                 .jsonPath("$.userId").isNumber()
                 .jsonPath("$.status").isEqualTo("DRAFT")
-                .jsonPath("$.finalPrice").isEqualTo(10.00)
-                .jsonPath("$.finalWeight").isEqualTo(0.50);
+                .jsonPath("$.finalPrice").isEqualTo(50.00)
+                .jsonPath("$.finalWeight").isEqualTo(2.50);
 
         
     }
@@ -275,8 +275,8 @@ public class ShoppingCartMicroServicesTest {
                 .jsonPath("$.id").isNumber()
                 .jsonPath("$.userId").isEqualTo(userId)
                 .jsonPath("$.status").isEqualTo("DRAFT")
-                .jsonPath("$.finalPrice").isEqualTo(10.00)
-                .jsonPath("$.finalWeight").isEqualTo(0.50);
+                .jsonPath("$.finalPrice").isEqualTo(50.00)
+                .jsonPath("$.finalWeight").isEqualTo(2.50);
 
 
 

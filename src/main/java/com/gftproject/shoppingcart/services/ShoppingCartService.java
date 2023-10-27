@@ -7,6 +7,7 @@ import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.CartProduct;
 import com.gftproject.shoppingcart.model.ProductDTO;
 import com.gftproject.shoppingcart.model.Status;
 
@@ -30,5 +31,7 @@ public interface ShoppingCartService {
 
     void updateProductsFromCarts(List<ProductDTO> products);
 
-    void deleteProductFromCart(Long cartId, Long productId);
+    void deleteProductFromCart(Long cartId, Long productId) throws CartNotFoundException, ProductNotFoundException;
+
+    List<CartProduct> findAllByCartId(Long cartId);
 }

@@ -1,5 +1,6 @@
 package com.gftproject.shoppingcart.services;
 
+import com.gftproject.shoppingcart.CartsData;
 import com.gftproject.shoppingcart.ProductData;
 import com.gftproject.shoppingcart.exceptions.CartNotFoundException;
 import com.gftproject.shoppingcart.exceptions.CartIsAlreadySubmittedException;
@@ -19,6 +20,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.swing.text.html.Option;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -113,6 +115,20 @@ class ShoppingCartServiceTest {
         //then
         assertThat(allCarts).isNotNull().hasSize(3);
         verify(cartRepository).findAll();
+    }
+
+    @Test
+    @DisplayName("GIVEN the method is called WHEN findAll THEN provide a list of all carts")
+    void findAllByCartId() {
+        //Given
+        when(cartProductsRepository.findAllByCartId(anyLong())).thenReturn(List.of(ProductData.createCartProduct001()));
+
+        //when
+        List<CartProduct> allCarts = service.findAllByCartId(1L);
+
+        //then
+        assertThat(allCarts).isNotNull().hasSize(1);
+        verify(cartProductsRepository).findAllByCartId(anyLong());
     }
 
     @Test
@@ -251,7 +267,7 @@ class ShoppingCartServiceTest {
 
         // Assert
         assertThat(result).isEqualTo(cart);
-        assertThat(result.getFinalPrice()).usingComparator(BigDecimal::compareTo).isEqualTo(BigDecimal.valueOf(10));
+        assertThat(result.getFinalPrice()).usingComparator(BigDecimal::compareTo).isEqualTo(BigDecimal.valueOf(50));
         assertThat(cartProduct.getQuantity()).isEqualTo(quantity);
 
         verify(cartRepository, times(1)).findById(cartId);
@@ -312,7 +328,7 @@ class ShoppingCartServiceTest {
 
     @Test
     @DisplayName("GIVEN userId, cartId, and productId WHEN product is deleted from cart THEN response is OK")
-    void deleteProductFromCart() {
+    void deleteProductFromCart() throws CartNotFoundException, ProductNotFoundException {
         Long cartId = 1L;
         Long productId = 1L;
         Cart cart = new Cart();
@@ -323,6 +339,32 @@ class ShoppingCartServiceTest {
         service.deleteProductFromCart(cartId, productId);
 
         verify(cartProductsRepository).delete(product);
+    }
+
+    @Test
+    @DisplayName("GIVEN cartId and non existing productId WHEN product is deleted from cart THEN throws an exception")
+    void deleteProductFromCartThrows() {
+        Long productId = 1L;
+        when(cartRepository.findById(any())).thenReturn(Optional.of(CartsData.createCart001()));
+        when(cartProductsRepository.findByCartAndProduct(CartsData.createCart001(), productId)).thenReturn(null);
+
+        assertThrows(ProductNotFoundException.class, () -> {
+            service.deleteProductFromCart( 5L, 5L); // Submit the cart
+        });
+
+        verify(cartProductsRepository, times(0)).delete(any());
+    }
+
+    @Test
+    @DisplayName("GIVEN a wrong cartId and a productId WHEN product is deleted from cart THEN throws an exception")
+    void deleteProductFromCartThrowsCartNotFound() {
+        when(cartRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(CartNotFoundException.class, () -> {
+            service.deleteProductFromCart( 5L, 5L); // Submit the cart
+        });
+
+        verify(cartProductsRepository, times(0)).delete(any());
     }
 
     @Test
@@ -347,6 +389,7 @@ class ShoppingCartServiceTest {
     @DisplayName("GIVEN cartId WHEN deleteCart is executed THEN Delete a cart object")
     void deleteCart() {
         // Given
+        when(cartProductsRepository.findAllByCartId(anyLong())).thenReturn(List.of(ProductData.createCartProduct001()));
         doNothing().when(cartRepository).deleteById(1L);
 
         // When
@@ -354,6 +397,7 @@ class ShoppingCartServiceTest {
 
         // Then
         verify(cartRepository).deleteById(1L);
+        verify(cartProductsRepository).delete(any());
     }
 }
 

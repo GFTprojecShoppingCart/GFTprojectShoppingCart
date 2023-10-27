@@ -6,6 +6,7 @@ import com.gftproject.shoppingcart.exceptions.NotEnoughStockException;
 import com.gftproject.shoppingcart.exceptions.ProductNotFoundException;
 import com.gftproject.shoppingcart.exceptions.UserNotFoundException;
 import com.gftproject.shoppingcart.model.Cart;
+import com.gftproject.shoppingcart.model.CartProduct;
 import com.gftproject.shoppingcart.model.ProductDTO;
 import com.gftproject.shoppingcart.model.Status;
 import com.gftproject.shoppingcart.services.ShoppingCartService;
@@ -51,6 +52,12 @@ public class ShoppingCartController {
         return new ResponseEntity<>(cartList, headers, HttpStatus.OK);
     }
 
+    @GetMapping("/cartsProducts/{cartId}")
+    public ResponseEntity<List<CartProduct>> findAllByCartId(@PathVariable Long cartId) {
+
+        return new ResponseEntity<>(service.findAllByCartId(cartId), new HttpHeaders(), HttpStatus.OK);
+    }
+
 
     @PostMapping("/carts/{userId}")
     public ResponseEntity<Cart> createCart(@PathVariable String userId) throws UserNotFoundException {
@@ -88,7 +95,7 @@ public class ShoppingCartController {
     @DeleteMapping("/carts/{cartId}/product/{productId}")
     public ResponseEntity<Void> deleteProductFromCart(
             @PathVariable Long cartId,
-            @PathVariable Long productId) {
+            @PathVariable Long productId) throws CartNotFoundException, ProductNotFoundException {
 
         service.deleteProductFromCart(cartId, productId);
 
@@ -102,7 +109,6 @@ public class ShoppingCartController {
     }
 
     @DeleteMapping("/carts/{idCart}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteShoppingCart(@PathVariable Long idCart) {
         service.deleteCart(idCart);
 
